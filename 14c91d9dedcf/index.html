@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<link rel="stylesheet" href="/css/search.css">
+<script src="/js/jquery-3.4.1.min.js"></script>
+<script src="/js/search.js"></script>
+
+    <meta name="author" content="DengBoCong">
+
+
+    <meta name="subtitle" content="NLP | Deep Learning | Java">
+
+
+
+
+<title>深度学习序列数据处理利器-tokenizer，结合TensorFlow和PyTorch | DengBoCong</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+    
+
+
+<meta name="generator" content="Hexo 5.3.0"></head>
+<body>
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">DengBoCong</a></div>
+            <div class="menu navbar-right">
+                <div class="search" style="float: left; margin-top: 7px;">
+                    <form class="form-search">
+                        <input class="input" placeholder="search content..." autocomplete="off" onchange="inputChange(event)" id="pc-search-input"/>
+                    </form>
+                    <div class="search-btn">
+                        <img src="/image/search.png" class="search-btn-img" />
+                    </div>
+                </div>
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/projects">Projects</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">DengBoCong</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/projects">Projects</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+        <div class="main">
+            <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    document.ready(
+        function () {
+            tocbot.init({
+                tocSelector: '.tocbot-list',
+                contentSelector: '.post-content',
+                headingSelector: 'h1, h2, h3, h4, h5',
+                collapseDepth: 1,
+                orderedList: false,
+                scrollSmooth: true,
+            })
+        }
+    )
+
+    function expand_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 6,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "collapse_toc()");
+        b.innerHTML = "Collapse all"
+    }
+
+    function collapse_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 1,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "expand_toc()");
+        b.innerHTML = "Expand all"
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">深度学习序列数据处理利器-tokenizer，结合TensorFlow和PyTorch</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">DengBoCong</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">November 15, 2020&nbsp;&nbsp;13:41:19</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E9%82%A3%E4%BA%9B%E7%A2%8E%E7%A2%8E%E5%BF%B5/">深度学习那些碎碎念</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <blockquote>
+<p>Github：本文代码放在该项目中：<a target="_blank" rel="noopener" href="https://github.com/DengBoCong/nlp-paper">NLP相关Paper笔记和代码复现</a><br>说明：讲解时会对相关文章资料进行思想、结构、优缺点，内容进行提炼和记录，相关引用会标明出处，引用之处如有侵权，烦请告知删除。<br>转载请注明：DengBoCong</p>
+</blockquote>
+<p>这里我们来好好探讨一下深度学习中，专门用于序列数据处理的Tokenizer，它可以帮助我们快速的建立词汇表字典，并提供了各种方法，针对文本和序列之间的转换，极大的方便的使用。TensorFlow中有keras实现的Tokenizer，而PyTorch本身是没有Tokenizer，但是我们可以通过引入torchtext或torchnlp库达到同样的效果，本文将对这几种工具的分词器部分的使用进行说明讲解。使用到的计算框架版本如下：</p>
+<ul>
+<li>TensorFlow：2.3.1</li>
+<li>PyTorch：1.7.0</li>
+<li>torchtext：0.8.0</li>
+<li>torchnlp：0.5.0</li>
+</ul>
+<p>这里我想多提一点，可能有助于后面内容的理解。我研究了这些分词器的源码，其实内部实现并不是很复杂，除了torchtext特殊一点（所以它也是使用起来最复杂的一个），torchtext不仅仅是分词器的作用，它还同时做了词嵌入，所以你使用它的时候可以选择用何种预训练词嵌入模型，如果词汇数量够多，你甚至可以直接使用内置的词向量嵌入数据，复杂但是功能齐全.</p>
+<p>而torchnlp和Tokenizer则是通过维护一个内部词汇表，不过区别在于，torchnlp内部表有两个，分别是index_to_token和token_to_index，一个是list，一个是dict，词汇的分布则是按照token出现的顺序进行编码的。而Tokenizer同样也有两个，一个是word_index和index_word，都是dict，不过它们维护的词汇分布则是按照词汇的频率由高到低，相同频率则按照出现顺序进行编码的。</p>
+<p>本文主要讲解使用方法，不讲解内部原理，有兴趣的可以去看看它们的源码实现，逻辑性还是很清晰的，看着很舒服。</p>
+<h1 id="TensorFlow中的Tokenizer"><a href="#TensorFlow中的Tokenizer" class="headerlink" title="TensorFlow中的Tokenizer"></a>TensorFlow中的Tokenizer</h1><p>其实相对而言，使用Keras的Tokenizer比较顺畅，一种丝滑的感觉（封装的比较完整），使用它我们可以对文本进行预处理，序列化，向量化等。Tokenizer基于矢量化语料库、单词数、TF-IDF等，将每个文本转换为整数序列（每个整数是字典中标记的索引）或转换成矢量（其中每个标记的系数可以是二进制的）。</p>
+<p><a target="_blank" rel="noopener" href="https://www.tensorflow.org/api_docs/python/tf/keras/preprocessing/text/Tokenizer">Tokenizer</a><br>​</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">www.tensorflow.org</span><br><span class="line">tf.keras.preprocessing.text.Tokenizer(</span><br><span class="line">    num_words=<span class="literal">None</span>, filters=<span class="string">&#x27;!&quot;#$%&amp;()*+,-./:;&lt;=&gt;?@[\\]^_`&#123;|&#125;~\t\n&#x27;</span>, lower=<span class="literal">True</span>,</span><br><span class="line">    split=<span class="string">&#x27; &#x27;</span>, char_level=<span class="literal">False</span>, oov_token=<span class="literal">None</span>, document_count=<span class="number">0</span>, **kwargs</span><br><span class="line">)</span><br><span class="line">参数：</span><br><span class="line">	num_words：根据单词频率，保留的最大单词数。仅保留最常见的num_words-<span class="number">1</span>个单词，也就是保留前num_words-<span class="number">1</span>个频率高的单词，不会影响内部词汇表的大小，但是会限制text和sequence转换的词汇量大小。</span><br><span class="line">	filters：一个字符串（注意，不是正则表达式字符串哦），其中每个元素都是将从文本中过滤掉的字符。默认值为所有标点符号，加上制表符和换行符，再减去<span class="string">&#x27;字符。</span></span><br><span class="line"><span class="string">	lower：bool类型，是否将文本转换为小写。</span></span><br><span class="line"><span class="string">	split：字符串，分隔词的分隔符，用于split()方法。</span></span><br><span class="line"><span class="string">	char_level：如果为True，则每个字符都将被视为token。</span></span><br><span class="line"><span class="string">	oov_token：如果给定的话，它将被添加到word_index中，并在text_to_sequence调用期间用于替换词汇外的单词，字典中的编码一直都是第一个。</span></span><br></pre></td></tr></table></figure>
+<p>默认情况下，Tokenizer将删除所有标点符号，从而将文本转换为以空格分隔的单词序列（单词可能包含<code>&#39;</code>字符）。 然后将这些序列分为token列表，然后将它们编码索引或向量化。注意了，<code>0</code>是一个保留索引，不会分配给任何单词。下面通过调用代码以及输出效果直观的展示用法，也能体会深刻，具体方法的参数和含义，自行查看官方文档：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">text = [</span><br><span class="line">  <span class="string">&quot;你 去 那儿 竟然 不喊 我 生气 了&quot;</span>,</span><br><span class="line">  <span class="string">&quot;道歉 ！ ！ 再有 时间 找 你 去&quot;</span></span><br><span class="line"> ]</span><br><span class="line"></span><br><span class="line">tokenizer = tf.keras.preprocessing.text.Tokenizer(oov_token=<span class="string">&#x27;&lt;UNK&gt;&#x27;</span>, num_words=<span class="literal">None</span>)</span><br><span class="line">tokenizer.fit_on_texts(text) <span class="comment">#text可以是字符串列表，字符串生成器（以提高内存效率）或字符串的列表的列表。</span></span><br><span class="line">print(tokenizer.word_counts)</span><br><span class="line"><span class="comment">#OrderedDict([(&#x27;你&#x27;, 2), (&#x27;去&#x27;, 2), (&#x27;那儿&#x27;, 1), (&#x27;竟然&#x27;, 1), (&#x27;不喊&#x27;, 1), (&#x27;我&#x27;, 1), (&#x27;生气&#x27;, 1), (&#x27;了&#x27;, 1), (&#x27;道歉&#x27;, 1), (&#x27;！&#x27;, 2), (&#x27;再有&#x27;, 1), (&#x27;时间&#x27;, 1), (&#x27;找&#x27;, 1)])</span></span><br><span class="line"><span class="comment"># 单词计数，按次数排序</span></span><br><span class="line">print(tokenizer.word_index)</span><br><span class="line"><span class="comment">#&#123;&#x27;&lt;UNK&gt;&#x27;: 1, &#x27;你&#x27;: 2, &#x27;去&#x27;: 3, &#x27;！&#x27;: 4, &#x27;那儿&#x27;: 5, &#x27;竟然&#x27;: 6, &#x27;不喊&#x27;: 7, &#x27;我&#x27;: 8, &#x27;生气&#x27;: 9, &#x27;了&#x27;: 10, &#x27;道歉&#x27;: 11, &#x27;再有&#x27;: 12, &#x27;时间&#x27;: 13, &#x27;找&#x27;: 14&#125;</span></span><br><span class="line">print(tokenizer.index_word)</span><br><span class="line"><span class="comment">#&#123;1: &#x27;&lt;UNK&gt;&#x27;, 2: &#x27;你&#x27;, 3: &#x27;去&#x27;, 4: &#x27;！&#x27;, 5: &#x27;那儿&#x27;, 6: &#x27;竟然&#x27;, 7: &#x27;不喊&#x27;, 8: &#x27;我&#x27;, 9: &#x27;生气&#x27;, 10: &#x27;了&#x27;, 11: &#x27;道歉&#x27;, 12: &#x27;再有&#x27;, 13: &#x27;时间&#x27;, 14: &#x27;找&#x27;&#125;</span></span><br><span class="line">print(tokenizer.num_words)</span><br><span class="line"><span class="comment">#None，它不会影响内部词汇表的大小，但是会限制text和sequence转换的词汇量大小</span></span><br><span class="line">print(tokenizer.document_count)</span><br><span class="line"><span class="comment">#2，输出的是传入序列的数量</span></span><br><span class="line">print(tokenizer.index_docs)</span><br><span class="line"><span class="comment">#defaultdict(&lt;class &#x27;int&#x27;&gt;, &#123;8: 1, 7: 1, 2: 2, 9: 1, 10: 1, 6: 1, 5: 1, 3: 2, 13: 1, 12: 1, 11: 1, 4: 1, 14: 1&#125;)</span></span><br><span class="line"><span class="comment">#每个词汇的次数，以索引为key</span></span><br><span class="line">print(tokenizer.word_docs)</span><br><span class="line"><span class="comment"># defaultdict(&lt;class &#x27;int&#x27;&gt;, &#123;&#x27;我&#x27;: 1, &#x27;不喊&#x27;: 1, &#x27;你&#x27;: 2, &#x27;生气&#x27;: 1, &#x27;了&#x27;: 1, &#x27;竟然&#x27;: 1, &#x27;那儿&#x27;: 1, &#x27;去&#x27;: 2, &#x27;时间&#x27;: 1, &#x27;再有&#x27;: 1, &#x27;道歉&#x27;: 1, &#x27;！&#x27;: 1, &#x27;找&#x27;: 1&#125;)</span></span><br><span class="line"><span class="comment"># 每个词汇的次数，以单词为key</span></span><br><span class="line">print(tokenizer.texts_to_sequences(text))</span><br><span class="line"><span class="comment"># [[2, 3, 5, 6, 7, 8, 9, 10], [11, 4, 4, 12, 13, 14, 2, 3]]</span></span><br><span class="line"><span class="comment"># 如果设置了num_words为5，则只能转换前4个频率最高的单词，其余为&lt;UNK&gt;，输出如下：</span></span><br><span class="line"><span class="comment">#[[2, 3, 1, 1, 1, 1, 1, 1], [1, 4, 4, 1, 1, 1, 2, 3]]</span></span><br><span class="line">print(tokenizer.texts_to_matrix(text, <span class="string">&quot;binary&quot;</span>))</span><br><span class="line"><span class="comment"># &quot;binary&quot;, &quot;count&quot;, &quot;tfidf&quot;, &quot;freq&quot;</span></span><br><span class="line"><span class="comment"># [[0. 0. 1. 1. 0. 1. 1. 1. 1. 1. 1. 0. 0. 0. 0.]</span></span><br><span class="line"><span class="comment"># [0. 0. 1. 1. 1. 0. 0. 0. 0. 0. 0. 1. 1. 1. 1.]]</span></span><br><span class="line"><span class="comment"># binary：one-hot编码，count:计数编码，tfidf：词频-逆文档频率编码，freq：频率</span></span><br><span class="line"></span><br><span class="line">sequence = [[<span class="number">2</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>], [<span class="number">11</span>, <span class="number">4</span>, <span class="number">4</span>, <span class="number">12</span>, <span class="number">13</span>, <span class="number">14</span>, <span class="number">2</span>, <span class="number">3</span>]]</span><br><span class="line">print(tokenizer.sequences_to_matrix(sequence))</span><br><span class="line"><span class="comment">#[[0. 0. 1. 1. 0. 1. 1. 1. 1. 1. 1. 0. 0. 0. 0.]</span></span><br><span class="line"><span class="comment"># [0. 0. 1. 1. 1. 0. 0. 0. 0. 0. 0. 1. 1. 1. 1.]]</span></span><br><span class="line"><span class="comment">#&quot;binary&quot;, &quot;count&quot;, &quot;tfidf&quot;, &quot;freq&quot;</span></span><br><span class="line">print(tokenizer.sequences_to_texts(sequence))</span><br><span class="line"><span class="comment">#[&#x27;你 去 那儿 竟然 不喊 我 生气 了&#x27;, &#x27;道歉 ！ ！ 再有 时间 找 你 去&#x27;]</span></span><br></pre></td></tr></table></figure>
+<h1 id="torchnlp"><a href="#torchnlp" class="headerlink" title="torchnlp"></a>torchnlp</h1><p>PyTorch-NLP是Python中的自然语言处理（NLP）库。 它是根据最新的研究成果而构建的，从一开始就旨在支持快速原型设计。 PyTorch-NLP带有预训练的嵌入，采样器，数据集加载器，度量，神经网络模块和文本编码器。编码方法里面很多，这里使用比较典型的<code>StaticTokenizerEncoder</code>进行说明。</p>
+<p><a target="_blank" rel="noopener" href="https://pytorchnlp.readthedocs.io/en/latest/index.html">Welcome to Pytorch-NLP’s documentation!</a><br>​</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">pytorchnlp.readthedocs.io</span><br><span class="line">torchnlp.encoders.text.StaticTokenizerEncoder(</span><br><span class="line">	sample, min_occurrences=<span class="number">1</span>, append_sos=<span class="literal">False</span>, append_eos=<span class="literal">False</span>, tokenize=&lt;function _tokenize&gt;, </span><br><span class="line">	detokenize=&lt;function _detokenize&gt;, reserved_tokens=[<span class="string">&#x27;&lt;pad&gt;&#x27;</span>, <span class="string">&#x27;&lt;unk&gt;&#x27;</span>, <span class="string">&#x27;&lt;/s&gt;&#x27;</span>, <span class="string">&#x27;&lt;s&gt;&#x27;</span>, <span class="string">&#x27;&lt;copy&gt;&#x27;</span>], </span><br><span class="line">	sos_index=<span class="number">3</span>, eos_index=<span class="number">2</span>, unknown_index=<span class="number">1</span>, padding_index=<span class="number">0</span>, **kwargs</span><br><span class="line">)</span><br><span class="line">参数：</span><br><span class="line">	sample: 用于构建编码字典的数据样本</span><br><span class="line">	min_occurrences (<span class="built_in">int</span>, optional): 要添加到编码字典中的token的最小出现次数。</span><br><span class="line">tokenize (<span class="built_in">callable</span>): 序列的分词方法</span><br><span class="line">detokenize (<span class="built_in">callable</span>): 序列的token合并方法</span><br><span class="line">append_sos (<span class="built_in">bool</span>, optional): 如果为<span class="literal">True</span>，则在编码向量中插入SOS token。</span><br><span class="line">append_eos (<span class="built_in">bool</span>, optional): 如果为<span class="literal">True</span>，则在编码向量中插入EOS token。</span><br><span class="line">reserved_tokens (<span class="built_in">list</span> of <span class="built_in">str</span>, optional): 将保留标记列表插入字典开头。</span><br><span class="line">sos_index (<span class="built_in">int</span>, optional): sos token用于编码序列的开头，即token所在的索引。</span><br><span class="line">eos_index (<span class="built_in">int</span>, optional): eos token用于编码序列的开头，即token所在的索引。</span><br><span class="line">unknown_index (<span class="built_in">int</span>, optional): unk token用于编码序列的开头，即token所在的索引。</span><br><span class="line">padding_index (<span class="built_in">int</span>, optional): pad token用于编码序列的开头，即token所在的索引。</span><br><span class="line">batch (<span class="built_in">list</span> of torch.Tensor): 编码序列的batch大小</span><br><span class="line">lengths (torch.Tensor): 编码序列中，序列的长度列表</span><br><span class="line">dim (<span class="built_in">int</span>, optional): 指定分隔的序列维度</span><br></pre></td></tr></table></figure>
+<p>传给<code>StaticTokenizerEncoder</code>的sample是一个序列列表，这个和在Tokenizer中的是差不多的，<code>tokenize</code>和Tokenizer中的<code>split</code>是类似的功能，只不过<code>tokenize</code>传入的是方法，<code>StaticTokenizerEncoder</code>内部有一个初始化的token列表，长这样：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[<span class="string">&#x27;&lt;pad&gt;&#x27;</span>, <span class="string">&#x27;&lt;unk&gt;&#x27;</span>, <span class="string">&#x27;&lt;/s&gt;&#x27;</span>, <span class="string">&#x27;&lt;s&gt;&#x27;</span>, <span class="string">&#x27;&lt;copy&gt;&#x27;</span>]</span><br></pre></td></tr></table></figure>
+<p>然后添加进来的序列就在其末尾进行顺序的补入，还有要说的就是，如果上面关于sos、eos等等的参数没有特别指定，就直接使用这个初始化列表里面的token。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">texts = [</span><br><span class="line">  <span class="string">&quot;你 去 那儿 竟然 不喊 我 生气 了&quot;</span>,</span><br><span class="line">  <span class="string">&quot;道歉 ！ ！ 再有 时间 找 你 去&quot;</span></span><br><span class="line"> ]</span><br><span class="line"></span><br><span class="line">tokenizer = StaticTokenizerEncoder(sample=texts, tokenize=<span class="keyword">lambda</span> x: x.split())</span><br><span class="line">print(tokenizer.index_to_token)</span><br><span class="line"><span class="comment"># [&#x27;&lt;pad&gt;&#x27;, &#x27;&lt;unk&gt;&#x27;, &#x27;&lt;/s&gt;&#x27;, &#x27;&lt;s&gt;&#x27;, &#x27;&lt;copy&gt;&#x27;, &#x27;你&#x27;, &#x27;去&#x27;, &#x27;那儿&#x27;, &#x27;竟然&#x27;, &#x27;不喊&#x27;, &#x27;我&#x27;, &#x27;生气&#x27;, &#x27;了&#x27;, &#x27;道歉&#x27;, &#x27;！&#x27;, &#x27;再有&#x27;, &#x27;时间&#x27;, &#x27;找&#x27;]</span></span><br><span class="line"><span class="comment"># 编码就是按照它的list索引进行的</span></span><br><span class="line">print(tokenizer.token_to_index)</span><br><span class="line"><span class="comment"># &#123;&#x27;&lt;pad&gt;&#x27;: 0, &#x27;&lt;unk&gt;&#x27;: 1, &#x27;&lt;/s&gt;&#x27;: 2, &#x27;&lt;s&gt;&#x27;: 3, &#x27;&lt;copy&gt;&#x27;: 4, &#x27;你&#x27;: 5, &#x27;去&#x27;: 6, &#x27;那儿&#x27;: 7, &#x27;竟然&#x27;: 8, &#x27;不喊&#x27;: 9, &#x27;我&#x27;: 10, &#x27;生气&#x27;: 11, &#x27;了&#x27;: 12, &#x27;道歉&#x27;: 13, &#x27;！&#x27;: 14, &#x27;再有&#x27;: 15, &#x27;时间&#x27;: 16, &#x27;找&#x27;: 17&#125;</span></span><br><span class="line">print(tokenizer.vocab)</span><br><span class="line"><span class="comment"># [&#x27;&lt;pad&gt;&#x27;, &#x27;&lt;unk&gt;&#x27;, &#x27;&lt;/s&gt;&#x27;, &#x27;&lt;s&gt;&#x27;, &#x27;&lt;copy&gt;&#x27;, &#x27;你&#x27;, &#x27;去&#x27;, &#x27;那儿&#x27;, &#x27;竟然&#x27;, &#x27;不喊&#x27;, &#x27;我&#x27;, &#x27;生气&#x27;, &#x27;了&#x27;, &#x27;道歉&#x27;, &#x27;！&#x27;, &#x27;再有&#x27;, &#x27;时间&#x27;, &#x27;找&#x27;]</span></span><br><span class="line">print(tokenizer.vocab_size)</span><br><span class="line"><span class="comment"># 18</span></span><br><span class="line">print([tokenizer.encode(text) <span class="keyword">for</span> text <span class="keyword">in</span> texts])</span><br><span class="line"><span class="comment"># [tensor([ 5,  6,  7,  8,  9, 10, 11, 12]), tensor([13, 14, 14, 15, 16, 17,  5,  6])]</span></span><br><span class="line"><span class="comment"># 你会发现返回的是一个torch.tensor的列表，你如果想要整理成一个array的Tensor，使用如下方法</span></span><br><span class="line">print(stack_and_pad_tensors([tokenizer.encode(text) <span class="keyword">for</span> text <span class="keyword">in</span> texts]))</span><br><span class="line"><span class="comment"># BatchedSequences(tensor=tensor([[ 5,  6,  7,  8,  9, 10, 11, 12],</span></span><br><span class="line"><span class="comment">#         [13, 14, 14, 15, 16, 17,  5,  6]]), lengths=tensor([8, 8]))</span></span><br><span class="line">print(stack_and_pad_tensors([tokenizer.encode(text) <span class="keyword">for</span> text <span class="keyword">in</span> texts])[<span class="number">0</span>])</span><br><span class="line"><span class="comment"># tensor([[ 5,  6,  7,  8,  9, 10, 11, 12],</span></span><br><span class="line"><span class="comment">#         [13, 14, 14, 15, 16, 17,  5,  6]])</span></span><br></pre></td></tr></table></figure>
+<h1 id="torchtext"><a href="#torchtext" class="headerlink" title="torchtext"></a>torchtext</h1><p>torchtext库是PyTorch项目的一部分，和torchvision等一样，和torch核心库分离开，从torchtext这个名字我们也能大概猜到该库是pytorch圈中用来预处理文本数据集的库，torchtext在文本数据预处理方面特别强大。使用它来对文本数据进行预处理简直不要太方便，提供了非常多的API使用。当然本文主要是说明文本序列转换方面的，具体torchtext的完整使用，就不做赘述，想要深入了解的可以参考其官方文档。</p>
+<p><a target="_blank" rel="noopener" href="https://pytorch.org/text/stable/index.html">TorchText</a><br>​<br>我这里简单的概括一下它在数据预处理方面的简单流程，让你有个简单的了解。<br><img src="https://pic4.zhimg.com/80/v2-327ae85e5c64443a7faa8a721b283307_720w.jpg" alt="在这里插入图片描述"></p>
+<ul>
+<li>Train/Validation/Test数据集分割</li>
+<li>文件数据导入（File Loading）</li>
+<li>分词（Tokenization） 文本字符串切分为词语列表</li>
+<li>构建词典(Vocab) 根据训练的预料数据集构建词典</li>
+<li>数字映射(Numericalize/Indexify) 根据词典，将数据从词语映射成数字，方便机器学习</li>
+<li>导入预训练好的词向量(word vector)</li>
+<li>分批(Batch) 数据集太大的话，不能一次性让机器读取，否则机器会内存崩溃。解决办法就是将大的数据集分成更小份的数据集，分批处理</li>
+<li>向量映射（Embedding Lookup） 根据预处理好的词向量数据集，将5的结果中每个词语对应的索引值变成 词语向量</li>
+</ul>
+<p>除了第一步和最后一步需要我们使用其他库或者自己编写方法外，其他所有的步骤，torchtext都提供了API。言归正传，说会文本数据转换。如果你使用上面的预处理流程，就可以得到关于贴合原数据的向量序列。这里我就不说这种方法，我这里说一下，使用现有字典或预训练模型进行转换的方法。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">torchtext.data.functional.sentencepiece_numericalizer(sp_model)</span><br><span class="line">sp_id_generator = sentencepiece_numericalizer(sp_model)</span><br><span class="line">list_a = [<span class="string">&quot;sentencepiece encode as pieces&quot;</span>, <span class="string">&quot;examples to   try!&quot;</span>]</span><br><span class="line"><span class="built_in">list</span>(sp_id_generator(list_a))</span><br><span class="line"><span class="comment">#[[9858, 9249, 1629, 1305, 1809, 53, 842], [2347, 13, 9, 150, 37]]</span></span><br><span class="line"></span><br><span class="line">torchtext.data.functional.numericalize_tokens_from_iterator(vocab, iterator, removed_tokens=<span class="literal">None</span>)</span><br><span class="line">vocab = &#123;<span class="string">&#x27;Sentencepiece&#x27;</span> : <span class="number">0</span>, <span class="string">&#x27;encode&#x27;</span> : <span class="number">1</span>, <span class="string">&#x27;as&#x27;</span> : <span class="number">2</span>, <span class="string">&#x27;pieces&#x27;</span> : <span class="number">3</span>&#125;</span><br><span class="line">ids_iter = numericalize_tokens_from_iterator(vocab,</span><br><span class="line">                             simple_space_split([<span class="string">&quot;Sentencepiece as pieces&quot;</span>,</span><br><span class="line">                                              <span class="string">&quot;as pieces&quot;</span>]))</span><br><span class="line"><span class="keyword">for</span> ids <span class="keyword">in</span> ids_iter:</span><br><span class="line">    print([num <span class="keyword">for</span> num <span class="keyword">in</span> ids])</span><br><span class="line"><span class="comment">#[0, 2, 3]</span></span><br><span class="line"><span class="comment">#[2, 3]</span></span><br></pre></td></tr></table></figure>
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>DengBoCong</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="http://dengbocong.cn/14c91d9dedcf/">http://dengbocong.cn/14c91d9dedcf/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Licensed under the Apache License, Version 2.0 (the "License")</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Stay hungry, Stay foolish.</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/%E8%AF%8D%E8%A2%8B/"># 词袋</a>
+                    
+                        <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/"># 深度学习</a>
+                    
+                        <a href="/tags/TensorFlow/"># TensorFlow</a>
+                    
+                        <a href="/tags/PyTorch/"># PyTorch</a>
+                    
+                        <a href="/tags/Tokenizer/"># Tokenizer</a>
+                    
+                        <a href="/tags/%E5%88%86%E8%AF%8D%E5%99%A8/"># 分词器</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/86116a512b8e/">论文阅读笔记：大模型指导小模型--ProjectionNet的联合框架</a>
+            
+            
+            <a class="next" rel="next" href="/64d1bd606b34/">论文阅读笔记：需要推理的MuTual多轮对话数据集</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+        </div>
+        <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Copyright 2021 DengBoCong. All Rights Reserved. 赣ICP备20002291号</span>
+    </div>
+</footer>
+
+    </div>
+    <div id="u-search">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="container">
+                    <form id="u-search-modal-form" class="u-search-modal-form">
+                        <button type="submit" class="form-submit-btn">
+                            <img src="/image/search.png" class="search-btn-img" />
+                        </button>
+                        <input placeholder="请输入关键字搜索文章..." class="form-input" onchange="inputChange(event)" id="modal-form-input">
+                    </form>
+                    <a class="modal-close">x</a>
+                </div>
+                <div class="search-loading">
+                    <div class="search-loading-bar"></div>
+                </div>
+            </div>
+            <div class="modal-body">
+            </div>
+        </div>
+        <div class="modal-overlay"></div>
+    </div>
+</body>
+</html>

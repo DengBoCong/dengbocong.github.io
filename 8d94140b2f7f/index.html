@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<link rel="stylesheet" href="/css/search.css">
+<script src="/js/jquery-3.4.1.min.js"></script>
+<script src="/js/search.js"></script>
+
+    <meta name="author" content="DengBoCong">
+
+
+    <meta name="subtitle" content="NLP | Deep Learning | Java">
+
+
+
+
+<title>深度学习矩阵乘法的终极奥义einsum，结合多个计算框架上的使用 | DengBoCong</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+    
+
+
+<meta name="generator" content="Hexo 5.3.0"></head>
+<body>
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">DengBoCong</a></div>
+            <div class="menu navbar-right">
+                <div class="search" style="float: left; margin-top: 7px;">
+                    <form class="form-search">
+                        <input class="input" placeholder="search content..." autocomplete="off" onchange="inputChange(event)" id="pc-search-input"/>
+                    </form>
+                    <div class="search-btn">
+                        <img src="/image/search.png" class="search-btn-img" />
+                    </div>
+                </div>
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/projects">Projects</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">DengBoCong</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/projects">Projects</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+        <div class="main">
+            <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    document.ready(
+        function () {
+            tocbot.init({
+                tocSelector: '.tocbot-list',
+                contentSelector: '.post-content',
+                headingSelector: 'h1, h2, h3, h4, h5',
+                collapseDepth: 1,
+                orderedList: false,
+                scrollSmooth: true,
+            })
+        }
+    )
+
+    function expand_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 6,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "collapse_toc()");
+        b.innerHTML = "Collapse all"
+    }
+
+    function collapse_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 1,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "expand_toc()");
+        b.innerHTML = "Expand all"
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">深度学习矩阵乘法的终极奥义einsum，结合多个计算框架上的使用</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">DengBoCong</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">November 9, 2020&nbsp;&nbsp;21:27:56</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E9%82%A3%E4%BA%9B%E7%A2%8E%E7%A2%8E%E5%BF%B5/">深度学习那些碎碎念</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><blockquote>
+<p>说明：讲解时会对相关文章资料进行思想、结构、优缺点，内容进行提炼和记录，相关引用会标明出处，引用之处如有侵权，烦请告知删除。<br>转载请注明：DengBoCong</p>
+</blockquote>
+<p>这里我们来好好探讨一下深度学习中，矩阵乘法的使用，其实主要是围绕einsum来进行探讨，即通过爱因斯坦求和约定来指导矩阵乘法，同时附带陈列其他矩阵乘法的API，方便进行直观感受。本文中的计算框架及版本如下：</p>
+<ul>
+<li>TensorFlow2.3</li>
+<li>PyTorch1.7.0</li>
+<li>Numpy1.19</li>
+</ul>
+<h1 id="爱因斯坦求和约定"><a href="#爱因斯坦求和约定" class="headerlink" title="爱因斯坦求和约定"></a>爱因斯坦求和约定</h1><p>我们讨论einsum绕不开爱因斯坦求和约定的，爱因斯坦求和约定（Einstein summation convention）是一种标记的约定，又称为爱因斯坦标记法（Einstein notation），在处理关于坐标的方程式时非常有用，用一句话来总结爱因斯坦求和约定，就是：</p>
+<blockquote>
+<p>当式子中任何一个角标出现了两次，并且一次是上标、一次是下标时，那么该式表示的实际上是对这个角标一切可能值的求和。换言之，如果角标 $i$ 作为上标和下标各出现了一次，那么式子相当于添加了一个关于 $i$ 的求和符号</p>
+</blockquote>
+<p>我们下面使用线性函数和矩阵运算来对爱因斯坦求和约定进行举例说明：</p>
+<ul>
+<li>线性函数：从张量中我们知道，一个1-线性函数可以表示为一个向量，这样的向量常被称为余向量、补向量或者1-形式。通常，我们用下标来表示一个余向量的各分量：$a=(a_1,a_2,a_3)$ ，而用上标来表示一个通常的几何向量：$v=(v^1,v^2,v^3)$。注意，上标不是乘方，则 $a$ 和 $v$ 的内积是：<br>$$\sum_{i=1,2,3}^{}a_iv^i$$<br>用爱因斯坦求和约定， $a$ 和 $v$ 的内积就可以写为 $a_iv^i$</li>
+<li>矩阵运算：对于矩阵 $A$，我们把其第 $i$ 行第 $j$ 列的元素表示为 $A_j^i$。则矩阵乘法表示为：如果 $A=BC$，那么 $A_j^i=B_k^iC_j^k$。矩阵 $A$ 的迹为 $A_i^i$</li>
+</ul>
+<p>由于重复出现而实际上应该是求和的指标，被称为赝指标或者哑指标（dummy index），因为它们不是真正的指标，而是可以用任意字母代替的。没有求和的指标是固定的，是真正的指标．比如说 $B_k^iC_j^k$ 中 $k$ 可以是任何字母，但是 $i$ 和 $j$ 是不可以替换成别的字母的，因为它们由 $A_j^i$ 决定了。在这里，哑指标实际上是表示遍历全部可能的真指标。</p>
+<p>爱因斯坦求和约定的表示方法脱胎于矩阵乘法的要求，但是却不依赖于矩阵行和列的形式，转而关注指标间的配合，相比传统的矩阵表达，能更方便地推广到高阶张量的情形中。本文关于爱因斯坦求和约定的相关点到为止，如果感兴趣其公式，可以参考这一篇文章：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/46006162">爱因斯坦求和约定</a>。</p>
+<h1 id="einsum介绍"><a href="#einsum介绍" class="headerlink" title="einsum介绍"></a>einsum介绍</h1><p>通过使用einsum函数，我们可以使用爱因斯坦求和约定（Einstein summation convention）在NumPy数组上指定操作。einsum函数由于其强大的表现力和智能循环，它在速度和内存效率方面通常可以超越我们常见的array函数。但缺点是，可能需要一段时间才能理解符号，有时需要尝试才能将其正确的应用于棘手的问题，当然熟悉之后得心应手才是使用关键。</p>
+<p>einsum以一种优雅的方式，表示各种矩阵运算，好处在于你不需要去记和使用计算框架中（TensorFlow|PyTorch|Numpy）点积、外积、转置、矩阵-向量乘法、矩阵-矩阵乘法的函数名字和签名。从某种程度上解决引入不必要的张量变形或转置运算，以及可以省略的中间张量的现象。不仅如此，einsum有时可以编译到高性能代码，事实上，PyTorch最近引入的能够自动生成GPU代码并为特定输入尺寸自动调整代码的张量理解（Tensor Comprehensions）就基于类似einsum的领域特定语言。此外，可以使用opt einsum和tf einsum opt这样的项目优化einsum表达式的构造顺序。</p>
+<p>假设我们有两个多维数组A和B，现在让我们要进行如下操作：</p>
+<ul>
+<li>以特定方式将A与B相乘以创建新的乘积数组</li>
+<li>沿特定轴求和该新数组</li>
+<li>以特定顺序转置新数组的轴</li>
+</ul>
+<p>einsum帮助我们更快，更高效地执行此操作，当然，NumPy函数的组合（例如multiply，sum和transpose）也可以实现。</p>
+<h1 id="einsum应用"><a href="#einsum应用" class="headerlink" title="einsum应用"></a>einsum应用</h1><p>我们在这一节用Numpy的einsum进行讲解说明（Numpy中einsum先被开发出来，TensorFlow和PyTorch都在一定程度上参考了它），在下一节，我会将TensorFlow、PyTorch和Numpy的API都贴出来。</p>
+<p>在Numpy中，einsum使用格式字符串和任意数量的Numpy张量作为参数调用，并返回结果张量。</p>
+<p><img src="https://img-blog.csdnimg.cn/20201109145722330.png#pic_center" alt="在这里插入图片描述"><br>格式字符串包含分隔参数说明的逗号（，）和将参数说明与张量的参数分开的箭头（-&gt;）。参数说明中的数量和参数的数量必须匹配，并且必须精确地出现一个箭头，后跟一个结果说明</p>
+<p><img src="https://img-blog.csdnimg.cn/20201109145901549.png#pic_center" alt="在这里插入图片描述"><br>格式字符串中的字符数完全等于该张量的维数。</p>
+<p><img src="https://img-blog.csdnimg.cn/20201109150049280.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>下面展示einsum()格式字符串的完整示例。 尝试猜测结果将是什么？注意了，0维张量（标量）对于参数和结果均有效，由空字符串“”表示。 再次提醒您，格式字符串必须仅由ASCII小写或大写字母组成。</p>
+<p><img src="https://img-blog.csdnimg.cn/20201109150320881.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>我们这里使用一个实际的例子来进行说明，首先我们要相乘的两个​​数组是：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">A &#x3D; array([[1, 1, 1],</span><br><span class="line">           [2, 2, 2],</span><br><span class="line">           [5, 5, 5]])</span><br><span class="line">B &#x3D; array([[0, 1, 0],</span><br><span class="line">           [1, 1, 0],</span><br><span class="line">           [1, 1, 1]])</span><br></pre></td></tr></table></figure>
+<p>我们的矩阵乘法np.einsum(‘ij,jk-&gt;ik’, A, B)大致如下：<br><img src="https://img-blog.csdnimg.cn/20201109154121134.png#pic_center" alt="在这里插入图片描述"><br>要了解输出数组的计算方法，请记住以下三个规则：</p>
+<ul>
+<li><p><strong>在输入数组中重复的字母意味着值沿这些轴相乘</strong>。乘积结果为输出数组的值。在本例中，我们使用字母 j 两次：A和B各一次。这意味着我们将A每一行与B每列相乘。这只在标记为 j 的轴在两个数组中的长度相同（或者任一数组长度为1）时才有效。</p>
+</li>
+<li><p><strong>输出中省略的字母意味着沿该轴的值将相加</strong>。在这里，j 不包含在输出数组的标签中。通过累加的方式将它从轴上除去，最终数组中的维数减少1。如果输出是’ijk’，我们得到的结果是3x3x3数组（如果我们不提供输出标签，只写箭头，则对整个数组求和）。</p>
+</li>
+<li><p><strong>我们可以按照我们喜欢的任何顺序返回未没进行累加的轴</strong>。如果我们省略箭头’-&gt;’，NumPy会将只出现一次的标签按照字母顺序排列（因此实际上’ij,jk-&gt;ik’相当于’ij,jk’）。如果我们想控制输出的样子，我们可以自己选择输出标签的顺序。例如，’ij,jk-&gt;ki’为矩阵乘法的转置。</p>
+</li>
+</ul>
+<p>现在，我们已经知道矩阵乘法是如何工作的。下图显示了如果我们不对 j 轴进行求和，而是通过写<code>np.einsum(‘ij,jk-&gt;ijk’, A, B)</code>将其包含在输出中，我们会得到什么。右边代表 j 轴已经求和：<br><img src="https://img-blog.csdnimg.cn/20201109154140281.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>注意，由于<code>np.einsum(‘ij,jk-&gt;ik’, A, B)</code>函数不构造3维数组然后求和，它只是将总和累加到2维数组中。下面是两个表格展示了einsum如何进行各种NumPy操作。我们可以用它来熟悉符号。</p>
+<ul>
+<li>让A和B是两个形状兼容的一维数组（也就是说，我们相应的轴的长度要么相等，要么其中一个长度为1）：</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>调用</th>
+<th>Numpy等式</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>(‘i’, A)</td>
+<td>A</td>
+<td>返回数组A的视图</td>
+</tr>
+<tr>
+<td>(‘i-&gt;’, A)</td>
+<td>sum(A)</td>
+<td>数组A值的总和</td>
+</tr>
+<tr>
+<td>(‘i,i-&gt;i’, A, B)</td>
+<td>A * B</td>
+<td>A和B的数组元素依次相乘</td>
+</tr>
+<tr>
+<td>(‘i,i’, A, B)</td>
+<td>inner(A, B)</td>
+<td>A和B的点积（内积）</td>
+</tr>
+<tr>
+<td>(‘i,j-&gt;ij’, A, B)</td>
+<td>outer(A, B)</td>
+<td>A和B的外积（叉积）</td>
+</tr>
+</tbody></table>
+<ul>
+<li>现在，我们A和B是与之兼容形状的两个二维数组：</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>调用</th>
+<th>Numpy等式</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>(‘ij’, A)</td>
+<td>A</td>
+<td>返回A的视图</td>
+</tr>
+<tr>
+<td>(‘ji’, A)</td>
+<td>A.T</td>
+<td>A的转置</td>
+</tr>
+<tr>
+<td>(‘ii-&gt;i’, A)</td>
+<td>diag(A)</td>
+<td>A的主对角线</td>
+</tr>
+<tr>
+<td>(‘ii’, A)</td>
+<td>trace(A)</td>
+<td>A的主对角线的和</td>
+</tr>
+<tr>
+<td>(‘ij-&gt;’, A)</td>
+<td>sum(A)</td>
+<td>A的值相加</td>
+</tr>
+<tr>
+<td>(‘ij-&gt;j’, A)</td>
+<td>sum(A, axis=0)</td>
+<td>通过A的轴竖直（列）求和</td>
+</tr>
+<tr>
+<td>(‘ij-&gt;i’, A)</td>
+<td>sum(A, axis=1)</td>
+<td>通过A的轴水平（行）求和</td>
+</tr>
+<tr>
+<td>(‘ij,ij-&gt;ij’, A, B)</td>
+<td>A * B</td>
+<td>A和B逐元素依次相乘</td>
+</tr>
+<tr>
+<td>(‘ij,ji-&gt;ij’, A, B)</td>
+<td>A * B.T</td>
+<td>A和B的转置逐个元素依次相乘</td>
+</tr>
+<tr>
+<td>(‘ij,jk’, A, B)</td>
+<td>dot(A, B)</td>
+<td>A和B的矩阵乘法</td>
+</tr>
+<tr>
+<td>(‘ij,kj-&gt;ik’, A, B)</td>
+<td>inner(A, B)</td>
+<td>A和B点积（内积）</td>
+</tr>
+<tr>
+<td>(‘ij,kj-&gt;ijk’, A, B)</td>
+<td>A[:, None] * B</td>
+<td>A的每一行乘以B</td>
+</tr>
+<tr>
+<td>(‘ij,kl-&gt;ijkl’, A, B)</td>
+<td>A[:, :, None, None] * B</td>
+<td>A的每个值乘以B</td>
+</tr>
+</tbody></table>
+<p>当处理大量维度时，别忘了einsum允许使用省略号语法’…’。这提供了一种变量的方式标记我们不大感兴趣的轴，例如<code>np.einsum(‘…ij,ji-&gt;…’, a, b)</code>，仅将a的最后两个轴与2维数组b相乘。</p>
+<h1 id="TensorFlow、PyTorch和Numpy"><a href="#TensorFlow、PyTorch和Numpy" class="headerlink" title="TensorFlow、PyTorch和Numpy"></a>TensorFlow、PyTorch和Numpy</h1><p>通常，要将元素式方程式转换为方程式字符串，可以使用以下过程（右侧是矩阵乘法示例的中间字符串）</p>
+<ol>
+<li>原始元素式方程式：C[i,k] = sum_j A[i,j] * B[j,k]</li>
+<li>删除变量名称，方括号和逗号：ik = sum_j ij * jk</li>
+<li>将“*”替换成“,”：ik = ij, jk</li>
+<li>去掉求和符号：ik = ij, jk</li>
+<li>输出移到右边，将将“=”替换成“-&gt;”：ij,jk-&gt;ik</li>
+</ol>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.tensorflow.org/api_docs/python/tf/einsum?hl=en">TensorFlow2.3：tf.einsum()</a></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">tf.einsum(equation, *inputs, **kwargs)</span><br><span class="line">参数：</span><br><span class="line">	equation：描述计算的字符串，格式与numpy.einsum相同。</span><br><span class="line">	*inputs：输入（张量），其形状应与方程保持一致。</span><br><span class="line">	**kwargs：</span><br><span class="line">		optimize：用于使用opt_einsum查找计算路径的优化策略，可选项包括 &#39;greedy&#39;, &#39;optimal&#39;, &#39;branch-2&#39;, &#39;branch-all&#39; ,&#39;auto&#39;，默认是&#39;greedy&#39;</span><br><span class="line">		name：操作名称（可选）</span><br><span class="line">返回值：张量，形状与方程中一致</span><br><span class="line">示例：</span><br><span class="line">	# 矩阵相乘</span><br><span class="line">	einsum(&#39;ij,jk-&gt;ik&#39;, m0, m1)  # output[i,k] &#x3D; sum_j m0[i,j] * m1[j, k]</span><br><span class="line">	# 点积</span><br><span class="line">	einsum(&#39;i,i-&gt;&#39;, u, v)  # output &#x3D; sum_i u[i]*v[i]</span><br><span class="line">	# 外积</span><br><span class="line">	einsum(&#39;i,j-&gt;ij&#39;, u, v)  # output[i,j] &#x3D; u[i]*v[j]</span><br><span class="line">	# 转置</span><br><span class="line">	einsum(&#39;ij-&gt;ji&#39;, m)  # output[j,i] &#x3D; m[i,j]</span><br><span class="line">	# 主对角线的和</span><br><span class="line">	einsum(&#39;ii&#39;, m)  # output[j,i] &#x3D; trace(m) &#x3D; sum_i m[i, i]</span><br><span class="line">	# 批量矩阵相乘</span><br><span class="line">	einsum(&#39;aij,ajk-&gt;aik&#39;, s, t)  # out[a,i,k] &#x3D; sum_j s[a,i,j] * t[a, j, k]</span><br></pre></td></tr></table></figure>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/generated/torch.einsum.html?highlight=einsum#torch.einsum">PyTorch1.7.0：torch.einsum()</a></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">torch.einsum(equation, *operands)</span><br><span class="line">参数：</span><br><span class="line">	equation：描述计算的字符串，格式与numpy.einsum相同。</span><br><span class="line">	operands：输入（张量），其形状应与方程保持一致。</span><br><span class="line">示例：</span><br><span class="line">torch.einsum(&#39;i,j-&gt;ij&#39;, x, y)  # 外积</span><br><span class="line">torch.einsum(&#39;bn,anm,bm-&gt;ba&#39;, l, A, r) # 计算torch.nn.functional.bilinear</span><br><span class="line">torch.einsum(&#39;bij,bjk-&gt;bik&#39;, As, Bs) # 批量矩阵相乘</span><br><span class="line">torch.einsum(&#39;ii-&gt;i&#39;, A) # 对角线之和</span><br><span class="line">torch.einsum(&#39;...ii-&gt;...i&#39;, A) # 批量对角线之和</span><br><span class="line">torch.einsum(&#39;...ij-&gt;...ji&#39;, A).shape # 批量转置</span><br></pre></td></tr></table></figure>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://numpy.org/doc/1.19/reference/generated/numpy.einsum.html?highlight=einsum#numpy.einsum">Numpy1.19：numpy.einsum</a></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">numpy.einsum(subscripts, *operands, out&#x3D;None, dtype&#x3D;None, order&#x3D;&#39;K&#39;, casting&#x3D;&#39;safe&#39;, optimize&#x3D;False)</span><br><span class="line">参数：</span><br><span class="line">	subscripts：描述计算的字符串，除非包含显式指示符“-&gt;”以及精确输出形式的下标标签，否则将执行隐式（经典的爱因斯坦求和）计算</span><br><span class="line">	operands：输入（张量），其形状应与方程保持一致。</span><br><span class="line">	out：ndarray类型（可选），如果提供，则将计算结果放入此数组中</span><br><span class="line">	dtype：&#123;data-type, None&#125;（可选），如果提供，则强制使用指定的数据类型计算。 请注意，你可能还必须提供一个更宽松的转换参数以允许进行转换。 默认为None。</span><br><span class="line">	order：&#123;‘C’, ‘F’, ‘A’, ‘K’&#125;（可选），控制输出的内存布局。其中，‘C’表示C连续的。‘F’表示它应该是Fortran连续的。如果输入全为‘F’，则‘A’表示应为‘F’，否则为‘C’。‘K’表示它应尽可能与输入尽可能靠近布局，包括任意排列的轴。</span><br><span class="line">	casting：&#123;‘no’, ‘equiv’, ‘safe’, ‘same_kind’, ‘unsafe’&#125;（可选），控制可能发生的数据类型转换。 不建议将其设置为“unsafe”，因为这会积聚不利影响。其中，“no”表示完全不应该转换数据类型，“equiv”表示仅允许按照字节顺序转换，“safe”表示只允许保留值的强制类型转换。“same_kind”表示仅允许安全类型转换或同一类型（例如float64到float32）内的类型转换。“unsafe”表示可能会进行任何数据转换。</span><br><span class="line">	optimize：&#123;False, True, ‘greedy’, ‘optimal’&#125;（可选），控制优化策略，如果True将默认设置为“贪心”算法，如果是False则不会进行优化。 还接受np.einsum_path函数的显式收缩列表。</span><br></pre></td></tr></table></figure>
+<h1 id="其他乘法"><a href="#其他乘法" class="headerlink" title="其他乘法"></a>其他乘法</h1><p><strong>TensorFlow2.3</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.tensorflow.org/api_docs/python/tf/linalg/matmul?hl=en">tf.linalg.matmul</a></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">tf.linalg.matmul(a, b, transpose_a&#x3D;False, transpose_b&#x3D;False, adjoint_a&#x3D;False, adjoint_b&#x3D;False,a_is_sparse&#x3D;False, b_is_sparse&#x3D;False, name&#x3D;None)</span><br><span class="line">参数：</span><br><span class="line">	a：类型为float16, float32, float64, int32, complex64, complex128，并且秩大于1</span><br><span class="line">	b：和a相同类型和秩</span><br><span class="line">	transpose_a：如果为True，a在计算前会被转置</span><br><span class="line">	transpose_b：如果为True，b在计算前会被转置</span><br><span class="line">	adjoint_a：如果为True，a在计算前会被共轭和转置</span><br><span class="line">	adjoint_b：如果为True，b在计算前会被共轭和转置</span><br><span class="line">	a_is_sparse：如果为True，则将a视为稀疏矩阵。</span><br><span class="line">	b_is_sparse：如果为True，则将b视为稀疏矩阵。</span><br><span class="line">	name：操作名称（可选）</span><br></pre></td></tr></table></figure>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.tensorflow.org/api_docs/python/tf/sparse/sparse_dense_matmul?hl=en">tf.sparse.sparse_dense_matmul</a></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">tf.sparse.sparse_dense_matmul(sp_a, b, adjoint_a&#x3D;False, adjoint_b&#x3D;False, name&#x3D;None)</span><br><span class="line">参数：</span><br><span class="line">	a：SparseTensor或者是密度矩阵，并且秩为2</span><br><span class="line">	b：和a相同类型，密度矩阵或者是a：SparseTensor</span><br><span class="line">	adjoint_a：如果为True，a在计算前会被共轭和转置</span><br><span class="line">	adjoint_b：如果为True，b在计算前会被共轭和转置</span><br><span class="line">	name：操作名称（可选）</span><br></pre></td></tr></table></figure>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.tensorflow.org/api_docs/python/tf/math/multiply?hl=en">tf.math.multiply</a><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">tf.math.multiply(x, y, name&#x3D;None)</span><br><span class="line">参数：</span><br><span class="line">	a：类型为bfloat16, half, float32, float64, uint8, int8, uint16, int16, int32, int64, complex64, complex128的张量</span><br><span class="line">	b：和a相同类型</span><br><span class="line">	name：操作名称（可选）</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>Pytorch1.7.0</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/generated/torch.matmul.html?highlight=matmul#torch.matmul">torch.matmul</a></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">torch.matmul(input, other, *, out&#x3D;None)</span><br><span class="line">参数：</span><br><span class="line">	input：第一个用于乘法的张量</span><br><span class="line">	other：第二个用于乘法的张量</span><br><span class="line">	out：可选，输出张量</span><br></pre></td></tr></table></figure>
+<p><strong>Numpy1.19</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://numpy.org/doc/1.19/reference/generated/numpy.matmul.html?highlight=matmul#numpy.matmul">numpy.matmul()</a></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">numpy.matmul(x1, x2, &#x2F;, out&#x3D;None, *, casting&#x3D;&#39;same_kind&#39;, order&#x3D;&#39;K&#39;, dtype&#x3D;None, subok&#x3D;True[, signature, extobj])</span><br><span class="line">参数：</span><br><span class="line">	x1, x2：输入数组</span><br><span class="line">	out：输出储存的位置，如果提供，则其形状必须与签名(n,k),(k,m)-&gt;(n,m)相匹配。 如果未提供或没有，则返回一个新分配的数组。</span><br><span class="line">	**kwargs：对于其他仅关键字参数，参考文档</span><br></pre></td></tr></table></figure>
+<p>参考文献</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.tensorflow.org/api_docs/python/tf?hl=en">TensorFlow2.3</a></li>
+<li><a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/index.html">Pytorch1.7.0</a></li>
+<li><a target="_blank" rel="noopener" href="https://numpy.org/doc/1.19/reference/index.html">Numpy1.19</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/44954540">einsum满足你一切需要：深度学习中的爱因斯坦求和约定</a></li>
+<li><a target="_blank" rel="noopener" href="http://www.atyun.com/32288.html">NumPy中einsum的基本介绍</a></li>
+<li><a target="_blank" rel="noopener" href="https://obilaniu6266h16.wordpress.com/2016/02/04/einstein-summation-in-numpy/">Einstein Summation in Numpy</a></li>
+</ul>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>DengBoCong</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="http://dengbocong.cn/8d94140b2f7f/">http://dengbocong.cn/8d94140b2f7f/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Licensed under the Apache License, Version 2.0 (the "License")</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Stay hungry, Stay foolish.</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/"># 深度学习</a>
+                    
+                        <a href="/tags/TensorFlow/"># TensorFlow</a>
+                    
+                        <a href="/tags/Pytorch/"># Pytorch</a>
+                    
+                        <a href="/tags/einsum/"># einsum</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/64d1bd606b34/">论文阅读笔记：需要推理的MuTual多轮对话数据集</a>
+            
+            
+            <a class="next" rel="next" href="/c6980c31d7a3/">好好琢磨一下TF-IDF，结合Sklearn</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+        </div>
+        <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Copyright 2021 DengBoCong. All Rights Reserved. 赣ICP备20002291号</span>
+    </div>
+</footer>
+
+    </div>
+    <div id="u-search">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="container">
+                    <form id="u-search-modal-form" class="u-search-modal-form">
+                        <button type="submit" class="form-submit-btn">
+                            <img src="/image/search.png" class="search-btn-img" />
+                        </button>
+                        <input placeholder="请输入关键字搜索文章..." class="form-input" onchange="inputChange(event)" id="modal-form-input">
+                    </form>
+                    <a class="modal-close">x</a>
+                </div>
+                <div class="search-loading">
+                    <div class="search-loading-bar"></div>
+                </div>
+            </div>
+            <div class="modal-body">
+            </div>
+        </div>
+        <div class="modal-overlay"></div>
+    </div>
+</body>
+</html>

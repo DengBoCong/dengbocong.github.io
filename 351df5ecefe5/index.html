@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<link rel="stylesheet" href="/css/search.css">
+<script src="/js/jquery-3.4.1.min.js"></script>
+<script src="/js/search.js"></script>
+
+    <meta name="author" content="DengBoCong">
+
+
+    <meta name="subtitle" content="NLP | Deep Learning | Java">
+
+
+
+
+<title>搞定检索式对话系统的候选response检索--使用pysolr调用Solr | DengBoCong</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+    
+
+
+<meta name="generator" content="Hexo 5.3.0"></head>
+<body>
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">DengBoCong</a></div>
+            <div class="menu navbar-right">
+                <div class="search" style="float: left; margin-top: 7px;">
+                    <form class="form-search">
+                        <input class="input" placeholder="search content..." autocomplete="off" onchange="inputChange(event)" id="pc-search-input"/>
+                    </form>
+                    <div class="search-btn">
+                        <img src="/image/search.png" class="search-btn-img" />
+                    </div>
+                </div>
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/projects">Projects</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">DengBoCong</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/projects">Projects</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+        <div class="main">
+            <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    document.ready(
+        function () {
+            tocbot.init({
+                tocSelector: '.tocbot-list',
+                contentSelector: '.post-content',
+                headingSelector: 'h1, h2, h3, h4, h5',
+                collapseDepth: 1,
+                orderedList: false,
+                scrollSmooth: true,
+            })
+        }
+    )
+
+    function expand_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 6,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "collapse_toc()");
+        b.innerHTML = "Collapse all"
+    }
+
+    function collapse_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 1,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "expand_toc()");
+        b.innerHTML = "Expand all"
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">搞定检索式对话系统的候选response检索--使用pysolr调用Solr</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">DengBoCong</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">November 19, 2020&nbsp;&nbsp;0:18:57</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E9%82%A3%E4%BA%9B%E7%A2%8E%E7%A2%8E%E5%BF%B5/">深度学习那些碎碎念</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><blockquote>
+<p>说明：讲解时会对相关文章资料进行思想、结构、优缺点，内容进行提炼和记录，相关引用会标明出处，引用之处如有侵权，烦请告知删除。<br>转载请注明：DengBoCong</p>
+</blockquote>
+<p>构建对话机器人的现有方法中，可以分为 generation-based（生成式）和retrieval-based（检索式），相对于生成式而言，检索式拥有的信息更加丰富，且运行流畅的特点。本篇文章不具体讲解模型，而是来好好阐述关于检索候选回复的实现，比如SMN模型、DAM模型等中，关于检索候选回复的实现。关于SMN模型的论文笔记和实现代码可以参考我的<a target="_blank" rel="noopener" href="https://dengbocong.blog.csdn.net/article/details/109392033">另一篇文章</a>和<a target="_blank" rel="noopener" href="https://github.com/DengBoCong">GitHub</a>，后续我还会对DAM论文和模型写一篇文章。</p>
+<p>使用到的工具版本如下：</p>
+<ul>
+<li>Solr：8.6.3</li>
+<li>pysolr：3.9.0</li>
+<li>python：3.7</li>
+<li>CentOS：7.6</li>
+<li>Docker：19.03.9</li>
+</ul>
+<h1 id="整体流程"><a href="#整体流程" class="headerlink" title="整体流程"></a>整体流程</h1><p>我们讲解工具使用之前，首先简要的阐述一下我们的目的，如果已经了解过检索式对话系统或者阅读过相应论文，就不用看了。首先我们知道目的是检索候选回复，用什么检索呢？这个和具体模型结构和需求有关。拿SMN模型为例，利用启发式方法从索引中获取候选response，将前一轮的utterances ${u_1,…,u_{n-1}}$ （也就是对话的历史）和 $u_n$ 进行计算，根据他们的<strong>tf-idf</strong>得分，从 ${u_1,…,u_{n-1}}$ 中提取前 $5$ 个关键字，然后将扩展后的message用于索引，并使用索引的内联检索算法来检索候选response。</p>
+<p>模型结构和训练至关重要，但是检索候选回复也是使得整个对话流程实现闭环的关键。我们了解了检索的目的和整体流程，那我们从何实现？方式有很多，可以自行编写一个脚本从数据集中生成一个索引候选数据集（这个是我最开始用的方法，但毕竟没专门研究过检索，所以写的很粗糙，勉强验证功能可以，用作正式使用就不行了），还有一种就是使用现有的检索工具，比如Lucene、Solr、ElasticSearch等等。所以这篇文章就是来讲解部署solr和使用python实现检索（为什么选用Solr？不是说那种工具好坏，而是佛系使用，貌似ElasticSearch现在很火的样子，哈哈哈）。</p>
+<h1 id="Solr和Pysolr"><a href="#Solr和Pysolr" class="headerlink" title="Solr和Pysolr"></a>Solr和Pysolr</h1><p>Solr它是一种开放源码的、基于 Lucene Java 的搜索服务器，易于加入到 Web 应用程序中。Lucene很底层，从底层代码层面来实现需求，而Solr在其上进行了封装，你如果想要实现脱机检索，那还是使用Lucene吧。Solr 提供了层面搜索(就是统计)、命中醒目显示并且支持多种输出格式（包括XML/XSLT 和JSON等格式）。它易于安装和配置，而且附带了一个基于 HTTP 的管理界面。Solr已经在众多大型的网站中使用，较为成熟和稳定。Solr 包装并扩展了 Lucene，所以Solr的基本上沿用了Lucene的相关术语。更重要的是，Solr 创建的索引与 Lucene 搜索引擎库完全兼容。通过对Solr 进行适当的配置，某些情况下可能需要进行编码，Solr 可以阅读和使用构建到其他 Lucene 应用程序中的索引。此外，很多 Lucene 工具（如Nutch、 Luke）也可以使用Solr 创建的索引。可以使用 Solr 的表现优异的基本搜索功能，也可以对它进行扩展从而满足企业的需要，<a target="_blank" rel="noopener" href="https://lucene.apache.org/">Solr官网</a>（官方将其和Lucene并列放在一起，嘿嘿嘿，万变不离其宗，看官方文档）。</p>
+<p>而Pysolr是基于Python的Solr轻量级封装，它提供了服务器查询并返回基于查询的结果接口。简单来说就是Pysolr封装了Solr的各种http请求，使用起来非常方便，你可以直接从pypi中直接导入（这个就要吐槽一下Pylucene了，不能从pipy直接导入），<a target="_blank" rel="noopener" href="https://pypi.org/project/pysolr/">PySolr官方地址</a>，上面有使用的示例和API，可以自行去看，这里配一张Solr的示意图，方面后面理解：</p>
+<p><img src="https://img-blog.csdnimg.cn/20201118232526492.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+<h1 id="部署Solr"><a href="#部署Solr" class="headerlink" title="部署Solr"></a>部署Solr</h1><h2 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h2><p>都0202年了，部署服务应用都是用容器了吧，我这里讲解用Docker部署solr，不了解的可以参考我的关于<a target="_blank" rel="noopener" href="https://blog.csdn.net/dbc_121/category_9650661.html">Docker的几篇文章</a>，我这里就不介绍Docker了，默认会就接着往下讲了。</p>
+<p>有了docker环境之后，首先先将solr拉下来，我这里拉的是8.6.3的版本（ps：不喜欢拉最新的，因为最新的可能其他的附属库跟不上更新，出问题）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">docker pull solr:8.6.3</span><br><span class="line"><span class="comment"># 然后启动solr</span></span><br><span class="line">docker run -itd --name solr -p 8983:8983 solr:8.6.3</span><br><span class="line"><span class="comment"># 然后创建core核心选择器，我这里因为以SMN模型讲解，所以取名SMN</span></span><br><span class="line"><span class="comment"># exec -it ：交互式执行容器</span></span><br><span class="line"><span class="comment"># -c  内核的名称（必须）</span></span><br><span class="line">docker <span class="built_in">exec</span> -it --user=solr solr bin/solr create_core -c smn</span><br></pre></td></tr></table></figure>
+<p>指令具体含义以及core是啥，请自行查阅资料，或者研究一下solr，毕竟先学习基础再来实战。上面构建solr运行容器是简单粗暴且实用的方法，也可以和我一样使用Dockerfile进行构建镜像和容器，Dockerfile内容如下（内容来自<a target="_blank" rel="noopener" href="https://github.com/docker-solr/docker-solr">docker-solr</a>项目，官方的docker镜像项目）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br></pre></td><td class="code"><pre><span class="line">FROM openjdk:11-jre</span><br><span class="line"></span><br><span class="line">LABEL maintainer=<span class="string">&quot;The Apache Lucene/Solr Project&quot;</span></span><br><span class="line">LABEL repository=<span class="string">&quot;https://github.com/docker-solr/docker-solr&quot;</span></span><br><span class="line"></span><br><span class="line">ARG SOLR_VERSION=<span class="string">&quot;8.6.3&quot;</span></span><br><span class="line">ARG SOLR_SHA512=<span class="string">&quot;f040d4489118b655bd27451a717c1f22f180c398638d944a53889a1a449e7032b016cecbff1979c2e8bfd51fc037dd613f3b968254001d34fe0e8fc4f6761dcf&quot;</span></span><br><span class="line">ARG SOLR_KEYS=<span class="string">&quot;902CC51935C140BF820230961FD5295281436075&quot;</span></span><br><span class="line"><span class="comment"># If specified, this will override SOLR_DOWNLOAD_SERVER and all ASF mirrors. Typically used downstream for custom builds</span></span><br><span class="line">ARG SOLR_DOWNLOAD_URL</span><br><span class="line"></span><br><span class="line"><span class="comment"># Override the solr download location with e.g.:</span></span><br><span class="line"><span class="comment">#   docker build -t mine --build-arg SOLR_DOWNLOAD_SERVER=http://www-eu.apache.org/dist/lucene/solr .</span></span><br><span class="line">ARG SOLR_DOWNLOAD_SERVER</span><br><span class="line"></span><br><span class="line">RUN <span class="built_in">set</span> -ex; \</span><br><span class="line">  apt-get update; \</span><br><span class="line">  apt-get -y install acl dirmngr gpg lsof procps wget netcat gosu tini; \</span><br><span class="line">  rm -rf /var/lib/apt/lists/*; \</span><br><span class="line">  <span class="built_in">cd</span> /usr/<span class="built_in">local</span>/bin; wget -nv https://github.com/apangin/jattach/releases/download/v1.5/jattach; chmod 755 jattach; \</span><br><span class="line">  <span class="built_in">echo</span> &gt;jattach.sha512 <span class="string">&quot;d8eedbb3e192a8596c08efedff99b9acf1075331e1747107c07cdb1718db2abe259ef168109e46bd4cf80d47d43028ff469f95e6ddcbdda4d7ffa73a20e852f9  jattach&quot;</span>; \</span><br><span class="line">  sha512sum -c jattach.sha512; rm jattach.sha512</span><br><span class="line"></span><br><span class="line">ENV SOLR_USER=<span class="string">&quot;solr&quot;</span> \</span><br><span class="line">    SOLR_UID=<span class="string">&quot;8983&quot;</span> \</span><br><span class="line">    SOLR_GROUP=<span class="string">&quot;solr&quot;</span> \</span><br><span class="line">    SOLR_GID=<span class="string">&quot;8983&quot;</span> \</span><br><span class="line">    SOLR_CLOSER_URL=<span class="string">&quot;http://www.apache.org/dyn/closer.lua?filename=lucene/solr/<span class="variable">$SOLR_VERSION</span>/solr-<span class="variable">$SOLR_VERSION</span>.tgz&amp;action=download&quot;</span> \</span><br><span class="line">    SOLR_DIST_URL=<span class="string">&quot;https://www.apache.org/dist/lucene/solr/<span class="variable">$SOLR_VERSION</span>/solr-<span class="variable">$SOLR_VERSION</span>.tgz&quot;</span> \</span><br><span class="line">    SOLR_ARCHIVE_URL=<span class="string">&quot;https://archive.apache.org/dist/lucene/solr/<span class="variable">$SOLR_VERSION</span>/solr-<span class="variable">$SOLR_VERSION</span>.tgz&quot;</span> \</span><br><span class="line">    PATH=<span class="string">&quot;/opt/solr/bin:/opt/docker-solr/scripts:<span class="variable">$PATH</span>&quot;</span> \</span><br><span class="line">    SOLR_INCLUDE=/etc/default/solr.in.sh \</span><br><span class="line">    SOLR_HOME=/var/solr/data \</span><br><span class="line">    SOLR_PID_DIR=/var/solr \</span><br><span class="line">    SOLR_LOGS_DIR=/var/solr/logs \</span><br><span class="line">    LOG4J_PROPS=/var/solr/log4j2.xml</span><br><span class="line"></span><br><span class="line">RUN <span class="built_in">set</span> -ex; \</span><br><span class="line">  groupadd -r --gid <span class="string">&quot;<span class="variable">$SOLR_GID</span>&quot;</span> <span class="string">&quot;<span class="variable">$SOLR_GROUP</span>&quot;</span>; \</span><br><span class="line">  useradd -r --uid <span class="string">&quot;<span class="variable">$SOLR_UID</span>&quot;</span> --gid <span class="string">&quot;<span class="variable">$SOLR_GID</span>&quot;</span> <span class="string">&quot;<span class="variable">$SOLR_USER</span>&quot;</span></span><br><span class="line"></span><br><span class="line">RUN <span class="built_in">set</span> -ex; \</span><br><span class="line">  <span class="built_in">export</span> GNUPGHOME=<span class="string">&quot;/tmp/gnupg_home&quot;</span>; \</span><br><span class="line">  mkdir -p <span class="string">&quot;<span class="variable">$GNUPGHOME</span>&quot;</span>; \</span><br><span class="line">  chmod 700 <span class="string">&quot;<span class="variable">$GNUPGHOME</span>&quot;</span>; \</span><br><span class="line">  <span class="built_in">echo</span> <span class="string">&quot;disable-ipv6&quot;</span> &gt;&gt; <span class="string">&quot;<span class="variable">$GNUPGHOME</span>/dirmngr.conf&quot;</span>; \</span><br><span class="line">  <span class="keyword">for</span> key <span class="keyword">in</span> <span class="variable">$SOLR_KEYS</span>; <span class="keyword">do</span> \</span><br><span class="line">    found=<span class="string">&#x27;&#x27;</span>; \</span><br><span class="line">    <span class="keyword">for</span> server <span class="keyword">in</span> \</span><br><span class="line">      ha.pool.sks-keyservers.net \</span><br><span class="line">      hkp://keyserver.ubuntu.com:80 \</span><br><span class="line">      hkp://p80.pool.sks-keyservers.net:80 \</span><br><span class="line">      pgp.mit.edu \</span><br><span class="line">    ; <span class="keyword">do</span> \</span><br><span class="line">      <span class="built_in">echo</span> <span class="string">&quot;  trying <span class="variable">$server</span> for <span class="variable">$key</span>&quot;</span>; \</span><br><span class="line">      gpg --batch --keyserver <span class="string">&quot;<span class="variable">$server</span>&quot;</span> --keyserver-options timeout=10 --recv-keys <span class="string">&quot;<span class="variable">$key</span>&quot;</span> &amp;&amp; found=yes &amp;&amp; <span class="built_in">break</span>; \</span><br><span class="line">      gpg --batch --keyserver <span class="string">&quot;<span class="variable">$server</span>&quot;</span> --keyserver-options timeout=10 --recv-keys <span class="string">&quot;<span class="variable">$key</span>&quot;</span> &amp;&amp; found=yes &amp;&amp; <span class="built_in">break</span>; \</span><br><span class="line">    <span class="keyword">done</span>; \</span><br><span class="line">    <span class="built_in">test</span> -z <span class="string">&quot;<span class="variable">$found</span>&quot;</span> &amp;&amp; <span class="built_in">echo</span> &gt;&amp;2 <span class="string">&quot;error: failed to fetch <span class="variable">$key</span> from several disparate servers -- network issues?&quot;</span> &amp;&amp; <span class="built_in">exit</span> 1; \</span><br><span class="line">  <span class="keyword">done</span>; \</span><br><span class="line">  <span class="built_in">exit</span> 0</span><br><span class="line"></span><br><span class="line">RUN <span class="built_in">set</span> -ex; \</span><br><span class="line">  <span class="built_in">export</span> GNUPGHOME=<span class="string">&quot;/tmp/gnupg_home&quot;</span>; \</span><br><span class="line">  MAX_REDIRECTS=1; \</span><br><span class="line">  <span class="keyword">if</span> [ -n <span class="string">&quot;<span class="variable">$SOLR_DOWNLOAD_URL</span>&quot;</span> ]; <span class="keyword">then</span> \</span><br><span class="line">    <span class="comment"># If a custom URL is defined, we download from non-ASF mirror URL and allow more redirects and skip GPG step</span></span><br><span class="line">    <span class="comment"># This takes effect only if the SOLR_DOWNLOAD_URL build-arg is specified, typically in downstream Dockerfiles</span></span><br><span class="line">    MAX_REDIRECTS=4; \</span><br><span class="line">    SKIP_GPG_CHECK=<span class="literal">true</span>; \</span><br><span class="line">  <span class="keyword">elif</span> [ -n <span class="string">&quot;<span class="variable">$SOLR_DOWNLOAD_SERVER</span>&quot;</span> ]; <span class="keyword">then</span> \</span><br><span class="line">    SOLR_DOWNLOAD_URL=<span class="string">&quot;<span class="variable">$SOLR_DOWNLOAD_SERVER</span>/<span class="variable">$SOLR_VERSION</span>/solr-<span class="variable">$SOLR_VERSION</span>.tgz&quot;</span>; \</span><br><span class="line">  <span class="keyword">fi</span>; \</span><br><span class="line">  <span class="keyword">for</span> url <span class="keyword">in</span> <span class="variable">$SOLR_DOWNLOAD_URL</span> <span class="variable">$SOLR_CLOSER_URL</span> <span class="variable">$SOLR_DIST_URL</span> <span class="variable">$SOLR_ARCHIVE_URL</span>; <span class="keyword">do</span> \</span><br><span class="line">    <span class="keyword">if</span> [ -f <span class="string">&quot;/opt/solr-<span class="variable">$SOLR_VERSION</span>.tgz&quot;</span> ]; <span class="keyword">then</span> <span class="built_in">break</span>; <span class="keyword">fi</span>; \</span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;downloading <span class="variable">$url</span>&quot;</span>; \</span><br><span class="line">    <span class="keyword">if</span> wget -t 10 --max-redirect <span class="variable">$MAX_REDIRECTS</span> --retry-connrefused -nv <span class="string">&quot;<span class="variable">$url</span>&quot;</span> -O <span class="string">&quot;/opt/solr-<span class="variable">$SOLR_VERSION</span>.tgz&quot;</span>; <span class="keyword">then</span> <span class="built_in">break</span>; <span class="keyword">else</span> rm -f <span class="string">&quot;/opt/solr-<span class="variable">$SOLR_VERSION</span>.tgz&quot;</span>; <span class="keyword">fi</span>; \</span><br><span class="line">  <span class="keyword">done</span>; \</span><br><span class="line">  <span class="keyword">if</span> [ ! -f <span class="string">&quot;/opt/solr-<span class="variable">$SOLR_VERSION</span>.tgz&quot;</span> ]; <span class="keyword">then</span> <span class="built_in">echo</span> <span class="string">&quot;failed all download attempts for solr-<span class="variable">$SOLR_VERSION</span>.tgz&quot;</span>; <span class="built_in">exit</span> 1; <span class="keyword">fi</span>; \</span><br><span class="line">  <span class="keyword">if</span> [ -z <span class="string">&quot;<span class="variable">$SKIP_GPG_CHECK</span>&quot;</span> ]; <span class="keyword">then</span> \</span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;downloading <span class="variable">$SOLR_ARCHIVE_URL</span>.asc&quot;</span>; \</span><br><span class="line">    wget -nv <span class="string">&quot;<span class="variable">$SOLR_ARCHIVE_URL</span>.asc&quot;</span> -O <span class="string">&quot;/opt/solr-<span class="variable">$SOLR_VERSION</span>.tgz.asc&quot;</span>; \</span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;<span class="variable">$SOLR_SHA512</span> */opt/solr-<span class="variable">$SOLR_VERSION</span>.tgz&quot;</span> | sha512sum -c -; \</span><br><span class="line">    (&gt;&amp;2 ls -l <span class="string">&quot;/opt/solr-<span class="variable">$SOLR_VERSION</span>.tgz&quot;</span> <span class="string">&quot;/opt/solr-<span class="variable">$SOLR_VERSION</span>.tgz.asc&quot;</span>); \</span><br><span class="line">    gpg --batch --verify <span class="string">&quot;/opt/solr-<span class="variable">$SOLR_VERSION</span>.tgz.asc&quot;</span> <span class="string">&quot;/opt/solr-<span class="variable">$SOLR_VERSION</span>.tgz&quot;</span>; \</span><br><span class="line">  <span class="keyword">else</span> \</span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;Skipping GPG validation due to non-Apache build&quot;</span>; \</span><br><span class="line">  <span class="keyword">fi</span>; \</span><br><span class="line">  tar -C /opt --extract --file <span class="string">&quot;/opt/solr-<span class="variable">$SOLR_VERSION</span>.tgz&quot;</span>; \</span><br><span class="line">  (<span class="built_in">cd</span> /opt; ln -s <span class="string">&quot;solr-<span class="variable">$SOLR_VERSION</span>&quot;</span> solr); \</span><br><span class="line">  rm <span class="string">&quot;/opt/solr-<span class="variable">$SOLR_VERSION</span>.tgz&quot;</span>*; \</span><br><span class="line">  rm -Rf /opt/solr/docs/ /opt/solr/dist/&#123;solr-core-<span class="variable">$SOLR_VERSION</span>.jar,solr-solrj-<span class="variable">$SOLR_VERSION</span>.jar,solrj-lib,solr-test-framework-<span class="variable">$SOLR_VERSION</span>.jar,test-framework&#125;; \</span><br><span class="line">  mkdir -p /opt/solr/server/solr/lib /docker-entrypoint-initdb.d /opt/docker-solr; \</span><br><span class="line">  chown -R 0:0 <span class="string">&quot;/opt/solr-<span class="variable">$SOLR_VERSION</span>&quot;</span>; \</span><br><span class="line">  find <span class="string">&quot;/opt/solr-<span class="variable">$SOLR_VERSION</span>&quot;</span> -<span class="built_in">type</span> d -print0 | xargs -0 chmod 0755; \</span><br><span class="line">  find <span class="string">&quot;/opt/solr-<span class="variable">$SOLR_VERSION</span>&quot;</span> -<span class="built_in">type</span> f -print0 | xargs -0 chmod 0644; \</span><br><span class="line">  chmod -R 0755 <span class="string">&quot;/opt/solr-<span class="variable">$SOLR_VERSION</span>/bin&quot;</span> <span class="string">&quot;/opt/solr-<span class="variable">$SOLR_VERSION</span>/contrib/prometheus-exporter/bin/solr-exporter&quot;</span> /opt/solr-<span class="variable">$SOLR_VERSION</span>/server/scripts/cloud-scripts; \</span><br><span class="line">  cp /opt/solr/bin/solr.in.sh /etc/default/solr.in.sh; \</span><br><span class="line">  mv /opt/solr/bin/solr.in.sh /opt/solr/bin/solr.in.sh.orig; \</span><br><span class="line">  mv /opt/solr/bin/solr.in.cmd /opt/solr/bin/solr.in.cmd.orig; \</span><br><span class="line">  chown root:0 /etc/default/solr.in.sh; \</span><br><span class="line">  chmod 0664 /etc/default/solr.in.sh; \</span><br><span class="line">  mkdir -p /var/solr/data /var/solr/logs; \</span><br><span class="line">  (<span class="built_in">cd</span> /opt/solr/server/solr; cp solr.xml zoo.cfg /var/solr/data/); \</span><br><span class="line">  cp /opt/solr/server/resources/log4j2.xml /var/solr/log4j2.xml; \</span><br><span class="line">  find /var/solr -<span class="built_in">type</span> d -print0 | xargs -0 chmod 0770; \</span><br><span class="line">  find /var/solr -<span class="built_in">type</span> f -print0 | xargs -0 chmod 0660; \</span><br><span class="line">  sed -i -e <span class="string">&quot;s/\&quot;\$(whoami)\&quot; == \&quot;root\&quot;/\$(id -u) == 0/&quot;</span> /opt/solr/bin/solr; \</span><br><span class="line">  sed -i -e <span class="string">&#x27;s/lsof -PniTCP:/lsof -t -PniTCP:/&#x27;</span> /opt/solr/bin/solr; \</span><br><span class="line">  chown -R <span class="string">&quot;0:0&quot;</span> /opt/solr-<span class="variable">$SOLR_VERSION</span> /docker-entrypoint-initdb.d /opt/docker-solr; \</span><br><span class="line">  chown -R <span class="string">&quot;<span class="variable">$SOLR_USER</span>:0&quot;</span> /var/solr; \</span><br><span class="line">  &#123; <span class="built_in">command</span> -v gpgconf; gpgconf --<span class="built_in">kill</span> all || :; &#125;; \</span><br><span class="line">  rm -r <span class="string">&quot;<span class="variable">$GNUPGHOME</span>&quot;</span></span><br><span class="line"></span><br><span class="line">COPY --chown=0:0 scripts /opt/docker-solr/scripts</span><br><span class="line"></span><br><span class="line">VOLUME /var/solr</span><br><span class="line">EXPOSE 8983</span><br><span class="line">WORKDIR /opt/solr</span><br><span class="line">USER <span class="variable">$SOLR_USER</span></span><br><span class="line"></span><br><span class="line">ENTRYPOINT [<span class="string">&quot;docker-entrypoint.sh&quot;</span>]</span><br><span class="line">CMD [<span class="string">&quot;solr-foreground&quot;</span>]</span><br></pre></td></tr></table></figure>
+<p>容器运行情况如下：<br><img src="https://img-blog.csdnimg.cn/20201118231257526.png#pic_center" alt="在这里插入图片描述"><br>接下来可以访问：<a target="_blank" rel="noopener" href="http://xxxxxx:8983/solr/%EF%BC%8C%E8%BF%9B%E5%85%A5%E5%88%B0solr%E7%95%8C%E9%9D%A2%EF%BC%8C%E5%A6%82%E4%B8%8B%EF%BC%9A">http://xxxxxx:8983/solr/，进入到solr界面，如下：</a><br><img src="https://img-blog.csdnimg.cn/20201118231420490.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>然后点击Core Admin，查看一下自己刚刚创建的Core，如下：<br><img src="https://img-blog.csdnimg.cn/20201118231532138.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>然后选择smn就可以使用了，如下：<br><img src="https://img-blog.csdnimg.cn/2020111823163747.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>结束了？当然没有，哪有那么简单的事儿，首先我们上面算是基本部署好了solr，但是我们需要进行一些必要的使得我们能更好的使用，比如我们需要对文档进行分词，添加相似度计算类（用于tf-idf计算），接下来就说明如何配置这两个东西。</p>
+<h2 id="配置IK"><a href="#配置IK" class="headerlink" title="配置IK"></a>配置IK</h2><p>首先是IK，IK Analyzer(中文分词器)是一个开源的，基于java语言开发的轻量级的中文分词工具包。最初，它是以开源项目 Lucene为应用主体的，结合词典分词和文法分析算法的中文分词组件。新版本的IKAnalyzer3.0则发展为 面向Java的公用分词组件，独立于Lucene项目，同时提供了对Lucene的默认优化实现。</p>
+<ul>
+<li>Solr 5以前的可以装上<a target="_blank" rel="noopener" href="https://pan.baidu.com/s/1WAtY5kjI75Kg-e6OAH69cw">老版本</a>，提取码：g5ib</li>
+<li>Solr 6使用这个<a target="_blank" rel="noopener" href="https://github.com/cj96248/ik-analyzer-solr6">版本</a></li>
+<li>Solr 7&amp;8使用这个<a target="_blank" rel="noopener" href="https://github.com/magese/ik-analyzer-solr">版本</a></li>
+</ul>
+<p>注意要将IK源码打成JAR包（作为一个老Java，打包还是不难的）。接着将jar包通过传输软件或其它方式传入宿主机的某一文件夹内，然后使用指令将jar包复制到Solr容器的分词包文件夹中：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker cp ik-analyzer.jar solr:/opt/solr-8.6.3/contrib/analysis-extras/lucene-libs</span><br></pre></td></tr></table></figure>
+<p>查看 Solr 容器在宿主机中数据卷的位置：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">docker inspect solr</span><br><span class="line"><span class="comment"># 找到 Mounts</span></span><br><span class="line"><span class="comment"># Destination : 容器里的路径</span></span><br><span class="line"><span class="comment"># Source : 对应宿主机里的路径</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://img-blog.csdnimg.cn/20201118233446485.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>将IK分词器配置到 Solr 的核心配置文件中，Source为上面的Mounts中的：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> &#123;Source&#125;/data/myIKCore/conf/</span><br><span class="line">vim solrconfig.xml</span><br></pre></td></tr></table></figure>
+<p>然后添加如下内容：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># dir	容器存放自带分词JAR包的目录</span></span><br><span class="line"><span class="comment"># regex	JAR包名</span></span><br><span class="line">&lt;lib dir=<span class="string">&quot;<span class="variable">$&#123;solr.install.dir:../../../..&#125;</span>/contrib/analysis-extras/lucene-libs/&quot;</span> regex=<span class="string">&quot;ik-analyzer.jar&quot;</span> /&gt;</span><br></pre></td></tr></table></figure>
+<p>声明中文分词器</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim managed-schema</span><br></pre></td></tr></table></figure>
+<p>找到指定位置添加配置</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;!-- IKAnalyzer --&gt;</span><br><span class="line">&lt;fieldType name =<span class="string">&quot;text_ik&quot;</span> class =<span class="string">&quot;solr.TextField&quot;</span>&gt;</span><br><span class="line">    &lt;!-- 索引时候的分词器 --&gt;</span><br><span class="line">    &lt;analyzer <span class="built_in">type</span> =<span class="string">&quot;index&quot;</span> isMaxWordLength =<span class="string">&quot;false&quot;</span> class=<span class="string">&quot;org.wltea.analyzer.lucene.IKAnalyzer&quot;</span>/&gt;</span><br><span class="line">    &lt;!-- 查询时候的分词器 --&gt;</span><br><span class="line">    &lt;analyzer <span class="built_in">type</span> =<span class="string">&quot;query&quot;</span> isMaxWordLength =<span class="string">&quot;true&quot;</span> class=<span class="string">&quot;org.wltea.analyzer.lucene.IKAnalyzer&quot;</span>/&gt;</span><br><span class="line">&lt;/fieldType&gt;</span><br></pre></td></tr></table></figure>
+<p>重启 Solr 容器</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker restart solr</span><br></pre></td></tr></table></figure>
+<p>选择刚刚创建的核心选择器<br><img src="https://img-blog.csdnimg.cn/202011182340266.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+<h2 id="配置相似度"><a href="#配置相似度" class="headerlink" title="配置相似度"></a>配置相似度</h2><p>到了这里，你其实可以直接用了，但是如果使用tf-idf的话，会报错，如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">org.apache.solr.client.solrj.SolrServerException: No live SolrServers available to handle this request</span><br><span class="line">null:java.lang.UnsupportedOperationException: requires a TFIDFSimilarity (such as ClassicSimilarity)</span><br></pre></td></tr></table></figure>
+<p>所以还是需要配置，打开 <code>managed-schema</code> 将下面一行添加进就可以了：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;similarity class=<span class="string">&quot;solr.ClassicSimilarityFactory&quot;</span>/&gt;</span><br></pre></td></tr></table></figure>
+<h1 id="pysolr使用"><a href="#pysolr使用" class="headerlink" title="pysolr使用"></a>pysolr使用</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建solr</span></span><br><span class="line">solr = pysolr.Solr(url=solr_server, always_commit=True, timeout=10)</span><br><span class="line"><span class="comment"># 使用前习惯性安全检查</span></span><br><span class="line">solr.ping()</span><br><span class="line"><span class="comment"># 将回复数据添加索引，responses是一个json,形式如：[&#123;&#125;,&#123;&#125;,&#123;&#125;,...]，里面每个对象构建按照你回复的需求即可</span></span><br><span class="line">solr.add(docs=responses)</span><br></pre></td></tr></table></figure>
+<p>接下来进行查询，首先我们提取关键词词，我这里将我的tf-idf方法的代码贴出来，如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_tf_idf_top_k</span>(<span class="params">history: <span class="built_in">list</span>, k: <span class="built_in">int</span> = <span class="number">5</span></span>):</span></span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    使用tf_idf算法计算权重最高的k个词，并返回</span></span><br><span class="line"><span class="string">    Args:</span></span><br><span class="line"><span class="string">        history: 上下文语句</span></span><br><span class="line"><span class="string">        k: 返回词数量</span></span><br><span class="line"><span class="string">    Returns: top_5_key</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    tf_idf = &#123;&#125;</span><br><span class="line"></span><br><span class="line">    vectorizer = TfidfVectorizer(analyzer=<span class="string">&#x27;word&#x27;</span>)</span><br><span class="line">    weights = vectorizer.fit_transform(history).toarray()[-<span class="number">1</span>]</span><br><span class="line">    key_words = vectorizer.get_feature_names()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(weights)):</span><br><span class="line">        tf_idf[key_words[i]] = weights[i]</span><br><span class="line"></span><br><span class="line">    top_k_key = []</span><br><span class="line">    tf_idf_sorted = <span class="built_in">sorted</span>(tf_idf.items(), key=<span class="keyword">lambda</span> x: x[<span class="number">1</span>], reverse=<span class="literal">True</span>)[:k]</span><br><span class="line">    <span class="keyword">for</span> element <span class="keyword">in</span> tf_idf_sorted:</span><br><span class="line">        top_k_key.append(element[<span class="number">0</span>])</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> top_k_key</span><br></pre></td></tr></table></figure>
+<p>然后将得到的五个关键词通过query的语法进行组合，得到查询语句，我这里只返回前十个分数最高的候选回复：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">query = <span class="string">&quot;&#123;!func&#125;sum(&quot;</span></span><br><span class="line"><span class="keyword">for</span> keyin tf_idf:</span><br><span class="line">    query += <span class="string">&quot;product(idf(utterance,&quot;</span> + key + <span class="string">&quot;),tf(utterance,&quot;</span> + key + <span class="string">&quot;)),&quot;</span></span><br><span class="line">query += <span class="string">&quot;)&quot;</span></span><br><span class="line">candidates = self.solr.search(q=query, start=<span class="number">0</span>, rows=<span class="number">10</span>).docs</span><br><span class="line"></span><br><span class="line"><span class="comment">#query合起来长这样：&#123;!func&#125;sum(product(idf(utterance,key1),tf(utterance,key1),product(idf(utterance,key2),tf(utterance,key2),...)</span></span><br></pre></td></tr></table></figure>
+<p>查询回复格式如下：<br><img src="https://img-blog.csdnimg.cn/20201118235834184.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>然后检索得到了候选回复就可以喂给模型了。</p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>DengBoCong</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="http://dengbocong.cn/351df5ecefe5/">http://dengbocong.cn/351df5ecefe5/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Licensed under the Apache License, Version 2.0 (the "License")</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Stay hungry, Stay foolish.</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/NLP/"># NLP</a>
+                    
+                        <a href="/tags/%E5%AF%B9%E8%AF%9D%E7%B3%BB%E7%BB%9F/"># 对话系统</a>
+                    
+                        <a href="/tags/%E6%A3%80%E7%B4%A2%E5%BC%8F%E5%AF%B9%E8%AF%9D/"># 检索式对话</a>
+                    
+                        <a href="/tags/solr/"># solr</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/6ed7dab2ef88/">论文阅读笔记：应用了Transformer的Encoder的DAM检索式多轮对话系统</a>
+            
+            
+            <a class="next" rel="next" href="/86116a512b8e/">论文阅读笔记：大模型指导小模型--ProjectionNet的联合框架</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+        </div>
+        <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Copyright 2021 DengBoCong. All Rights Reserved. 赣ICP备20002291号</span>
+    </div>
+</footer>
+
+    </div>
+    <div id="u-search">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="container">
+                    <form id="u-search-modal-form" class="u-search-modal-form">
+                        <button type="submit" class="form-submit-btn">
+                            <img src="/image/search.png" class="search-btn-img" />
+                        </button>
+                        <input placeholder="请输入关键字搜索文章..." class="form-input" onchange="inputChange(event)" id="modal-form-input">
+                    </form>
+                    <a class="modal-close">x</a>
+                </div>
+                <div class="search-loading">
+                    <div class="search-loading-bar"></div>
+                </div>
+            </div>
+            <div class="modal-body">
+            </div>
+        </div>
+        <div class="modal-overlay"></div>
+    </div>
+</body>
+</html>

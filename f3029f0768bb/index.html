@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<link rel="stylesheet" href="/css/search.css">
+<script src="/js/jquery-3.4.1.min.js"></script>
+<script src="/js/search.js"></script>
+
+    <meta name="author" content="DengBoCong">
+
+
+    <meta name="subtitle" content="NLP | Deep Learning | Java">
+
+
+
+
+<title>损失函数理解汇总，结合PyTorch和TensorFlow2 | DengBoCong</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+    
+
+
+<meta name="generator" content="Hexo 5.3.0"></head>
+<body>
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">DengBoCong</a></div>
+            <div class="menu navbar-right">
+                <div class="search" style="float: left; margin-top: 7px;">
+                    <form class="form-search">
+                        <input class="input" placeholder="search content..." autocomplete="off" onchange="inputChange(event)" id="pc-search-input"/>
+                    </form>
+                    <div class="search-btn">
+                        <img src="/image/search.png" class="search-btn-img" />
+                    </div>
+                </div>
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/projects">Projects</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">DengBoCong</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/projects">Projects</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+        <div class="main">
+            <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    document.ready(
+        function () {
+            tocbot.init({
+                tocSelector: '.tocbot-list',
+                contentSelector: '.post-content',
+                headingSelector: 'h1, h2, h3, h4, h5',
+                collapseDepth: 1,
+                orderedList: false,
+                scrollSmooth: true,
+            })
+        }
+    )
+
+    function expand_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 6,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "collapse_toc()");
+        b.innerHTML = "Collapse all"
+    }
+
+    function collapse_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 1,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "expand_toc()");
+        b.innerHTML = "Expand all"
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">损失函数理解汇总，结合PyTorch和TensorFlow2</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">DengBoCong</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">November 2, 2020&nbsp;&nbsp;20:41:32</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E9%82%A3%E4%BA%9B%E7%A2%8E%E7%A2%8E%E5%BF%B5/">深度学习那些碎碎念</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><blockquote>
+<p>说明：讲解时会对相关文章资料进行思想、结构、优缺点，内容进行提炼和记录，相关引用会标明出处，引用之处如有侵权，烦请告知删除。<br>转载请注明：DengBoCong</p>
+</blockquote>
+<p>本文打算讨论在深度学习中常用的十余种损失函数（含变种），结合PyTorch和TensorFlow2对其概念、公式及用途进行阐述，希望能达到看过的伙伴对各种损失函数有个大致的了解以及使用。本文对原理只是浅尝辄止，不进行深挖，感兴趣的伙伴可以针对每个部分深入翻阅资料。</p>
+<p>使用版本：</p>
+<ul>
+<li>TensorFlow2.3</li>
+<li>PyTorch1.7.0</li>
+</ul>
+<h1 id="交叉熵损失（CrossEntropyLoss）"><a href="#交叉熵损失（CrossEntropyLoss）" class="headerlink" title="交叉熵损失（CrossEntropyLoss）"></a>交叉熵损失（CrossEntropyLoss）</h1><p>对于单事件的信息量而言，当事件发生的概率越大时，信息量越小，需要明确的是，信息量是对于单个事件来说的，实际事件存在很多种可能，所以这个时候熵就派上用场了，熵是表示随机变量不确定的度量，是对所有可能发生的事件产生的信息量的期望。<strong>交叉熵用来描述两个分布之间的差距，交叉熵越小，假设分布离真实分布越近，模型越好</strong>。</p>
+<p>在分类问题模型中（不一定是二分类），如逻辑回归、神经网络等，在这些模型的最后通常会经过一个sigmoid函数（softmax函数），输出一个概率值（一组概率值），这个概率值反映了预测为正类的可能性（一组概率值反应了所有分类的可能性）。而对于预测的概率分布和真实的概率分布之间，使用交叉熵来计算他们之间的差距，换句不严谨的话来说，交叉熵损失函数的输入，是softmax或者sigmoid函数的输出。交叉熵损失可以从理论公式推导出几个结论（优点），具体公式推导不在这里详细讲解，如下：</p>
+<ul>
+<li>预测的值跟目标值越远时，参数调整就越快，收敛就越快；</li>
+<li>不会陷入局部最优解</li>
+</ul>
+<p>交叉熵损失函数的标准形式（也就是二分类交叉熵损失）如下:<br>$$L = \frac{1}{N}\sum_{i}L_i=\frac{1}{N}\sum_{i}-[y_i\cdot log(p_i)+(1-y_i)\cdot log(1-p_i)]$$<br>其中，$y_i$ 表示样本 $i$ 的标签，正类为1，负类为0，$p_i$ 表示样本 $i$ 预测为正的概率。<br>多分类交叉熵损失如下：<br>$$L=\frac{1}{N}\sum_{i}L_i=\frac{1}{N}\sum_{i}-\sum_{c=1}^{M}y_{ic}log(p_{ic})$$<br>其中，$M$ 表示类别的数量，$y_{ic}$ 表示变量（0或1），如果该类别和样本i的类别相同就是1，否则是0，$p_{ic}$ 表示对于观测样本 $i$ 属于类别 $c$ 的预测概率。</p>
+<p><strong>TensorFlow：</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.tensorflow.org/api_docs/python/tf/keras/losses/BinaryCrossentropy">BinaryCrossentropy</a>：二分类，经常搭配Sigmoid使用<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">tf.keras.losses.BinaryCrossentropy(from_logits&#x3D;False, label_smoothing&#x3D;0, reduction&#x3D;losses_utils.ReductionV2.AUTO, name&#x3D;&#39;binary_crossentropy&#39;)</span><br><span class="line">参数：</span><br><span class="line">	from_logits：默认False。为True，表示接收到了原始的logits，为False表示输出层经过了概率处理（softmax）</span><br><span class="line">	label_smoothing：[0,1]之间浮点值，加入噪声，减少了真实样本标签的类别在计算损失函数时的权重，最终起到抑制过拟合的效果。</span><br><span class="line">	reduction：传入tf.keras.losses.Reduction类型值，默认AUTO，定义对损失的计算方式。</span><br></pre></td></tr></table></figure></li>
+<li><a target="_blank" rel="noopener" href="https://www.tensorflow.org/api_docs/python/tf/keras/losses/binary_crossentropy">binary_crossentropy</a></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">tf.keras.losses.binary_crossentropy(y_true, y_pred, from_logits&#x3D;False, label_smoothing&#x3D;0)</span><br><span class="line">参数：</span><br><span class="line">	from_logits：默认False。为True，表示接收到了原始的logits，为False表示输出层经过了概率处理（softmax）</span><br><span class="line">	label_smoothing：[0,1]之间浮点值，加入噪声，减少了真实样本标签的类别在计算损失函数时的权重，最终起到抑制过拟合的效果。</span><br></pre></td></tr></table></figure>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.tensorflow.org/api_docs/python/tf/keras/losses/CategoricalCrossentropy">CategoricalCrossentropy</a>：多分类，经常搭配Softmax使用<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">tf.keras.losses.CategoricalCrossentropy(from_logits&#x3D;False, label_smoothing&#x3D;0, reduction&#x3D;losses_utils.ReductionV2.AUTO, name&#x3D;&#39;categorical_crossentropy&#39;)</span><br><span class="line">参数：</span><br><span class="line">	from_logits：默认False。为True，表示接收到了原始的logits，为False表示输出层经过了概率处理（softmax）</span><br><span class="line">	label_smoothing：[0,1]之间浮点值，加入噪声，减少了真实样本标签的类别在计算损失函数时的权重，最终起到抑制过拟合的效果。</span><br><span class="line">	reduction：传入tf.keras.losses.Reduction类型值，默认AUTO，定义对损失的计算方式。</span><br></pre></td></tr></table></figure></li>
+<li><a target="_blank" rel="noopener" href="https://www.tensorflow.org/api_docs/python/tf/keras/losses/categorical_crossentropy">categorical_crossentropy</a></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">tf.keras.losses.categorical_crossentropy(y_true, y_pred, from_logits&#x3D;False, label_smoothing&#x3D;0)</span><br><span class="line">参数：</span><br><span class="line">	from_logits：默认False。为True，表示接收到了原始的logits，为False表示输出层经过了概率处理（softmax）</span><br><span class="line">	label_smoothing：[0,1]之间浮点值，加入噪声，减少了真实样本标签的类别在计算损失函数时的权重，最终起到抑制过拟合的效果。</span><br></pre></td></tr></table></figure>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.tensorflow.org/api_docs/python/tf/keras/losses/SparseCategoricalCrossentropy">SparseCategoricalCrossentropy</a>：多分类，经常搭配Softmax使用，和CategoricalCrossentropy不同之处在于，CategoricalCrossentropy是one-hot编码，而SparseCategoricalCrossentropy使用一个位置整数表示类别</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">tf.keras.losses.SparseCategoricalCrossentropy(from_logits&#x3D;False, reduction&#x3D;losses_utils.ReductionV2.AUTO, name&#x3D;&#39;sparse_categorical_crossentropy&#39;)</span><br><span class="line">参数：</span><br><span class="line">	from_logits：默认False。为True，表示接收到了原始的logits，为False表示输出层经过了概率处理（softmax）</span><br><span class="line">	reduction：传入tf.keras.losses.Reduction类型值，默认AUTO，定义对损失的计算方式。</span><br></pre></td></tr></table></figure>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.tensorflow.org/api_docs/python/tf/keras/losses/sparse_categorical_crossentropy">sparse_categorical_crossentropy</a></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">tf.keras.losses.sparse_categorical_crossentropy(y_true, y_pred, from_logits&#x3D;False, axis&#x3D;-1)</span><br><span class="line">参数：</span><br><span class="line">	from_logits：默认False。为True，表示接收到了原始的logits，为False表示输出层经过了概率处理（softmax）</span><br><span class="line">	axis：默认是-1，计算交叉熵的维度</span><br></pre></td></tr></table></figure>
+<p><strong>PyTorch：</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/generated/torch.nn.BCELoss.html">BCELoss</a></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">torch.nn.BCELoss(weight: Optional[torch.Tensor] &#x3D; None, size_average&#x3D;None, reduce&#x3D;None, reduction: str &#x3D; &#39;mean&#39;)</span><br><span class="line">参数：</span><br><span class="line">	weight：每个分类的缩放权重，传入的大小必须和类别数量一至</span><br><span class="line">	size_average：bool类型，为True时，返回的loss为平均值，为False时，返回的各样本的loss之和</span><br><span class="line">	reduce：bool类型，返回值是否为标量，默认为True</span><br><span class="line">	reduction：string类型，&#39;none&#39; | &#39;mean&#39; | &#39;sum&#39;三种参数值</span><br></pre></td></tr></table></figure>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/generated/torch.nn.BCEWithLogitsLoss.html">BCEWithLogitsLoss</a>：其实和TensorFlow是的<code>from_logits</code>参数很像，在BCELoss的基础上合并了Sigmoid</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">torch.nn.BCEWithLogitsLoss(weight: Optional[torch.Tensor] &#x3D; None, size_average&#x3D;None, reduce&#x3D;None, reduction: str &#x3D; &#39;mean&#39;, pos_weight: Optional[torch.Tensor] &#x3D; None)</span><br><span class="line">参数：</span><br><span class="line">	weight：每个分类的缩放权重，传入的大小必须和类别数量一至</span><br><span class="line">	size_average：bool类型，为True时，返回的loss为平均值，为False时，返回的各样本的loss之和</span><br><span class="line">	reduce：bool类型，返回值是否为标量，默认为True</span><br><span class="line">	reduction：string类型，&#39;none&#39; | &#39;mean&#39; | &#39;sum&#39;三种参数值</span><br><span class="line">	pos_weight：正样本的权重, 当p&gt;1，提高召回率，当p&lt;1，提高精确度。可达到权衡召回率(Recall)和精确度(Precision)的作用。 </span><br></pre></td></tr></table></figure>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/generated/torch.nn.CrossEntropyLoss.html">CrossEntropyLoss</a></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">torch.nn.CrossEntropyLoss(weight: Optional[torch.Tensor] &#x3D; None, size_average&#x3D;None, ignore_index: int &#x3D; -100, reduce&#x3D;None, reduction: str &#x3D; &#39;mean&#39;)</span><br><span class="line">参数：</span><br><span class="line">	weight：每个分类的缩放权重，传入的大小必须和类别数量一至</span><br><span class="line">	size_average：bool类型，为True时，返回的loss为平均值，为False时，返回的各样本的loss之和</span><br><span class="line">	ignore_index：忽略某一类别，不计算其loss，其loss会为0，并且，在采用size_average时，不会计算那一类的loss，除的时候的分母也不会统计那一类的样本</span><br><span class="line">	reduce：bool类型，返回值是否为标量，默认为True</span><br><span class="line">	reduction：string类型，&#39;none&#39; | &#39;mean&#39; | &#39;sum&#39;三种参数值</span><br></pre></td></tr></table></figure>
+<h1 id="KL散度"><a href="#KL散度" class="headerlink" title="KL散度"></a>KL散度</h1><p>我们在计算预测和真实标签之间损失时，需要拉近他们分布之间的差距，即模型得到的预测分布应该与数据的实际分布情况尽可能相近。KL散度(相对熵)是用来衡量两个概率分布之间的差异。模型需要得到最大似然估计，乘以负Log以后就相当于求最小值，此时等价于求最小化KL散度(相对熵)。所以得到KL散度就得到了最大似然。又因为KL散度中包含两个部分，第一部分是交叉熵，第二部分是信息熵，即KL=交叉熵−信息熵。信息熵是消除不确定性所需信息量的度量，简单来说就是真实的概率分布，而这部分是固定的，所以优化KL散度就是近似于优化交叉熵。下面是KL散度的公式：<br>$$D_{KL}(p||q)=\sum_{i=1}^Np(x_i)\cdot (logp(x_i)-logq(x_i))$$<br>联系上面的交叉熵，我们可以将公式简化为（KL散度 = 交叉熵 - 熵）：<br>$$D_{KL}(A||B)=H(A,B)-S(A)$$<br>监督学习中，因为训练集中每个样本的标签是已知的，此时标签和预测的标签之间的KL散度等价于交叉熵。<br><strong>TensorFlow：</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.tensorflow.org/api_docs/python/tf/keras/losses/KLD">KLD | kullback_leibler_divergence</a></li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tf.keras.losses.KLD(y_true, y_pred)</span><br></pre></td></tr></table></figure>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.tensorflow.org/api_docs/python/tf/keras/losses/KLDivergence">KLDivergence</a></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">tf.keras.losses.KLDivergence(reduction&#x3D;losses_utils.ReductionV2.AUTO, name&#x3D;&#39;kl_divergence&#39;)</span><br><span class="line">参数：</span><br><span class="line">	reduction：传入tf.keras.losses.Reduction类型值，默认AUTO，定义对损失的计算方式。</span><br></pre></td></tr></table></figure>
+<p><strong>Pytorch：</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/generated/torch.nn.KLDivLoss.html">KLDivLoss</a></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">torch.nn.KLDivLoss(size_average&#x3D;None, reduce&#x3D;None, reduction: str &#x3D; &#39;mean&#39;, log_target: bool &#x3D; False)</span><br><span class="line">参数：</span><br><span class="line">	size_average：bool类型，为True时，返回的loss为平均值，为False时，返回的各样本的loss之和</span><br><span class="line">	reduce：bool类型，返回值是否为标量，默认为True</span><br><span class="line">	reduction-三个值，none: 不使用约简；mean:返回loss和的平均值；sum:返回loss的和。默认：mean</span><br><span class="line">	log_target：默认False，指定是否在日志空间中传递目标</span><br></pre></td></tr></table></figure>
+<h1 id="平均绝对误差（L1范数损失）"><a href="#平均绝对误差（L1范数损失）" class="headerlink" title="平均绝对误差（L1范数损失）"></a>平均绝对误差（L1范数损失）</h1><p>L1范数损失函数，也被称为最小绝对值偏差（LAD），最小绝对值误差（LAE）。总的说来，它是把目标值 $Y_i$ 与估计值 $f(x_i)$ 的绝对差值的总和 $S$ 最小化：<br>$$S=\sum_{i=1}^n|Y_i-f(x_i)|$$<br>缺点：</p>
+<ul>
+<li>梯度恒定，不论预测值是否接近真实值，这很容易导致发散，或者错过极值点。</li>
+<li>导数不连续，导致求解困难。这也是L1损失函数不广泛使用的主要原因。</li>
+</ul>
+<p>优点：</p>
+<ul>
+<li>收敛速度比L2损失函数要快，这是通过对比函数图像得出来的，L1能提供更大且稳定的梯度。</li>
+<li>对异常的离群点有更好的鲁棒性，下面会以例子证实。</li>
+</ul>
+<p><strong>TensorFlow：</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.tensorflow.org/api_docs/python/tf/keras/losses/MAE">MAE | mean_absolute_error</a><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tf.keras.losses.MAE(y_true, y_pred)</span><br></pre></td></tr></table></figure></li>
+<li><a target="_blank" rel="noopener" href="https://www.tensorflow.org/api_docs/python/tf/keras/losses/MeanAbsoluteError">MeanAbsoluteError</a></li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">tf.keras.losses.MeanAbsoluteError(reduction=losses_utils.ReductionV2.AUTO, name=<span class="string">&#x27;mean_absolute_error&#x27;</span>)</span><br><span class="line">参数：</span><br><span class="line">	reduction：传入tf.keras.losses.Reduction类型值，默认AUTO，定义对损失的计算方式。</span><br></pre></td></tr></table></figure>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.tensorflow.org/api_docs/python/tf/keras/losses/MeanAbsolutePercentageError">MeanAbsolutePercentageError</a>：平均绝对百分比误差</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">tf.keras.losses.MeanAbsolutePercentageError(reduction&#x3D;losses_utils.ReductionV2.AUTO, name&#x3D;&#39;mean_absolute_percentage_error&#39;)</span><br><span class="line">公式：loss &#x3D; 100 * abs(y_true - y_pred) &#x2F; y_true</span><br><span class="line">参数：</span><br><span class="line">	reduction：传入tf.keras.losses.Reduction类型值，默认AUTO，定义对损失的计算方式。</span><br></pre></td></tr></table></figure>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.tensorflow.org/api_docs/python/tf/keras/losses/MAPE">MAPE | mean_absolute_percentage_error</a>：平均绝对百分比误差</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">tf.keras.losses.MAPE(y_true, y_pred)</span><br><span class="line">公式：loss &#x3D; 100 * mean(abs((y_true - y_pred) &#x2F; y_true), axis&#x3D;-1)</span><br></pre></td></tr></table></figure>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.tensorflow.org/api_docs/python/tf/keras/losses/Huber">Huber</a></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">tf.keras.losses.Huber(delta&#x3D;1.0, reduction&#x3D;losses_utils.ReductionV2.AUTO, name&#x3D;&#39;huber_loss&#39;)</span><br><span class="line">公式：error &#x3D; y_true - y_pred</span><br><span class="line">参数：</span><br><span class="line">	delta：float类型，Huber损失函数从二次变为线性的点。</span><br><span class="line">	reduction：传入tf.keras.losses.Reduction类型值，默认AUTO，定义对损失的计算方式。</span><br></pre></td></tr></table></figure>
+<p><strong>PyTorch：</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/generated/torch.nn.L1Loss.html">L1Loss</a></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">torch.nn.L1Loss(size_average&#x3D;None, reduce&#x3D;None, reduction: str &#x3D; &#39;mean&#39;)</span><br><span class="line">参数：</span><br><span class="line">	size_average：bool类型，为True时，返回的loss为平均值，为False时，返回的各样本的loss之和</span><br><span class="line">	reduce：bool类型，返回值是否为标量，默认为True</span><br><span class="line">	reduction-三个值，none: 不使用约简；mean:返回loss和的平均值；sum:返回loss的和。默认：mean</span><br></pre></td></tr></table></figure>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/nn.functional.html?highlight=loss#torch.nn.functional.l1_loss">l1_loss</a></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">torch.nn.functional.l1_loss(input, target, size_average&#x3D;None, reduce&#x3D;None, reduction&#x3D;&#39;mean&#39;) → Tensor</span><br></pre></td></tr></table></figure>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/generated/torch.nn.SmoothL1Loss.html">SmoothL1Loss</a>：平滑版L1损失，也被称为 Huber 损失函数。<br>$$loss(x,y)=\frac{1}{n}\sum_iz_i$$<br>其中，当 $|x_i-y_i|&lt;beta$ 时， $0.5(x_i-y_i)^2/beta$，否则 $|x_i-y_i|-0.5*beta$<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">torch.nn.SmoothL1Loss(size_average&#x3D;None, reduce&#x3D;None, reduction: str &#x3D; &#39;mean&#39;, beta: float &#x3D; 1.0)</span><br><span class="line">参数：</span><br><span class="line">	size_average：bool类型，为True时，返回的loss为平均值，为False时，返回的各样本的loss之和</span><br><span class="line">	reduce：bool类型，返回值是否为标量，默认为True</span><br><span class="line">	reduction-三个值，none: 不使用约简；mean:返回loss和的平均值；sum:返回loss的和。默认：mean</span><br><span class="line">	beta：默认为1，指定在L1和L2损耗之间切换的阈值</span><br></pre></td></tr></table></figure></li>
+<li><a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/nn.functional.html?highlight=loss#torch.nn.functional.smooth_l1_loss">smooth_l1_loss</a></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">torch.nn.functional.smooth_l1_loss(input, target, size_average&#x3D;None, reduce&#x3D;None, reduction&#x3D;&#39;mean&#39;, beta&#x3D;1.0)</span><br></pre></td></tr></table></figure>
+<h1 id="均方误差损失（L2范数损失）"><a href="#均方误差损失（L2范数损失）" class="headerlink" title="均方误差损失（L2范数损失）"></a>均方误差损失（L2范数损失）</h1><p>L2范数损失函数，也被称为最小平方误差（LSE）。总的来说，它是把目标值 $Y_i$ 与估计值 $f(x_i)$ 的差值的平方和 $S$ 最小化：<br>$$S=\sum_{i=1}^n(Y_i-f(x_i))^2$$<br>缺点：</p>
+<ul>
+<li>收敛速度比L1慢，因为梯度会随着预测值接近真实值而不断减小。</li>
+<li>对异常数据比L1敏感，这是平方项引起的，异常数据会引起很大的损失。</li>
+</ul>
+<p>优点：</p>
+<ul>
+<li>它使训练更容易，因为它的梯度随着预测值接近真实值而不断减小，那么它不会轻易错过极值点，但也容易陷入局部最优。</li>
+<li>它的导数具有封闭解，优化和编程非常容易，所以很多回归任务都是用MSE作为损失函数。</li>
+</ul>
+<p><strong>TensorFlow：</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.tensorflow.org/api_docs/python/tf/keras/losses/MeanSquaredError">MeanSquaredError</a></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">tf.keras.losses.MeanSquaredError(reduction&#x3D;losses_utils.ReductionV2.AUTO, name&#x3D;&#39;mean_squared_error&#39;)</span><br><span class="line">公式：loss &#x3D; square(y_true - y_pred)</span><br><span class="line">参数：</span><br><span class="line">	reduction：传入tf.keras.losses.Reduction类型值，默认AUTO，定义对损失的计算方式。</span><br></pre></td></tr></table></figure>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.tensorflow.org/api_docs/python/tf/keras/losses/MSE">MSE | mean_squared_error</a></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">tf.keras.losses.MSE(y_true, y_pred)</span><br><span class="line">公式：loss &#x3D; mean(square(y_true - y_pred), axis&#x3D;-1)</span><br></pre></td></tr></table></figure>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.tensorflow.org/api_docs/python/tf/keras/losses/MeanSquaredLogarithmicError">MeanSquaredLogarithmicError</a></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">tf.keras.losses.MeanSquaredLogarithmicError(reduction&#x3D;losses_utils.ReductionV2.AUTO, name&#x3D;&#39;mean_squared_logarithmic_error&#39;)</span><br><span class="line">公式：loss &#x3D; square(log(y_true + 1.) - log(y_pred + 1.))</span><br><span class="line">参数：</span><br><span class="line">	reduction：传入tf.keras.losses.Reduction类型值，默认AUTO，定义对损失的计算方式。</span><br></pre></td></tr></table></figure>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.tensorflow.org/api_docs/python/tf/keras/losses/MSLE">MSLE | mean_squared_logarithmic_error</a></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">tf.keras.losses.MSLE(y_true, y_pred)</span><br><span class="line">公式：loss &#x3D; mean(square(log(y_true + 1) - log(y_pred + 1)), axis&#x3D;-1)</span><br></pre></td></tr></table></figure>
+<p><strong>PyTorch：</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/generated/torch.nn.MSELoss.html">MSELoss</a></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">torch.nn.MSELoss(size_average&#x3D;None, reduce&#x3D;None, reduction: str &#x3D; &#39;mean&#39;)</span><br><span class="line">参数：</span><br><span class="line">	size_average：bool类型，为True时，返回的loss为平均值，为False时，返回的各样本的loss之和</span><br><span class="line">	reduce：bool类型，返回值是否为标量，默认为True</span><br><span class="line">	reduction-三个值，none: 不使用约简；mean:返回loss和的平均值；sum:返回loss的和。默认：mean</span><br></pre></td></tr></table></figure>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/nn.functional.html?highlight=loss#torch.nn.functional.mse_loss">mse_loss</a></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">torch.nn.functional.mse_loss(input, target, size_average&#x3D;None, reduce&#x3D;None, reduction&#x3D;&#39;mean&#39;)</span><br></pre></td></tr></table></figure>
+<h1 id="Hinge-loss"><a href="#Hinge-loss" class="headerlink" title="Hinge loss"></a>Hinge loss</h1><p>有人把hinge loss称为铰链损失函数，它可用于“最大间隔(max-margin)”分类，其最著名的应用是作为SVM的损失函数。hinge loss专用于二分类问题，标签值 $y=\pm 1$，预测值 $\hat{y}\in R$。二分类问题的目标函数的要求如下：当 $\hat{y}$ 大于等于 $\pm 1$或者小于等于 $-1$时，都是分类器确定的分类结果，此时的损失函数loss为0。而当预测值 $\hat{y}\in(-1,1)$ 时，分类器对分类结果不确定，loss不为0。显然，当 $\hat{y} = 0$ 时，loss达到最大值。对于输出 $y=\pm 1$，当前 $\hat{y}$ 的损失为：<br>$$L(y)=max(0,1-y\cdot \hat{y})$$<br>扩展到多分类问题上就需要多加一个边界值，然后叠加起来。公式如下：<br>$$L_i=\sum_{j\neq y_i}max(0,s_j-s_{y_i}+\Delta)$$</p>
+<p><strong>Tensorflow：</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.tensorflow.org/api_docs/python/tf/keras/losses/CategoricalHinge">CategoricalHinge</a></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">tf.keras.losses.CategoricalHinge(reduction&#x3D;losses_utils.ReductionV2.AUTO, name&#x3D;&#39;categorical_hinge&#39;)</span><br><span class="line">公式：loss &#x3D; maximum(neg - pos + 1, 0) where neg&#x3D;maximum((1-y_true)*y_pred) and pos&#x3D;sum(y_true*y_pred)</span><br><span class="line">参数：</span><br><span class="line">	reduction：传入tf.keras.losses.Reduction类型值，默认AUTO，定义对损失的计算方式。</span><br></pre></td></tr></table></figure>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.tensorflow.org/api_docs/python/tf/keras/losses/categorical_hinge">categorical_hinge</a></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">tf.keras.losses.categorical_hinge(y_true, y_pred)</span><br><span class="line">公式：loss &#x3D; maximum(neg - pos + 1, 0) where neg&#x3D;maximum((1-y_true)*y_pred) and pos&#x3D;sum(y_true*y_pred)</span><br></pre></td></tr></table></figure>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.tensorflow.org/api_docs/python/tf/keras/losses/Hinge">Hinge</a></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">tf.keras.losses.Hinge(</span><br><span class="line">    reduction&#x3D;losses_utils.ReductionV2.AUTO, name&#x3D;&#39;hinge&#39;</span><br><span class="line">)</span><br><span class="line">公式：loss &#x3D; maximum(1 - y_true * y_pred, 0)，y_true值应为-1或1。如果提供了二进制（0或1）标签，会将其转换为-1或1</span><br><span class="line">参数：</span><br><span class="line">	reduction：传入tf.keras.losses.Reduction类型值，默认AUTO，定义对损失的计算方式。</span><br></pre></td></tr></table></figure>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.tensorflow.org/api_docs/python/tf/keras/losses/hinge">hinge</a></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">tf.keras.losses.hinge(y_true, y_pred)</span><br><span class="line">公式：loss &#x3D; mean(maximum(1 - y_true * y_pred, 0), axis&#x3D;-1)</span><br></pre></td></tr></table></figure>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.tensorflow.org/api_docs/python/tf/keras/losses/SquaredHinge">SquaredHinge</a></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">tf.keras.losses.SquaredHinge(</span><br><span class="line">    reduction&#x3D;losses_utils.ReductionV2.AUTO, name&#x3D;&#39;squared_hinge&#39;</span><br><span class="line">)</span><br><span class="line">公式：loss &#x3D; square(maximum(1 - y_true * y_pred, 0))，y_true值应为-1或1。如果提供了二进制（0或1）标签，会将其转换为-1或1。</span><br><span class="line">参数：</span><br><span class="line">	reduction：传入tf.keras.losses.Reduction类型值，默认AUTO，定义对损失的计算方式。</span><br></pre></td></tr></table></figure>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.tensorflow.org/api_docs/python/tf/keras/losses/squared_hinge">squared_hinge</a></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">tf.keras.losses.squared_hinge(y_true, y_pred)</span><br><span class="line">公式：loss &#x3D; mean(square(maximum(1 - y_true * y_pred, 0)), axis&#x3D;-1)</span><br></pre></td></tr></table></figure>
+<p><strong>PyTorch：</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/generated/torch.nn.HingeEmbeddingLoss.html">HingeEmbeddingLoss</a>：当 $y_n=1$时，$l_n=x_n$，当 $y_n=-1$ 时， $l_n=max{0,\Delta-x_n}$<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">torch.nn.HingeEmbeddingLoss(margin: float &#x3D; 1.0, size_average&#x3D;None, reduce&#x3D;None, reduction: str &#x3D; &#39;mean&#39;)</span><br><span class="line">参数：</span><br><span class="line">	margin：float类型，默认为1.</span><br><span class="line">	size_average：bool类型，为True时，返回的loss为平均值，为False时，返回的各样本的loss之和</span><br><span class="line">	reduce：bool类型，返回值是否为标量，默认为True</span><br><span class="line">	reduction-三个值，none: 不使用约简；mean:返回loss和的平均值；sum:返回loss的和。默认：mean</span><br></pre></td></tr></table></figure>
+<h1 id="余弦相似度"><a href="#余弦相似度" class="headerlink" title="余弦相似度"></a>余弦相似度</h1>余弦相似度是机器学习中的一个重要概念，在Mahout等MLlib中有几种常用的相似度计算方法，如欧氏相似度，皮尔逊相似度，余弦相似度，Tanimoto相似度等。其中，余弦相似度是其中重要的一种。余弦相似度用向量空间中两个向量夹角的余弦值作为衡量两个个体间差异的大小。相比距离度量，余弦相似度更加注重两个向量在方向上的差异，而非距离或长度上。</li>
+</ul>
+<p>余弦相似度更多的是从方向上区分差异，而对绝对的数值不敏感，更多的用于使用用户对内容评分来区分用户兴趣的相似度和差异，同时修正了用户间可能存在的度量标准不统一的问题（因为余弦相似度对绝对数值不敏感），公式如下：<br>$$sim(X,Y)=cos\theta=\frac{\vec{x}\cdot \vec{y}}{||x||\cdot ||y||}$$</p>
+<p><strong>Tensorflow：</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.tensorflow.org/api_docs/python/tf/keras/losses/CosineSimilarity">CosineSimilarity</a>：请注意，所得值是介于-1和0之间的负数，其中0表示正交性，而接近-1的值表示更大的相似性。 如果y_true或y_pred是零向量，则余弦相似度将为0，而与预测值和目标值之间的接近程度无关。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">tf.keras.losses.CosineSimilarity(axis&#x3D;-1, reduction&#x3D;losses_utils.ReductionV2.AUTO, name&#x3D;&#39;cosine_similarity&#39;)</span><br><span class="line">公式：loss &#x3D; -sum(l2_norm(y_true) * l2_norm(y_pred))</span><br><span class="line">参数：</span><br><span class="line">	axis：默认-1，沿其计算余弦相似度的维</span><br><span class="line">	reduction：传入tf.keras.losses.Reduction类型值，默认AUTO，定义对损失的计算方式。</span><br></pre></td></tr></table></figure>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.tensorflow.org/api_docs/python/tf/keras/losses/cosine_similarity">cosine_similarity</a></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">tf.keras.losses.cosine_similarity(y_true, y_pred, axis&#x3D;-1)</span><br><span class="line">公式：loss &#x3D; -sum(l2_norm(y_true) * l2_norm(y_pred))</span><br><span class="line">参数：</span><br><span class="line">	axis：默认-1，沿其计算余弦相似度的维</span><br></pre></td></tr></table></figure>
+<p><strong>PyTorch：</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/generated/torch.nn.CosineEmbeddingLoss.html">CosineEmbeddingLoss</a>：当 $y=1$时，$loss(x,y)1-cos(x_1,x_2)$，当 $y=-1$ 时，$loss(x,y)=max(0,cos(x_1,x_2)-margin)$ </li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">torch.nn.CosineEmbeddingLoss(margin: float &#x3D; 0.0, size_average&#x3D;None, reduce&#x3D;None, reduction: str &#x3D; &#39;mean&#39;)</span><br><span class="line">参数：</span><br><span class="line">	margin：float类型，应为-1到1之间的数字，建议为0到0.5，默认值为0</span><br><span class="line">	size_average：bool类型，为True时，返回的loss为平均值，为False时，返回的各样本的loss之和</span><br><span class="line">	reduce：bool类型，返回值是否为标量，默认为True</span><br><span class="line">	reduction-三个值，none: 不使用约简；mean:返回loss和的平均值；sum:返回loss的和。默认：mean</span><br></pre></td></tr></table></figure>
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>DengBoCong</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="http://dengbocong.cn/f3029f0768bb/">http://dengbocong.cn/f3029f0768bb/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Licensed under the Apache License, Version 2.0 (the "License")</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Stay hungry, Stay foolish.</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/TensorFlow/"># TensorFlow</a>
+                    
+                        <a href="/tags/PyTorch/"># PyTorch</a>
+                    
+                        <a href="/tags/%E6%8D%9F%E5%A4%B1%E5%87%BD%E6%95%B0/"># 损失函数</a>
+                    
+                        <a href="/tags/%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D/"># 梯度下降</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/c6980c31d7a3/">好好琢磨一下TF-IDF，结合Sklearn</a>
+            
+            
+            <a class="next" rel="next" href="/7820bcc68547/">论文阅读笔记：SMN检索式多轮对话系统</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+        </div>
+        <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Copyright 2021 DengBoCong. All Rights Reserved. 赣ICP备20002291号</span>
+    </div>
+</footer>
+
+    </div>
+    <div id="u-search">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="container">
+                    <form id="u-search-modal-form" class="u-search-modal-form">
+                        <button type="submit" class="form-submit-btn">
+                            <img src="/image/search.png" class="search-btn-img" />
+                        </button>
+                        <input placeholder="请输入关键字搜索文章..." class="form-input" onchange="inputChange(event)" id="modal-form-input">
+                    </form>
+                    <a class="modal-close">x</a>
+                </div>
+                <div class="search-loading">
+                    <div class="search-loading-bar"></div>
+                </div>
+            </div>
+            <div class="modal-body">
+            </div>
+        </div>
+        <div class="modal-overlay"></div>
+    </div>
+</body>
+</html>
