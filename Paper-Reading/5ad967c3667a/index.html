@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<link rel="stylesheet" href="/css/search.css">
+<script src="/js/jquery-3.4.1.min.js"></script>
+<script src="/js/search.js"></script>
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
+<style>
+    .pace .pace-progress {
+        background: #5cb0ff; /*进度条颜色*/
+        height: 2px;
+    }
+    .pace .pace-progress-inner {
+        box-shadow: 0 0 10px #1E92FB, 0 0 5px     #1E92FB; /*阴影颜色*/
+    }
+    .pace .pace-activity {
+        border-top-color: #1E92FB;    /*上边框颜色*/
+        border-left-color: #1E92FB;    /*左边框颜色*/
+    }
+</style>
+
+    <meta name="author" content="DengBoCong">
+
+
+    <meta name="subtitle" content="NLP | Deep Learning | Java">
+
+
+
+
+<title>论文阅读笔记：Self-Attention-with-Relative-Position-Representation | DengBoCong</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+    
+
+
+<meta name="generator" content="Hexo 5.3.0"></head>
+<body>
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">DengBoCong</a></div>
+            <div class="menu navbar-right">
+                <div class="search" style="float: left; margin-top: 7px;">
+                    <form class="form-search">
+                        <input class="input" placeholder="search content..." autocomplete="off" onchange="inputChange(event)" id="pc-search-input"/>
+                    </form>
+                    <div class="search-btn">
+                        <img src="/image/search.png" class="search-btn-img" />
+                    </div>
+                </div>
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/projects">Projects</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">DengBoCong</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/projects">Projects</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+        <div class="main">
+            <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    document.ready(
+        function () {
+            tocbot.init({
+                tocSelector: '.tocbot-list',
+                contentSelector: '.post-content',
+                headingSelector: 'h1, h2, h3, h4, h5',
+                collapseDepth: 1,
+                orderedList: false,
+                scrollSmooth: true,
+            })
+        }
+    )
+
+    function expand_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 6,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "collapse_toc()");
+        b.innerHTML = "Collapse all"
+    }
+
+    function collapse_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 1,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "expand_toc()");
+        b.innerHTML = "Expand all"
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">论文阅读笔记：Self-Attention-with-Relative-Position-Representation</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">DengBoCong</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">October 26, 2020&nbsp;&nbsp;0:12:49</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Paper-Reading/">Paper-Reading</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><blockquote>
+<p>标题：Self-Attention with Relative Position Representations<br>原文链接：<a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1803.02155.pdf">Link</a><br>Github：<a target="_blank" rel="noopener" href="https://github.com/DengBoCong/nlp-paper">NLP相关Paper笔记和实现</a><br>说明：阅读论文时进行相关思想、结构、优缺点，内容进行提炼和记录，论文和相关引用会标明出处，引用之处如有侵权，烦请告知删除。<br>转载请注明：DengBoCong</p>
+</blockquote>
+<h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p>了解Transformer的都知道，与递归和卷积神经网络相反，它没有在其结构中显式地建模相对或绝对位置信息，而是它需要在其输入中添加绝对位置的表示，这是一种完全依赖于注意力机制的方法。在本篇论文中，提出了一种替代方法，扩展了自注意机制，可以有效地考虑相对位置或序列元素之间距离的表示。本文描述了该方法的有效实现，并将其转换为可感知到任意图标记输入的相对位置感知自注意力机制的实例，即提出了一种将相对位置表示形式并入Transformer自注意机制的有效方法，残差连接有助于将位置信息传播到更高的层。</p>
+<p>循环神经网络（RNN）通常根据时间 $t$ 的输入和先前的隐藏状态 $h_{t-1}$ 计算隐藏状态 $h_t$，直接通过其顺序结构沿时间维度捕获相对位置和绝对位置。非循环模型不必一定要顺序考虑输入元素，因此可能需要显式编码位置信息才能使用序列顺序。</p>
+<p>一种常见的方法是使用与输入元素结合的位置编码，以将位置信息公开给模型。这些位置编码可以是位置的确定性函数或学习的表示形式。比如，卷积神经网络捕获每个卷积内核大小内的相对位置，已被证明仍然受益于位置编码。</p>
+<h3 id="Relation-aware自注意力"><a href="#Relation-aware自注意力" class="headerlink" title="Relation-aware自注意力"></a>Relation-aware自注意力</h3><h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>本文提出了自注意力的扩展，可用于合并序列的相对位置信息，从而提高了机器翻译的性能。论文中的这个思路可以借鉴参考，通过对自注意力的改造，就不需要进行硬位置编码了，但是论文中貌似没有比较硬位置编码和该方法的效果。</p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>DengBoCong</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="http://dengbocong.cn/Paper-Reading/5ad967c3667a/">http://dengbocong.cn/Paper-Reading/5ad967c3667a/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Licensed under the Apache License, Version 2.0 (the "License")</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Stay hungry, Stay foolish.</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/Transformer/"># Transformer</a>
+                    
+                        <a href="/tags/Paper/"># Paper</a>
+                    
+                        <a href="/tags/Self-Attention/"># Self-Attention</a>
+                    
+                        <a href="/tags/Relative-Position-Representation/"># Relative-Position-Representation</a>
+                    
+                        <a href="/tags/RPR/"># RPR</a>
+                    
+                        <a href="/tags/%E7%9B%B8%E5%AF%B9%E4%BD%8D%E7%BD%AE%E7%BC%96%E7%A0%81/"># 相对位置编码</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/Deep-Learning/2873c4549d8b/">Embedding和Word2vec的理解</a>
+            
+            
+            <a class="next" rel="next" href="/Paper-Reading/8fd93ce36699/">论文阅读笔记：Scheduled-Sampling-for-Transformers</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+        </div>
+        <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Copyright 2020-2021 DengBoCong. All Rights Reserved. 赣ICP备20002291号</span>
+    </div>
+</footer>
+
+    </div>
+    <div id="u-search">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="container">
+                    <form id="u-search-modal-form" class="u-search-modal-form">
+                        <button type="submit" class="form-submit-btn">
+                            <img src="/image/search.png" class="search-btn-img" />
+                        </button>
+                        <input placeholder="请输入关键字搜索文章..." class="form-input" onchange="inputChange(event)" id="modal-form-input">
+                    </form>
+                    <a class="modal-close">x</a>
+                </div>
+                <div class="search-loading">
+                    <div class="search-loading-bar"></div>
+                </div>
+            </div>
+            <div class="modal-body">
+            </div>
+        </div>
+        <div class="modal-overlay"></div>
+    </div>
+</body>
+</html>

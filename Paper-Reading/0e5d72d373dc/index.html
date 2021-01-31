@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<link rel="stylesheet" href="/css/search.css">
+<script src="/js/jquery-3.4.1.min.js"></script>
+<script src="/js/search.js"></script>
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
+<style>
+    .pace .pace-progress {
+        background: #5cb0ff; /*进度条颜色*/
+        height: 2px;
+    }
+    .pace .pace-progress-inner {
+        box-shadow: 0 0 10px #1E92FB, 0 0 5px     #1E92FB; /*阴影颜色*/
+    }
+    .pace .pace-activity {
+        border-top-color: #1E92FB;    /*上边框颜色*/
+        border-left-color: #1E92FB;    /*左边框颜色*/
+    }
+</style>
+
+    <meta name="author" content="DengBoCong">
+
+
+    <meta name="subtitle" content="NLP | Deep Learning | Java">
+
+
+
+
+<title>论文阅读笔记：CrossWOZ：A-Large-Scale-Chinese-Cross-Domain-Task... | DengBoCong</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+    
+
+
+<meta name="generator" content="Hexo 5.3.0"></head>
+<body>
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">DengBoCong</a></div>
+            <div class="menu navbar-right">
+                <div class="search" style="float: left; margin-top: 7px;">
+                    <form class="form-search">
+                        <input class="input" placeholder="search content..." autocomplete="off" onchange="inputChange(event)" id="pc-search-input"/>
+                    </form>
+                    <div class="search-btn">
+                        <img src="/image/search.png" class="search-btn-img" />
+                    </div>
+                </div>
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/projects">Projects</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">DengBoCong</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/projects">Projects</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+        <div class="main">
+            <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    document.ready(
+        function () {
+            tocbot.init({
+                tocSelector: '.tocbot-list',
+                contentSelector: '.post-content',
+                headingSelector: 'h1, h2, h3, h4, h5',
+                collapseDepth: 1,
+                orderedList: false,
+                scrollSmooth: true,
+            })
+        }
+    )
+
+    function expand_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 6,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "collapse_toc()");
+        b.innerHTML = "Collapse all"
+    }
+
+    function collapse_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 1,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "expand_toc()");
+        b.innerHTML = "Expand all"
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">论文阅读笔记：CrossWOZ：A-Large-Scale-Chinese-Cross-Domain-Task...</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">DengBoCong</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">September 27, 2020&nbsp;&nbsp;18:48:56</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Paper-Reading/">Paper-Reading</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><blockquote>
+<p>标题：CrossWOZ: A Large-Scale Chinese Cross-Domain Task-Oriented Dialogue Dataset<br>原文链接：<a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2002.11893.pdf">Link</a><br>Github：<a target="_blank" rel="noopener" href="https://github.com/DengBoCong/nlp-paper">NLP相关Paper笔记和实现</a><br>说明：阅读论文时进行相关思想、结构、优缺点，内容进行提炼和记录，论文和相关引用会标明出处，引用之处如有侵权，烦请告知删除。<br>转载请注明：DengBoCong</p>
+</blockquote>
+<p>最近在搜集一些对话数据集，众所周知，生成对话数据集是一件费钱又费时的工作，所以一般只有大机构才能做出高质量且庞大的数据集，所以看到好的数据集，那还不赶紧收藏一波。<br><a target="_blank" rel="noopener" href="https://github.com/thu-coai/CrossWOZ">CrossWOZ代码和数据</a></p>
+<h1 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h1><p>为了推进多域（跨域）对话建模并缓解中文面向任务的数据集的不足的问题，我们提出了CrossWOZ，这是第一个大规模的中文跨域“人机交互”任务导向的数据集。CrossWOZ包含 6K 个对话，102K 个句子，涉及 5 个领域（景点、酒店、餐馆、地铁、出租）。此外，语料库包含丰富的对话状态注释，以及用户和系统端的对话行为。大约60％的对话具有跨域用户目标，这些目标有利于域间依赖性，并有助于对话中跨域自然过渡。我们还为pipeline的面向任务的对话系统提供了一个用户模拟器和一些基准模型，这将有助于研究人员在该语料库上比较和评估他们的模型。CrossWOZ的规模庞大和丰富注释使它适合研究跨域对话建模中的各种任务，例如对话状态跟踪，策略学习，用户模拟等。</p>
+<h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>许多语料库已经推进了面向任务的对话系统的研究，不过大部分都是单领域对话，比如ATIS、DSTC 2、Frames、KVRET、WOZ 2.0和M2M等。这些数据集的大小，语言变化或任务复杂性仍然受到限制。在现实生活中的对话中，人们自然会在不同领域或场景之间进行转换，同时仍保持连贯的上下文，因此，现实对话比仅在单个域中模拟的对话要复杂得多。提及到多领域对话语料，最多被提及的就是MultiWOZ，但是，这个数据集状态注释有很多噪音，并且缺少用户端对话行为。<strong>跨域的依赖关系可以简单地体现为对不同的域施加相同的预先规定的约束，例如要求将旅馆和景点都定位在城镇中心。</strong>，如下是一个对话示例：<br><img src="https://img-blog.csdnimg.cn/20200927172302406.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br><strong>跨领域对话的数据样例</strong><br><img src="https://img-blog.csdnimg.cn/20200927172857102.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>本数据集的特点：</p>
+<ul>
+<li> 用户在某个领域的选择可能会影响到与之相关的领域的选择，在跨领域上下文理解更有挑战。</li>
+<li> 第一个大规模中文跨领域任务导向数据集。</li>
+<li> 在用户端和系统端都有详细的对话状态记录，标注信息全面。</li>
+</ul>
+<p><strong>与其他数据集的对比</strong><br><img src="https://img-blog.csdnimg.cn/20200927173339629.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+<h1 id="Related-Work"><a href="#Related-Work" class="headerlink" title="Related Work"></a>Related Work</h1><p>对话数据的收集方式有三类：</p>
+<ul>
+<li>human-to-human</li>
+<li>human-to-machine</li>
+<li>machine-to-machine</li>
+</ul>
+<h1 id="Data-Collection"><a href="#Data-Collection" class="headerlink" title="Data Collection"></a>Data Collection</h1><p>语料库是模拟旅行者寻找旅游信息并计划其在北京旅行的场景，domains包括酒店，景点，餐厅，地铁和出租车。 数据收集过程总结如下：</p>
+<ol>
+<li>基础数据库的构建：通过爬虫从网络上获取了北京市的酒店/旅游景点/饭店以及地铁和出租车信息。</li>
+<li>目标构建：论文通过算法自动生成标注人员的对话目标。</li>
+<li>对话收集：要求工人进行少量对话，并向他们提供有关对话质量的反馈。</li>
+<li>数据标注：每个对话都包含结构化的目标，任务描述，用户状态，系统状态，对话行为和对话。</li>
+</ol>
+<p>基础数据库信息示例如下：<br><img src="https://img-blog.csdnimg.cn/20200927180441535.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>用户目标示例如下：<br><img src="https://img-blog.csdnimg.cn/20200927180519346.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+<h1 id="Statistics"><a href="#Statistics" class="headerlink" title="Statistics"></a>Statistics</h1><p><img src="https://img-blog.csdnimg.cn/20200927182041653.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/20200927182214247.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/20200927182241872.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+<h1 id="Benchmark-and-Analysis"><a href="#Benchmark-and-Analysis" class="headerlink" title="Benchmark and Analysis"></a>Benchmark and Analysis</h1><p><img src="https://img-blog.csdnimg.cn/20200927182351883.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+<h1 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h1><p>在本文中，我们提出了第一个大规模的中文跨域任务导向对话数据集，CrossWOZ。CrossWOZ包含 6K 个对话，102K 个句子，涉及 5 个领域。此外，语料库包含丰富的对话状态注释，以及用户和系统端的对话行为。大约60％的对话具有跨域用户目标，这鼓励了相关域之间的自然过渡。得益于丰富的对话状态注释以及用户端和系统端的对话行为，该语料库为研究跨域对话建模的各种任务（例如对话状态跟踪，策略学习等）提供了新的测试平台。我们的实验表明，跨域约束对于所有这些任务都是具有挑战性的。相关领域之间的转换对建模尤其具有挑战性。 除了基于语料库的组件级评估外，我们还使用用户模拟器执行了系统级评估，这需要针对pipeline跨域对话系统的所有组件提供更强大的模型。</p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>DengBoCong</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="http://dengbocong.cn/Paper-Reading/0e5d72d373dc/">http://dengbocong.cn/Paper-Reading/0e5d72d373dc/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Licensed under the Apache License, Version 2.0 (the "License")</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Stay hungry, Stay foolish.</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/NLP/"># NLP</a>
+                    
+                        <a href="/tags/%E5%AF%B9%E8%AF%9D%E7%B3%BB%E7%BB%9F/"># 对话系统</a>
+                    
+                        <a href="/tags/Paper/"># Paper</a>
+                    
+                        <a href="/tags/%E6%95%B0%E6%8D%AE%E9%9B%86/"># 数据集</a>
+                    
+                        <a href="/tags/%E9%9D%A2%E5%90%91%E4%BB%BB%E5%8A%A1/"># 面向任务</a>
+                    
+                        <a href="/tags/CrossWOZ/"># CrossWOZ</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/Paper-Reading/9f6b46ae549c/">论文阅读笔记：MultiWOZ-2.2</a>
+            
+            
+            <a class="next" rel="next" href="/Paper-Reading/18004f87a32e/">论文阅读笔记：Layer-Normalization</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+        </div>
+        <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Copyright 2020-2021 DengBoCong. All Rights Reserved. 赣ICP备20002291号</span>
+    </div>
+</footer>
+
+    </div>
+    <div id="u-search">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="container">
+                    <form id="u-search-modal-form" class="u-search-modal-form">
+                        <button type="submit" class="form-submit-btn">
+                            <img src="/image/search.png" class="search-btn-img" />
+                        </button>
+                        <input placeholder="请输入关键字搜索文章..." class="form-input" onchange="inputChange(event)" id="modal-form-input">
+                    </form>
+                    <a class="modal-close">x</a>
+                </div>
+                <div class="search-loading">
+                    <div class="search-loading-bar"></div>
+                </div>
+            </div>
+            <div class="modal-body">
+            </div>
+        </div>
+        <div class="modal-overlay"></div>
+    </div>
+</body>
+</html>

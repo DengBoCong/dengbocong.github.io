@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<link rel="stylesheet" href="/css/search.css">
+<script src="/js/jquery-3.4.1.min.js"></script>
+<script src="/js/search.js"></script>
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
+<style>
+    .pace .pace-progress {
+        background: #5cb0ff; /*进度条颜色*/
+        height: 2px;
+    }
+    .pace .pace-progress-inner {
+        box-shadow: 0 0 10px #1E92FB, 0 0 5px     #1E92FB; /*阴影颜色*/
+    }
+    .pace .pace-activity {
+        border-top-color: #1E92FB;    /*上边框颜色*/
+        border-left-color: #1E92FB;    /*左边框颜色*/
+    }
+</style>
+
+    <meta name="author" content="DengBoCong">
+
+
+    <meta name="subtitle" content="NLP | Deep Learning | Java">
+
+
+
+
+<title>NLP中遇到的各类Attention结构汇总以及代码复现 | DengBoCong</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+    
+
+
+<meta name="generator" content="Hexo 5.3.0"></head>
+<body>
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">DengBoCong</a></div>
+            <div class="menu navbar-right">
+                <div class="search" style="float: left; margin-top: 7px;">
+                    <form class="form-search">
+                        <input class="input" placeholder="search content..." autocomplete="off" onchange="inputChange(event)" id="pc-search-input"/>
+                    </form>
+                    <div class="search-btn">
+                        <img src="/image/search.png" class="search-btn-img" />
+                    </div>
+                </div>
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/projects">Projects</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">DengBoCong</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/projects">Projects</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+        <div class="main">
+            <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    document.ready(
+        function () {
+            tocbot.init({
+                tocSelector: '.tocbot-list',
+                contentSelector: '.post-content',
+                headingSelector: 'h1, h2, h3, h4, h5',
+                collapseDepth: 1,
+                orderedList: false,
+                scrollSmooth: true,
+            })
+        }
+    )
+
+    function expand_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 6,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "collapse_toc()");
+        b.innerHTML = "Collapse all"
+    }
+
+    function collapse_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 1,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "expand_toc()");
+        b.innerHTML = "Expand all"
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">NLP中遇到的各类Attention结构汇总以及代码复现</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">DengBoCong</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">December 20, 2020&nbsp;&nbsp;9:01:20</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Deep-Learning/">Deep-Learning</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><blockquote>
+<p>Github：本文代码放在该项目中：<a target="_blank" rel="noopener" href="https://github.com/DengBoCong/nlp-paper">NLP相关Paper笔记和代码复现</a><br>说明：讲解时会对相关文章资料进行思想、结构、优缺点，内容进行提炼和记录，相关引用会标明出处，引用之处如有侵权，烦请告知删除。<br>转载请注明：DengBoCong</p>
+</blockquote>
+<p>我们所熟知的encoder和decoder结构中，通常采用RNN结构如GRU或LSTM等，在encoder RNN中将输入语句信息总结到最后一个hidden vector中，并将其作为decoder的初始hidden vector，从而利用decoder的解码成对应的其他语言中的文字。但是这样的结构会出现一些问题，比如老生常谈的长程梯度消失的问题，对于较长的句子很难寄希望于将输入的序列转化为定长的向量而保存所有的有效的信息，所以随着输入序列的长度增加，这种结构的效果就会显著下降。因此这个时候就是Attention出场了，用一个浅显描述总结Attention就是，分配权重系数，保留序列的有效信息，而不是局限于原来模型中的定长隐藏向量，并且不会丧失长程的信息。</p>
+<p><img src="https://img-blog.csdnimg.cn/20201218114440343.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<p>本篇文章主要是汇总我目前在对话和语音方面遇到的各类Attention，针对这些Attention进行理解阐述、总结、论文、代码复现。本文只对各Attention的关键处进行阐述，具体细节可查阅资料或阅读原论文了解。**本文所述的结构不是很多，主要是目前我再学习中遇到的比较重要的Attention（一些用的不多的在最后提了一下），后续还会持续更新。</p>
+<h1 id="Bahdanau-Attention"><a href="#Bahdanau-Attention" class="headerlink" title="Bahdanau Attention"></a>Bahdanau Attention</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1409.0473.pdf">Paper Link</a></li>
+</ul>
+<p>Bahdanau Attention实现可以说是Attention的开创者之一，该实现的论文名叫“Neural Machine Translation by Learning to Jointly Align and Translate”，其中使用到了“Align”一次，意思是在训练模型的同时调整直接影响得分的权重，下面是论文中的结构图：<br><img src="https://img-blog.csdnimg.cn/20201218201405508.png#pic_center" alt="在这里插入图片描述"><br>计算公式如下：<br>$$c_t = \sum_{j=1}^{T_x}a_{tj}h_j$$    $$a_{tj}=\frac{exp(e_{tj})}{\sum_{k=1}^{T_x}exp(e_{tk})}$$    $$e_{tj}=V_a^Ttanh(W_a[s_{t-1};h_j])$$</p>
+<p>其中，$c_t$ 是 $t$ 时刻的语义向量，$e_ij$ 是encoder中 $j$ 时刻Encoder隐藏层状态 $h_j$ 对decoder中 $t$ 时刻隐藏层状态 $s_t$ 的影响程度，然后通过softmax函数（第二个式子）将 $e_{tj}$ 概率归一化为 $a_{tj}$</p>
+<p>论文是使用Seq2seq结构对Attention进行阐述的，所以需要注意几点的是：</p>
+<ul>
+<li>在模型结构的encoder中，是使用双向RNN处理序列的，并将方向RNN的最后一个隐藏层作为decoder的初始化隐藏层。</li>
+<li>attention层中的分数计算方式是使用 <strong>additive/concat</strong></li>
+<li>解码器的下一个时间步的输入是前一个解码器时间步生成的单词（或ground-truth）与当前时间步的上下文向量之间的concat。</li>
+</ul>
+<p><strong>下面附一张更清晰的结构图</strong>：<br><img src="https://img-blog.csdnimg.cn/20201218212755333.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+<p>复现代码（以TensorFlow2为例），注意，将如下实现应用到实际模型中，需要根据具体模型微调：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">bahdanau_attention</span>(<span class="params">hidden_dim: <span class="built_in">int</span>, units: <span class="built_in">int</span></span>):</span></span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    :param units: 全连接层单元数</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    query = tf.keras.Input(shape=(hidden_dim))</span><br><span class="line">    values = tf.keras.Input(shape=(<span class="literal">None</span>, hidden_dim))</span><br><span class="line">    V = tf.keras.layers.Dense(<span class="number">1</span>)</span><br><span class="line">    W1 = tf.keras.layers.Dense(units)</span><br><span class="line">    W2 = tf.keras.layers.Dense(units)</span><br><span class="line">    <span class="comment"># query其实就是decoder的前一个状态，decoder的第一个状态就是上</span></span><br><span class="line">    <span class="comment"># 面提到的encoder反向RNN的最后一层，它作为decoderRNN中的初始隐藏层状态</span></span><br><span class="line">    <span class="comment"># values其实就是encoder每个时间步的隐藏层状态，所以下面需要将query扩展一个时间步维度进行之后的操作</span></span><br><span class="line">    hidden_with_time_axis = tf.expand_dims(query, <span class="number">1</span>)</span><br><span class="line">    score = V(tf.nn.tanh(W1(values) + W2(hidden_with_time_axis)))</span><br><span class="line">    attention_weights = tf.nn.softmax(score, axis=<span class="number">1</span>)</span><br><span class="line">    context_vector = attention_weights * values</span><br><span class="line">    context_vector = tf.reduce_mean(context_vector, axis=<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> tf.keras.Model(inputs=[query, values], outputs=[context_vector, attention_weights])</span><br></pre></td></tr></table></figure>
+<h1 id="Luong-Attention"><a href="#Luong-Attention" class="headerlink" title="Luong Attention"></a>Luong Attention</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1508.04025.pdf">Paper Link</a></li>
+</ul>
+<p>论文名为“Effective Approaches to Attention-based Neural Machine Translation”，文章其实是基于Bahdanau Attention进行研究的，但在架构上更加简单。论文研究了两种简单有效的注意力机制：一种始终关注所有词的global方法和一种仅一次查看词子集的local方法。结构如下图：<br><img src="https://img-blog.csdnimg.cn/20201218220809256.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>计算公式如下：<br>$$a_t(s)=align(h_t,\bar{h}<em>s)=\frac{exp(score(h_t, \bar{h}_s))}{\sum</em>{s’}exp(score(h_t, \bar{h}_{s’}))}$$    $$score(h_t, \bar{h}_s)\left{\begin{matrix} h_t^T\bar{h}_s &amp; dot \ h_t^TW_a\bar{h}_s &amp;general \ v_a^Ttanh(W_a[h_t;\bar{h}_s]) &amp;concat \end{matrix}\right.$$ </p>
+<p>同样的，论文中也是使用Seq2Seq结构进行阐述，需要注意如下几点：</p>
+<ul>
+<li>在encoder部分是使用两层堆叠的LSTM，decoder也是同样的结构，不过它使用encoder最后一个隐藏层作为初始化隐藏层。</li>
+<li>用作Attention计算的隐藏层向量是使用堆叠的最后一个LSTM的隐层</li>
+<li>论文中实验的注意力分数计算方式有：（1）additive/concat，（2）dot product，（3）location-based，（4）‘general’</li>
+<li>当前时间步的解码器输出与当前时间步的上下文向量之间的concat喂给前馈神经网络，从而给出当前时间步的解码器的最终输出。</li>
+</ul>
+<p><strong>下面附一张更清晰的结构图</strong>：你会发现和Bahdanau Attention很像区别在于score计算方法和最后decoder中和context vector合并部分。<br><img src="https://img-blog.csdnimg.cn/20201218234135371.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+<p>复现代码（以TensorFlow2为例），注意，将如下实现应用到实际模型中，需要根据具体模型微调：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">luong_attention_concat</span>(<span class="params">hidden_dim: <span class="built_in">int</span>, units: <span class="built_in">int</span></span>) -&gt; tf.keras.Model:</span></span><br><span class="line">	<span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">	:param units: 全连接层单元数</span></span><br><span class="line"><span class="string">	&quot;&quot;&quot;</span></span><br><span class="line">	query = tf.keras.Input(shape=(hidden_dim))</span><br><span class="line">	values = tf.keras.Input(shape=(<span class="literal">None</span>, hidden_dim))</span><br><span class="line">	W1 = tf.keras.layers.Dense(units)</span><br><span class="line">	V = tf.keras.layers.Dense(<span class="number">1</span>)</span><br><span class="line">	<span class="comment"># query其实就是decoder的前一个状态，decoder的第一个状态就是上</span></span><br><span class="line">	<span class="comment"># 面提到的encoder反向RNN的最后一层，它作为decoderRNN中的初始隐藏层状态</span></span><br><span class="line">	<span class="comment"># values其实就是encoder每个时间步的隐藏层状态，所以下面需要将query扩展一个时间步维度进行之后的操作</span></span><br><span class="line">	hidden_with_time_axis = tf.expand_dims(query, <span class="number">1</span>)</span><br><span class="line">	scores = V(tf.nn.tanh(W1(hidden_with_time_axis + values)))</span><br><span class="line">	attention_weights = tf.nn.softmax(scores, axis=<span class="number">1</span>)</span><br><span class="line">	context_vector = tf.matmul(attention_weights, values)</span><br><span class="line">	context_vector = tf.reduce_mean(context_vector, axis=<span class="number">1</span>)</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">return</span> tf.keras.Model(inputs=[query, values], outputs=[attention_weights, context_vector])</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">luong_attention_dot</span>(<span class="params">query: tf.Tensor, value: tf.Tensor</span>) -&gt; tf.Tensor:</span></span><br><span class="line">	 <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">	 :param query: decoder的前一个状态</span></span><br><span class="line"><span class="string">	 :param value: encoder的output</span></span><br><span class="line"><span class="string">	 &quot;&quot;&quot;</span></span><br><span class="line">	 hidden_with_time_axis = tf.expand_dims(query, <span class="number">1</span>)</span><br><span class="line">	 scores = tf.matmul(hidden_with_time_axis, value, transpose_b=<span class="literal">True</span>)</span><br><span class="line">	 attention_weights = tf.nn.softmax(scores, axis=<span class="number">1</span>)</span><br><span class="line">	 context_vector = tf.matmul(attention_weights, value)</span><br><span class="line">	 context_vector = tf.reduce_mean(context_vector, axis=<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+<h1 id="Self-Attention、Multi-Head-Attention"><a href="#Self-Attention、Multi-Head-Attention" class="headerlink" title="Self-Attention、Multi-Head Attention"></a>Self-Attention、Multi-Head Attention</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1706.03762.pdf">Link</a></li>
+</ul>
+<p>Transformer用的就是Self-Attention、Multi-Head Attention。对于self-attention来讲，Q(Query), K(Key), V(Value)三个矩阵均来自同一输入，首先我们要计算Q与K之间的点乘，然后为了防止其结果过大，会除以一个尺度标度 $\sqrt{d_k}$ ，其中 $d_k$ 为一个query和key向量的维度。再利用Softmax操作将其结果归一化为概率分布，然后再乘以矩阵V就得到权重求和的表示。多头Attention，用到了多个query对一段原文进行了多次attention，每个query都关注到原文的不同部分，相当于重复做多次单层attention，两个的结构图如下：<br><img src="https://img-blog.csdnimg.cn/20201219161334371.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>计算公式如下：<br>$$Attention(Q,K,V)=softmax(\frac{QK^T}{\sqrt{d_k}})V$$   $$head_i=Attention(q_i,K,V)$$    $$MultiHead(Q,K,V)=Concat(head_1,…,head_h)W^O$$</p>
+<p>复现代码（以TensorFlow2为例），注意，将如下实现应用到实际模型中，需要根据具体模型微调：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">scaled_dot_product_attention</span>(<span class="params">query: tf.Tensor, key: tf.Tensor, value: tf.Tensor, mask: tf.Tensor=<span class="literal">None</span></span>):</span></span><br><span class="line">	<span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">	计算注意力权重。</span></span><br><span class="line"><span class="string">    q, k, v 必须具有匹配的前置维度。</span></span><br><span class="line"><span class="string">    k, v 必须有匹配的倒数第二个维度，例如：seq_len_k = seq_len_v。</span></span><br><span class="line"><span class="string">    虽然 mask 根据其类型（填充或前瞻）有不同的形状，</span></span><br><span class="line"><span class="string">    但是 mask 必须能进行广播转换以便求和。</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    参数:</span></span><br><span class="line"><span class="string">      q: 请求的形状 == (..., seq_len_q, depth)</span></span><br><span class="line"><span class="string">      k: 主键的形状 == (..., seq_len_k, depth)</span></span><br><span class="line"><span class="string">      v: 数值的形状 == (..., seq_len_v, depth_v)</span></span><br><span class="line"><span class="string">      mask: Float 张量，其形状能转换成</span></span><br><span class="line"><span class="string">            (..., seq_len_q, seq_len_k)。默认为None。</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    返回值:</span></span><br><span class="line"><span class="string">      输出，注意力权重</span></span><br><span class="line"><span class="string">	&quot;&quot;&quot;</span></span><br><span class="line">	matmul_qk = tf.matmul(q, k, transpose_b=<span class="literal">True</span>)  <span class="comment"># (..., seq_len_q, seq_len_k)</span></span><br><span class="line">    <span class="comment"># 缩放 matmul_qk</span></span><br><span class="line">    dk = tf.cast(tf.shape(k)[-<span class="number">1</span>], tf.float32)</span><br><span class="line">    scaled_attention_logits = matmul_qk / tf.math.sqrt(dk)</span><br><span class="line">    <span class="comment"># 将 mask 加入到缩放的张量上。</span></span><br><span class="line">    <span class="keyword">if</span> mask <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">        scaled_attention_logits += (mask * -<span class="number">1e9</span>)</span><br><span class="line">    <span class="comment"># softmax 在最后一个轴（seq_len_k）上归一化，因此分数相加等于1。</span></span><br><span class="line">    attention_weights = tf.nn.softmax(scaled_attention_logits, axis=-<span class="number">1</span>)  <span class="comment"># (..., seq_len_q, seq_len_k)</span></span><br><span class="line">    output = tf.matmul(attention_weights, v)  <span class="comment"># (..., seq_len_q, depth_v)</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> output, attention_weights</span><br></pre></td></tr></table></figure>
+<h1 id="Location-Sensitive-Attention"><a href="#Location-Sensitive-Attention" class="headerlink" title="Location Sensitive Attention"></a>Location Sensitive Attention</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://proceedings.neurips.cc/paper/2015/file/1068c6e4c8051cfd4e9ea8072e3189e2-Paper.pdf">Link</a><br>语音合成中的Tacotron2用的就是Location Sensitive Attention，即对位置敏感的Attention，也就是说加入了位置特征，是一种混合注意力机制（见最后一节说明）。原论文中提出，基于内容的Attention对于所输入内容的输入序列中的绝对位置能够跟踪捕获信息，但是在较长的语音片段中性能迅速下降，所以作者为了解决这个问题，通过将辅助的卷积特征作为输入添加到注意机制中来实现的，而这些卷积特征是通过将前一步的注意力权重进行卷积而提取的。结构图如下：<br><img src="https://img-blog.csdnimg.cn/20201219221547858.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></li>
+</ul>
+<p>计算公式如下：<br>$$e_{ij}=score(s_{i-1},ca_{i-1}, h_j)=v_a^Ttanh(Ws_i+Vh_j+Uf_{i,j}+b)$$</p>
+<p>其中，$s_i$ 为当前解码器隐状态而非上一步解码器隐状态，偏置值 $b$ 被初始化为 $0$。位置特征 $f_i$ 使用累加注意力权重 $ca_i$ 卷积而来：<br>$$f_i=F*ca_{i-1}$$    $$ca_i=\sum_{j=1}^{i-1}a_j$$</p>
+<p>复现代码（以TensorFlow2为例），注意，将如下实现应用到实际模型中，需要根据具体模型微调：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Attention</span>(<span class="params">tf.keras.layers.Layer</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, attention_dim, attention_filters, attention_kernel</span>):</span></span><br><span class="line">        <span class="built_in">super</span>(Attention, self).__init__()</span><br><span class="line">        self.attention_dim = attention_dim</span><br><span class="line">        self.attention_location_n_filters = attention_filters</span><br><span class="line">        self.attention_location_kernel_size = attention_kernel</span><br><span class="line">        self.query_layer = tf.keras.layers.Dense(</span><br><span class="line">            self.attention_dim, use_bias=<span class="literal">False</span>, activation=<span class="string">&quot;tanh&quot;</span>)</span><br><span class="line">        self.memory_layer = tf.keras.layers.Dense(</span><br><span class="line">            self.attention_dim, use_bias=<span class="literal">False</span>, activation=<span class="string">&quot;tanh&quot;</span>)</span><br><span class="line">        self.V = tf.keras.layers.Dense(<span class="number">1</span>, use_bias=<span class="literal">False</span>)</span><br><span class="line">        self.location_layer = LocationLayer(self.attention_location_n_filters, self.attention_location_kernel_size,</span><br><span class="line">                                            self.attention_dim)</span><br><span class="line">        self.score_mask_value = -<span class="built_in">float</span>(<span class="string">&quot;inf&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_alignment_energies</span>(<span class="params">self, query, memory, attention_weights_cat</span>):</span></span><br><span class="line">        processed_query = self.query_layer(tf.expand_dims(query, axis=<span class="number">1</span>))</span><br><span class="line">        processed_memory = self.memory_layer(memory)</span><br><span class="line"></span><br><span class="line">        attention_weights_cat = tf.transpose(attention_weights_cat, (<span class="number">0</span>, <span class="number">2</span>, <span class="number">1</span>))</span><br><span class="line">        processed_attention_weights = self.location_layer(</span><br><span class="line">            attention_weights_cat)</span><br><span class="line">        energies = tf.squeeze(self.V(tf.nn.tanh(</span><br><span class="line">            processed_query + processed_attention_weights + processed_memory)), -<span class="number">1</span>)</span><br><span class="line">        <span class="keyword">return</span> energies</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">call</span>(<span class="params">self, attention_hidden_state, memory, attention_weights_cat</span>):</span></span><br><span class="line">        alignment = self.get_alignment_energies(</span><br><span class="line">            attention_hidden_state, memory, attention_weights_cat)</span><br><span class="line">        attention_weights = tf.nn.softmax(alignment, axis=<span class="number">1</span>)</span><br><span class="line">        attention_context = tf.expand_dims(attention_weights, <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">        attention_context = tf.matmul(attention_context, memory)</span><br><span class="line">        attention_context = tf.squeeze(attention_context, axis=<span class="number">1</span>)</span><br><span class="line">        <span class="keyword">return</span> attention_context, attention_weights</span><br></pre></td></tr></table></figure>
+<h1 id="Attention形式"><a href="#Attention形式" class="headerlink" title="Attention形式"></a>Attention形式</h1><p>关于Attention形式和获取信息方式的总结，可参考这篇文章：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/35739040">Attention用于NLP的一些小结</a>。我接下来陈列出具体形式下的相关论文（这里的陈列的论文我并没有全部研读，单纯在这里汇总，往后有空或者需要用到对应Attention时，再仔细研读）。</p>
+<h2 id="Soft-attention、global-attention、动态attention"><a href="#Soft-attention、global-attention、动态attention" class="headerlink" title="Soft attention、global attention、动态attention"></a>Soft attention、global attention、动态attention</h2><p>这是比较常见的Attention方式，对所有key求权重概率，每个key都有一个对应的权重，是一种全局的计算方式（也可以叫Global Attention）。这种方式比较理性，参考了所有key的内容，再进行加权。但是计算量可能会比较大一些。</p>
+<h2 id="Hard-attention"><a href="#Hard-attention" class="headerlink" title="Hard attention"></a>Hard attention</h2><p>这种方式是直接精准定位到某个key，其余key就都不管了，相当于这个key的概率是1，其余key的概率全部是0。因此这种对齐方式要求很高，要求一步到位，如果没有正确对齐，会带来很大的影响。另一方面，因为不可导，一般需要用强化学习的方法进行训练。（或者使用gumbel softmax之类的）</p>
+<h2 id="Local-Attention（半软半硬attention）"><a href="#Local-Attention（半软半硬attention）" class="headerlink" title="Local Attention（半软半硬attention）"></a>Local Attention（半软半硬attention）</h2><p>这种方式其实是以上两种方式的一个折中，对一个窗口区域进行计算。先用Hard方式定位到某个地方，以这个点为中心可以得到一个窗口区域，在这个小区域内用Soft方式来算Attention。</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1612.07411.pdf">A Context-aware Attention Network for Interactive Question Answering</a></li>
+<li><a target="_blank" rel="noopener" href="https://discovery.ucl.ac.uk/id/eprint/10066102/1/Wang_Dynamic%20attention%20deep%20model%20for%20article%20recommendation%20by%20learning%20human%20editors%27%20demonstration_AAM.pdf">Dynamic Attention Deep Model for Article Recommendation by Learning Human Editors’ Demonstration</a></li>
+</ul>
+<h2 id="Concatenation-based-Attention"><a href="#Concatenation-based-Attention" class="headerlink" title="Concatenation-based Attention"></a>Concatenation-based Attention</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://ai.tencent.com/ailab/media/publications/Wei_Liu-Attentive_Collaborative_Filtering_Multimedia_Recommendation-SIGIR17.pdf">Attentive Collaborative Filtering: Multimedia Recommendation with Item- and Component-Level Attention</a></li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1706.05764.pdf">Dipole: Diagnosis Prediction in Healthcare via Aention-based Bidirectional Recurrent Neural Networks</a></li>
+<li><a target="_blank" rel="noopener" href="https://dl.acm.org/doi/abs/10.1145/3077136.3080699">Enhancing Recurrent Neural Networks with Positional Attention for Question Answering</a></li>
+<li><a target="_blank" rel="noopener" href="http://library.usc.edu.ph/ACM/KKD%202017/pdfs/p2031.pdf">Learning to Generate Rock Descriptions from Multivariate Well Logs with Hierarchical Attention</a></li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1509.06664.pdf">REASONING ABOUT ENTAILMENT WITH NEURAL ATTENTION</a></li>
+</ul>
+<h2 id="静态attention"><a href="#静态attention" class="headerlink" title="静态attention"></a>静态attention</h2><p>对输出句子共用一个 $s_t$ 的attention就够了，一般用在Bilstm的首位hidden state输出拼接起来作为 $s_t$ </p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1612.07411.pdf">Teaching Machines to Read and Comprehend</a></li>
+<li><a target="_blank" rel="noopener" href="https://pdfs.semanticscholar.org/a97b/5db17acc731ef67321832dbbaf5766153135.pdf">Supervised Sequence Labelling with Recurrent Neural Networks</a></li>
+</ul>
+<h2 id="多层Attention"><a href="#多层Attention" class="headerlink" title="多层Attention"></a>多层Attention</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1612.07411.pdf">A Context-aware Attention Network for Interactive Question Answering</a></li>
+<li><a target="_blank" rel="noopener" href="http://library.usc.edu.ph/ACM/KKD%202017/pdfs/p2031.pdf">Learning to Generate Rock Descriptions from Multivariate Well Logs with Hierarchical Attention</a></li>
+<li><a target="_blank" rel="noopener" href="https://ai.tencent.com/ailab/media/publications/Wei_Liu-Attentive_Collaborative_Filtering_Multimedia_Recommendation-SIGIR17.pdf">Attentive Collaborative Filtering: Multimedia Recommendation with Item- and Component-Level Attention</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.researchgate.net/profile/Pengjie_Ren/publication/318764168_Leveraging_Contextual_Sentence_Relations_for_Extractive_Summarization_Using_a_Neural_Attention_Model/links/5d890c34299bf1996f98c6d6/Leveraging-Contextual-Sentence-Relations-for-Extractive-Summarization-Using-a-Neural-Attention-Model.pdf">Leveraging Contextual Sentence Relations for Extractive Summarization Using a Neural Attention Model</a><h1 id="说在最后"><a href="#说在最后" class="headerlink" title="说在最后"></a>说在最后</h1>Attention的提出到现在拥有很多的变种，但是经典的还是Bahdanau Attention和Luong Attention，很多Attention都是对这两个进行改进的。其实学习了Attention的伙伴会发现，对于Attention而言，重要的是Score计算方法，对于不同的计算方法在下面做个总结：</li>
+<li>基于内容的注意力机制(content-based attention)：<br>$$e_{ij}=score(s_{i-1}, h_j)=v_a^Ttanh(W_as_{i-1}+U_ah_j)$$<br>其中，$s_{i−1}$ 为上一个时间步中解码器的输出(解码器隐状态，decoder hidden states)，$h_j$ 是编码器此刻输入(编码器隐状态，encoder hidden state j)，$v_a$、$W_a$ 和 $U_a$ 是待训练参数张量。由于 $U_ah_j$ 是独立于解码步i的，因此可以独立提前计算。基于内容的注意力机制能够将不同的输出与相应的输入元素连接，而与其位置无关。</li>
+<li>基于位置的注意力机制(location-based attention)：<br>$$e_{ij}=score(a_{i-1}, h_j)=v_a^Ttanh(Wh_j+Uf_{i,j})$$<br>其中，$f_{i,j}$ 是之前的注意力权重，$a_{i-1}$ 是经卷积而得的位置特征，$f_i=F∗α_{i−1}$，$v_a$、$W_a$、$U_a$ 和 $F$ 是待训练参数。基于位置的注意力机制仅关心序列元素的位置和它们之间的距离。基于位置的注意力机制会忽略静音或减少它们，因为该注意力机制没有发现输入的内容。</li>
+<li>混合注意力机制(hybrid attention)：<br>$$e_{ij}=score(s_{i-1},a_{i-1}, h_j)=v_a^Ttanh(Ws_{i-1}+Uh_j+Uf_{i,j})$$<br>顾名思义，混合注意力机制是上述两者注意力机制的结合。其中，$s_{i-1}$ 为之前的解码器隐状态，$a_{i-1}$ 是之前的注意力权重，$h_j$ 是第j个编码器隐状态。为其添加偏置值b，最终的score函数计算如下：<br>$$e_{ij}=v_a^Ttanh(Ws_{i-1}+Vh_j+Uf_{i,j}+b)$$<br>其中，$v_a$、$W$、$V$、$U$ 和 $b$ 为待训练参数，$s_{i−1}$ 为上一个时间步中解码器隐状态，$h_j$ 是当前编码器隐状态，$f_{i,j}$ 是之前的注意力权重 $a_{i-1}$ 经卷积而得的位置特征(location feature)，$f_i=F∗α_{i−1}$。混合注意力机制能够同时考虑内容和输入元素的位置。</li>
+</ul>
+<p>参考资料：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://towardsdatascience.com/attn-illustrated-attention-5ec4ad276ee3">Attn: Illustrated Attention</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.floydhub.com/attention-mechanism/">Attention Mechanism</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/mengnan/p/9527797.html">声谱预测网络</a></li>
+<li><a target="_blank" rel="noopener" href="https://krntneja.github.io/posts/2018/attention-based-models-1">Tutorial on Attention-based Models</a> </li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/BVL10101111/article/details/78470716">Attention Model（mechanism） 的 套路</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/319866371">Performer: 基于正交随机特征的快速注意力计算</a></li>
+</ul>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>DengBoCong</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="http://dengbocong.cn/Deep-Learning/2a74b1f93c8b/">http://dengbocong.cn/Deep-Learning/2a74b1f93c8b/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Licensed under the Apache License, Version 2.0 (the "License")</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Stay hungry, Stay foolish.</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/"># 深度学习</a>
+                    
+                        <a href="/tags/NLP/"># NLP</a>
+                    
+                        <a href="/tags/Attention/"># Attention</a>
+                    
+                        <a href="/tags/%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6/"># 注意力机制</a>
+                    
+                        <a href="/tags/Paper/"># Paper</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/Paper-Reading/12f6d260a557/">论文阅读笔记：Covariate-Shift：基于机器学习分类器的回顾和分析</a>
+            
+            
+            <a class="next" rel="next" href="/Paper-Reading/cea2357273fe/">论文阅读笔记：Tacotron和Tacotron2</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+        </div>
+        <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Copyright 2020-2021 DengBoCong. All Rights Reserved. 赣ICP备20002291号</span>
+    </div>
+</footer>
+
+    </div>
+    <div id="u-search">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="container">
+                    <form id="u-search-modal-form" class="u-search-modal-form">
+                        <button type="submit" class="form-submit-btn">
+                            <img src="/image/search.png" class="search-btn-img" />
+                        </button>
+                        <input placeholder="请输入关键字搜索文章..." class="form-input" onchange="inputChange(event)" id="modal-form-input">
+                    </form>
+                    <a class="modal-close">x</a>
+                </div>
+                <div class="search-loading">
+                    <div class="search-loading-bar"></div>
+                </div>
+            </div>
+            <div class="modal-body">
+            </div>
+        </div>
+        <div class="modal-overlay"></div>
+    </div>
+</body>
+</html>

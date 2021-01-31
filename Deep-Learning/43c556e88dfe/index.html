@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<link rel="stylesheet" href="/css/search.css">
+<script src="/js/jquery-3.4.1.min.js"></script>
+<script src="/js/search.js"></script>
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
+<style>
+    .pace .pace-progress {
+        background: #5cb0ff; /*进度条颜色*/
+        height: 2px;
+    }
+    .pace .pace-progress-inner {
+        box-shadow: 0 0 10px #1E92FB, 0 0 5px     #1E92FB; /*阴影颜色*/
+    }
+    .pace .pace-activity {
+        border-top-color: #1E92FB;    /*上边框颜色*/
+        border-left-color: #1E92FB;    /*左边框颜色*/
+    }
+</style>
+
+    <meta name="author" content="DengBoCong">
+
+
+    <meta name="subtitle" content="NLP | Deep Learning | Java">
+
+
+
+
+<title>利器：TTS-Frontend中英Text-to-Phoneme-Converter，附代码 | DengBoCong</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+    
+
+
+<meta name="generator" content="Hexo 5.3.0"></head>
+<body>
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">DengBoCong</a></div>
+            <div class="menu navbar-right">
+                <div class="search" style="float: left; margin-top: 7px;">
+                    <form class="form-search">
+                        <input class="input" placeholder="search content..." autocomplete="off" onchange="inputChange(event)" id="pc-search-input"/>
+                    </form>
+                    <div class="search-btn">
+                        <img src="/image/search.png" class="search-btn-img" />
+                    </div>
+                </div>
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/projects">Projects</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">DengBoCong</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/projects">Projects</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+        <div class="main">
+            <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    document.ready(
+        function () {
+            tocbot.init({
+                tocSelector: '.tocbot-list',
+                contentSelector: '.post-content',
+                headingSelector: 'h1, h2, h3, h4, h5',
+                collapseDepth: 1,
+                orderedList: false,
+                scrollSmooth: true,
+            })
+        }
+    )
+
+    function expand_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 6,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "collapse_toc()");
+        b.innerHTML = "Collapse all"
+    }
+
+    function collapse_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 1,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "expand_toc()");
+        b.innerHTML = "Expand all"
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">利器：TTS-Frontend中英Text-to-Phoneme-Converter，附代码</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">DengBoCong</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">December 14, 2020&nbsp;&nbsp;17:24:11</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Deep-Learning/">Deep-Learning</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><blockquote>
+<p>Github：<a target="_blank" rel="noopener" href="https://github.com/DengBoCong/nlp-paper">NLP相关Paper笔记和代码复现</a><br>说明：讲解时会对相关文章资料进行思想、结构、优缺点，内容进行提炼和记录，相关引用会标明出处，引用之处如有侵权，烦请告知删除。<br>转载请注明：DengBoCong</p>
+</blockquote>
+<p>NLP的语音合成中，有一种关键技术是将文字拆解成音素，再去语音库里匹配相同音素的语音片段，来实现文字转换语音。音素是给定语言的语音，如果与另一个音素交换，则会改变单词的含义，同时，音素是绝对的，并不是特定于任何语言，但只能参考特定语言讨论音素。由于音素的特性，非常适合用于语音合成领域。</p>
+<blockquote>
+<p>音素（phone），是语音中的最小的单位，依据音节里的发音动作来分析，一个动作构成一个音素。音素分为元音、辅音两大类。</p>
+</blockquote>
+<p>说白了，音素其实就是人在说话时，能发出最最最最短小、简洁的不能再分割的发音，不同的音素就是不同的短发音，可以组成不同的长发音，再组成词句形成语言。<br><img src="https://img-blog.csdnimg.cn/20201214120124692.png#pic_center" alt="在这里插入图片描述"></p>
+<p>本篇文章就来讲讲中文和英文中，如何将文本转换为音素序列。</p>
+<h1 id="相关知识"><a href="#相关知识" class="headerlink" title="相关知识"></a>相关知识</h1><p>众所周知，语音合成系统通常包含前端和后端两个模块。前端模块主要是对输入文本进行分析，提取后端模块所需要的语言学信息。前端模块一般包含文本正则化、分词、词性预测、多音字消歧、韵律预测等子模块。后端模块根据前端分析结果，通过一定的方法生成语音波形。后端模块一般分为基于统计参数建模的语音合成（Statistical Parameter Speech Synthesis，SPSS，以下简称参数合成），以及基于单元挑选和波形拼接的语音合成（以下简称拼接合成）两条技术主线。</p>
+<p>而“端到端”架构的语音合成系统的出现，能够直接从字符文本合成语音，打破了各个传统组件之间的壁垒，使得我们可以从<code>&lt;文本，声谱&gt;</code>配对的数据集上，完全随机从头开始训练。最具代表性的端到端语音合成系统，就是2017年初，Google 提出的端到端的语音合成系统——Tacotron</p>
+<p>从通俗一点的角度来讲，语音合成过程，需要处理两部分内容，分别是文本(Text)处理和音频(speech)处理，如下图是端到端的语音合成系统整体技术架构选型。我们文章要讲的就是属于TTS Frontend范畴的Text-to-Phoneme。<br><img src="https://img-blog.csdnimg.cn/20201214143030869.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+<h1 id="文本规范化"><a href="#文本规范化" class="headerlink" title="文本规范化"></a>文本规范化</h1><p>对文本进行预处理，主要是去掉无用字符，全半角字符转化等，对于中文而言，有时候普通话文本中会出现简略词、日期、公式、号码等文本信息，这就需要通过文本规范化，对这些文本块进行处理以正确发音，比如：</p>
+<ul>
+<li>“小明体重是 128 斤”中的“128”应该规范为“一百二十八”，而“G128 次列车”中的“128” 应该规范为“一 二 八”</li>
+<li>“2016-05-15”、“2016 年 5 月 15 号”、“2016/05/15”可以统一为一致的发音</li>
+</ul>
+<p>对于英文而言，也需要将年份、货币、数字、字母等文本信息，转换为完整单词，比如：</p>
+<ul>
+<li>类别为年份（NYER）： 2011 → twenty eleven</li>
+<li>类别为货币(MONEY): £100 → one hundred pounds</li>
+<li>类别为非单词，需要拟音(ASWD): IKEA → apply letter-to-sound</li>
+<li>类别为数字(NUM) : 100 NUM → one hundred</li>
+<li>类别为字母(LSEQ) : DVD → dee vee dee</li>
+</ul>
+<p>这些文本规范化预处理不放在深度学习模型去学习，而是通过各种规则的正则表达式进行转换，所以涉及到的代码工作量还是比较大的，所以我将写好的代码更新至GitHub项目中，方便需要者使用（TensorFlow和PyTorch版本同步更新）：<a target="_blank" rel="noopener" href="https://github.com/DengBoCong/nlp-paper/tree/master/paper-code/data">NLP相关Paper笔记和代码复现</a>，这里粘贴一个作为举例，方便大家知道是啥。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">_clean_number</span>(<span class="params">text: <span class="built_in">str</span></span>):</span></span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    对句子中的数字相关进行统一单词转换</span></span><br><span class="line"><span class="string">    :param text: 单个句子文本</span></span><br><span class="line"><span class="string">    :return: 转换后的句子文本</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    comma_number_re = re.<span class="built_in">compile</span>(<span class="string">r&quot;([0-9][0-9\,]+[0-9])&quot;</span>)</span><br><span class="line">    decimal_number_re = re.<span class="built_in">compile</span>(<span class="string">r&quot;([0-9]+\.[0-9]+)&quot;</span>)</span><br><span class="line">    pounds_re = re.<span class="built_in">compile</span>(<span class="string">r&quot;£([0-9\,]*[0-9]+)&quot;</span>)</span><br><span class="line">    dollars_re = re.<span class="built_in">compile</span>(<span class="string">r&quot;\$([0-9\.\,]*[0-9]+)&quot;</span>)</span><br><span class="line">    ordinal_re = re.<span class="built_in">compile</span>(<span class="string">r&quot;[0-9]+(st|nd|rd|th)&quot;</span>)</span><br><span class="line">    number_re = re.<span class="built_in">compile</span>(<span class="string">r&quot;[0-9]+&quot;</span>)</span><br><span class="line"></span><br><span class="line">    text = re.sub(comma_number_re, <span class="keyword">lambda</span> m: m.group(<span class="number">1</span>).replace(<span class="string">&#x27;,&#x27;</span>, <span class="string">&#x27;&#x27;</span>), text)</span><br><span class="line">    text = re.sub(pounds_re, <span class="string">r&quot;\1 pounds&quot;</span>, text)</span><br><span class="line">    text = re.sub(dollars_re, _dollars_to_word, text)</span><br><span class="line">    text = re.sub(decimal_number_re, <span class="keyword">lambda</span> m: m.group(<span class="number">1</span>).replace(<span class="string">&#x27;.&#x27;</span>, <span class="string">&#x27; point &#x27;</span>), text)</span><br><span class="line">    text = re.sub(ordinal_re, <span class="keyword">lambda</span> m: inflect.engine().number_to_words(m.group(<span class="number">0</span>)), text)</span><br><span class="line">    text = re.sub(number_re, _number_to_word, text)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> text</span><br></pre></td></tr></table></figure>
+
+<h1 id="英文Text-to-Phoneme"><a href="#英文Text-to-Phoneme" class="headerlink" title="英文Text-to-Phoneme"></a>英文Text-to-Phoneme</h1><p>我们先来讲讲英文的Text-to-Phoneme，想要将英文单词转换成音素，想必需要了解Arpabet，下面是WiKi上的解释：</p>
+<blockquote>
+<p>ARPABET（也称为ARPAbet）是高级研究计划局（ARPA）在1970年代语音理解研究项目中开发的一组语音转录代码。 它代表具有不同ASCII字符序列的通用美国英语的音素和同音素。 </p>
+</blockquote>
+<p>可以理解为通过字母组合定义发音规则，英文发音是由元音辅音等组成的，同时，在元音后紧接着用数字表示压力， 辅助符号在1和2个字母的代码中相同， 在2个字母的符号中，段之间用空格隔开，大概如下这样：<br><img src="https://img-blog.csdnimg.cn/20201214160312984.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+<p>我们将文本转换为ARPABET并不需要我们了解很多语言学的东西，我们只需要选择现有合适的发音字典就可以了，使用比较多的还是CMU的发音词典，<a target="_blank" rel="noopener" href="http://www.speech.cs.cmu.edu/cgi-bin/cmudict?in=off">官方网站</a>，想了解原理的可以看<a target="_blank" rel="noopener" href="http://www.cs.cmu.edu/~awb/papers/ESCA98_lts.pdf">这篇论文</a>。可以先在官网体验一下是啥效果，如下：<br><img src="https://img-blog.csdnimg.cn/20201214161122665.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>自行从官网下载发音字典（也可以去我的github下载，链接在文章顶部），音素集，39个音素，如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">Phoneme Example Translation</span><br><span class="line">      ------- ------- -----------</span><br><span class="line">      AA	odd     AA D</span><br><span class="line">      AE	at	AE T</span><br><span class="line">      AH	hut	HH AH T</span><br><span class="line">      AO	ought	AO T</span><br><span class="line">      AW	cow	K AW</span><br><span class="line">      AY	hide	HH AY D</span><br><span class="line">      B 	be	B IY</span><br><span class="line">      CH	cheese	CH IY Z</span><br><span class="line">      D 	dee	D IY</span><br><span class="line">      DH	thee	DH IY</span><br><span class="line">      EH	Ed	EH D</span><br><span class="line">      ER	hurt	HH ER T</span><br><span class="line">      EY	ate	EY T</span><br><span class="line">      F 	fee	F IY</span><br><span class="line">      G 	green	G R IY N</span><br><span class="line">      HH	he	HH IY</span><br><span class="line">      IH	it	IH T</span><br><span class="line">      IY	eat	IY T</span><br><span class="line">      JH	gee	JH IY</span><br><span class="line">      K 	key	K IY</span><br><span class="line">      L 	lee	L IY</span><br><span class="line">      M 	me	M IY</span><br><span class="line">      N 	knee	N IY</span><br><span class="line">      NG	ping	P IH NG</span><br><span class="line">      OW	oat	OW T</span><br><span class="line">      OY	toy	T OY</span><br><span class="line">      P 	pee	P IY</span><br><span class="line">      R 	read	R IY D</span><br><span class="line">      S 	sea	S IY</span><br><span class="line">      SH	she	SH IY</span><br><span class="line">      T 	tea	T IY</span><br><span class="line">      TH	theta	TH EY T AH</span><br><span class="line">      UH	hood	HH UH D</span><br><span class="line">      UW	two	T UW</span><br><span class="line">      V 	vee	V IY</span><br><span class="line">      W 	we	W IY</span><br><span class="line">      Y 	<span class="keyword">yield</span>	Y IY L D</span><br><span class="line">      Z 	zee	Z IY</span><br><span class="line">      ZH	seizure	S IY ZH ER</span><br></pre></td></tr></table></figure>
+<p>有了音素集之后就可以使用脚本将文本转换为音素了，我的转换脚本如下:（完整代码同GitHub可找到）</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">text_to_phonemes_converter</span>(<span class="params">text: <span class="built_in">str</span>, cmu_dict_path: <span class="built_in">str</span></span>):</span></span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    将句子按照CMU音素字典进行分词切分</span></span><br><span class="line"><span class="string">    :param text: 单个句子文本</span></span><br><span class="line"><span class="string">    :param cmu_dict_path: cmu音素字典路径</span></span><br><span class="line"><span class="string">    :return: 按照音素分词好的数组</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    _, symbols_set = get_phoneme_dict_symbols()</span><br><span class="line"></span><br><span class="line">    alt_re = re.<span class="built_in">compile</span>(<span class="string">r&#x27;\([0-9]+\)&#x27;</span>)</span><br><span class="line">    cmu_dict = &#123;&#125;</span><br><span class="line">    text = _clean_text(text)</span><br><span class="line">    text = re.sub(<span class="string">r&quot;([?.!,])&quot;</span>, <span class="string">r&quot; \1&quot;</span>, text)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 文件是从官网下载的，所以文件编码格式要用latin-1</span></span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(cmu_dict_path, <span class="string">&#x27;r&#x27;</span>, encoding=<span class="string">&#x27;latin-1&#x27;</span>) <span class="keyword">as</span> cmu_file:</span><br><span class="line">        <span class="keyword">for</span> line <span class="keyword">in</span> cmu_file:</span><br><span class="line">            <span class="keyword">if</span> <span class="built_in">len</span>(line) <span class="keyword">and</span> (line[<span class="number">0</span>] &gt;= <span class="string">&quot;A&quot;</span> <span class="keyword">and</span> line[<span class="number">0</span>] &lt;= <span class="string">&quot;Z&quot;</span> <span class="keyword">or</span> line[<span class="number">0</span>] == <span class="string">&quot;&#x27;&quot;</span>):</span><br><span class="line">                parts = line.split(<span class="string">&#x27;  &#x27;</span>)</span><br><span class="line">                word = re.sub(alt_re, <span class="string">&#x27;&#x27;</span>, parts[<span class="number">0</span>])</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 这里要将非cmu音素的干扰排除</span></span><br><span class="line">                pronunciation = <span class="string">&quot; &quot;</span></span><br><span class="line">                temps = parts[<span class="number">1</span>].strip().split(<span class="string">&#x27; &#x27;</span>)</span><br><span class="line">                <span class="keyword">for</span> temp <span class="keyword">in</span> temps:</span><br><span class="line">                    <span class="keyword">if</span> temp <span class="keyword">not</span> <span class="keyword">in</span> symbols_set:</span><br><span class="line">                        pronunciation = <span class="literal">None</span></span><br><span class="line">                        <span class="keyword">break</span></span><br><span class="line">                <span class="keyword">if</span> pronunciation:</span><br><span class="line">                    pronunciation = <span class="string">&#x27; &#x27;</span>.join(temps)</span><br><span class="line">                    <span class="keyword">if</span> word <span class="keyword">in</span> cmu_dict:</span><br><span class="line">                        cmu_dict[word].append(pronunciation)</span><br><span class="line">                    <span class="keyword">else</span>:</span><br><span class="line">                        cmu_dict[word] = [pronunciation]</span><br><span class="line"></span><br><span class="line">    cmu_result = []</span><br><span class="line">    <span class="keyword">for</span> word <span class="keyword">in</span> text.split(<span class="string">&#x27; &#x27;</span>):</span><br><span class="line">        <span class="comment"># 因为同一个单词，它的发音音素可能不一样，所以存在多个</span></span><br><span class="line">        <span class="comment"># 音素分词，我这里就单纯的取第一个，后面再改进和优化</span></span><br><span class="line">        cmu_word = cmu_dict.get(word.upper(), [word])[<span class="number">0</span>]</span><br><span class="line">        <span class="keyword">if</span> cmu_word != word:</span><br><span class="line">            cmu_result.append(<span class="string">&quot;&#123;&quot;</span> + cmu_word + <span class="string">&quot;&#125;&quot;</span>)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            cmu_result.append(cmu_word)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot; &quot;</span>.join(cmu_result)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h1 id="中文Text-to-Phoneme"><a href="#中文Text-to-Phoneme" class="headerlink" title="中文Text-to-Phoneme"></a>中文Text-to-Phoneme</h1><p>对于中文，其实我们再熟悉不过了，中文的音素其实就是汉语拼音的最小单元，包括声母，韵母，但是其中还会有一些整体认读音节，更详细的拼音标注文本分析，可以参考<a target="_blank" rel="noopener" href="https://mtts.readthedocs.io/zh_CN/latest/text_analyse.html">MTTS文本分析</a>。同一个字在不同分词情况下的发音不同，所以导致数量级比较大，比较典型的可以参见清华大学的<a target="_blank" rel="noopener" href="https://www.openslr.org/resources.php">thchs30</a>中文数据集，里面提供了分词好的音素字典，如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">SIL sil</span><br><span class="line">&lt;SPOKEN_NOISE&gt; sil</span><br><span class="line">啊 aa a1</span><br><span class="line">啊 aa a2</span><br><span class="line">啊 aa a4</span><br><span class="line">啊 aa a5</span><br><span class="line">啊啊啊 aa a2 aa a2 aa a2</span><br><span class="line">啊啊啊 aa a5 aa a5 aa a5</span><br><span class="line">阿 aa a1</span><br><span class="line">阿 ee e1</span><br><span class="line">阿尔 aa a1 ee er3</span><br><span class="line">阿根廷 aa a1 g en1 t ing2</span><br><span class="line">阿九 aa a1 j iu3</span><br><span class="line">阿克 aa a1 k e4</span><br><span class="line">阿拉伯数字 aa a1 l a1 b o2 sh u4 z iy4</span><br><span class="line">阿拉法特 aa a1 l a1 f a3 t e4</span><br></pre></td></tr></table></figure>
+<p>对应脚本在<a target="_blank" rel="noopener" href="https://github.com/X-CCS/mandarin_tacotron_GL/blob/master/datasets/thchs30.py">这里</a>，不过其实汉子转拼音还有更方便的方式，就是使用Python 的拼音库 PyPinyin，如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pypinyin <span class="keyword">import</span> pinyin</span><br><span class="line">print(pinyin(<span class="string">&#x27;朝阳&#x27;</span>))</span><br><span class="line"><span class="comment"># [[&#x27;zhāo&#x27;], [&#x27;yáng&#x27;]]</span></span><br></pre></td></tr></table></figure>
+<p> PyPinyin可以用于汉字注音、排序、检索等等场合，是基于 hotto/pinyin 这个库开发的，一些站点链接如下：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/mozillazg/python-pinyin">GitHub</a> </li>
+<li><a target="_blank" rel="noopener" href="https://pypinyin.readthedocs.io/zh_CN/master/">文档</a></li>
+<li><a target="_blank" rel="noopener" href="https://pypi.org/project/pypinyin/">PyPi</a></li>
+</ul>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>DengBoCong</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="http://dengbocong.cn/Deep-Learning/43c556e88dfe/">http://dengbocong.cn/Deep-Learning/43c556e88dfe/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Licensed under the Apache License, Version 2.0 (the "License")</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Stay hungry, Stay foolish.</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/"># 深度学习</a>
+                    
+                        <a href="/tags/TensorFlow/"># TensorFlow</a>
+                    
+                        <a href="/tags/Pytorch/"># Pytorch</a>
+                    
+                        <a href="/tags/%E8%AF%AD%E9%9F%B3%E5%90%88%E6%88%90/"># 语音合成</a>
+                    
+                        <a href="/tags/NLP/"># NLP</a>
+                    
+                        <a href="/tags/%E9%9F%B3%E7%B4%A0/"># 音素</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/Paper-Reading/cea2357273fe/">论文阅读笔记：Tacotron和Tacotron2</a>
+            
+            
+            <a class="next" rel="next" href="/Deep-Learning/f43bcaebe5e9/">关于RNN理论和实践的一些总结</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+        </div>
+        <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Copyright 2020-2021 DengBoCong. All Rights Reserved. 赣ICP备20002291号</span>
+    </div>
+</footer>
+
+    </div>
+    <div id="u-search">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="container">
+                    <form id="u-search-modal-form" class="u-search-modal-form">
+                        <button type="submit" class="form-submit-btn">
+                            <img src="/image/search.png" class="search-btn-img" />
+                        </button>
+                        <input placeholder="请输入关键字搜索文章..." class="form-input" onchange="inputChange(event)" id="modal-form-input">
+                    </form>
+                    <a class="modal-close">x</a>
+                </div>
+                <div class="search-loading">
+                    <div class="search-loading-bar"></div>
+                </div>
+            </div>
+            <div class="modal-body">
+            </div>
+        </div>
+        <div class="modal-overlay"></div>
+    </div>
+</body>
+</html>

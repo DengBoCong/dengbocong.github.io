@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<link rel="stylesheet" href="/css/search.css">
+<script src="/js/jquery-3.4.1.min.js"></script>
+<script src="/js/search.js"></script>
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
+<style>
+    .pace .pace-progress {
+        background: #5cb0ff; /*进度条颜色*/
+        height: 2px;
+    }
+    .pace .pace-progress-inner {
+        box-shadow: 0 0 10px #1E92FB, 0 0 5px     #1E92FB; /*阴影颜色*/
+    }
+    .pace .pace-activity {
+        border-top-color: #1E92FB;    /*上边框颜色*/
+        border-left-color: #1E92FB;    /*左边框颜色*/
+    }
+</style>
+
+    <meta name="author" content="DengBoCong">
+
+
+    <meta name="subtitle" content="NLP | Deep Learning | Java">
+
+
+
+
+<title>多种方式轻松搞定SpringBoot部署Docker | DengBoCong</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+    
+
+
+<meta name="generator" content="Hexo 5.3.0"></head>
+<body>
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">DengBoCong</a></div>
+            <div class="menu navbar-right">
+                <div class="search" style="float: left; margin-top: 7px;">
+                    <form class="form-search">
+                        <input class="input" placeholder="search content..." autocomplete="off" onchange="inputChange(event)" id="pc-search-input"/>
+                    </form>
+                    <div class="search-btn">
+                        <img src="/image/search.png" class="search-btn-img" />
+                    </div>
+                </div>
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/projects">Projects</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">DengBoCong</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/projects">Projects</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+        <div class="main">
+            <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    document.ready(
+        function () {
+            tocbot.init({
+                tocSelector: '.tocbot-list',
+                contentSelector: '.post-content',
+                headingSelector: 'h1, h2, h3, h4, h5',
+                collapseDepth: 1,
+                orderedList: false,
+                scrollSmooth: true,
+            })
+        }
+    )
+
+    function expand_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 6,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "collapse_toc()");
+        b.innerHTML = "Collapse all"
+    }
+
+    function collapse_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 1,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "expand_toc()");
+        b.innerHTML = "Expand all"
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">多种方式轻松搞定SpringBoot部署Docker</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">DengBoCong</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">March 27, 2020&nbsp;&nbsp;12:48:08</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Spring-Boot/">Spring-Boot</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h2 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h2><p><strong>如果觉得有所收获，记得点个关注和点个赞哦，非常感谢支持</strong><br>在部署应用程序时，Spring Boot的灵活打包选项提供了很多选择。可以将Spring Boot应用程序部署到各种云平台，容器映像（例如Docker）或虚拟机/真实机上。这里我们就来探讨SpringBoot如果部署到Docker中。</p>
+<p>我们都知道，在对 Kubernetes 微服务实践过程中，接触最多的肯定莫过于 Docker 镜像。Kubernetes是啥，我这里简单说明一下，Kubernetes 微服务简单说就是一群镜像间的排列组合与相互间调的关系，故而如何编译镜像会使服务性能更优，使镜像构建、推送、拉取速度更快，使其占用网络资源更少。更详细的可以自行查阅，这里就不做更详细的解释。</p>
+<p>@[TOC]</p>
+<h2 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h2><p>这一篇文章，想着是主要把探讨的内容放在SpringBoot和Docker的结合上，所以不想用过多的篇幅讲解Docker安装以及SpringBoot的普通应用构建上，不过这些都是我们对本篇文章进行讲解之前的准备工作，所以我在这里贴出我之前写过的文章，如果没有安装Docker以及不知道怎么构建SpringBoot的普通应用的朋友，可以先跳转过去看，个人认为写的挺详细的。<br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/103864834">Docker安装教程</a>：这篇文章把Ubuntu、CentOS、Windows主流系统的安装方法详细的讲解了一遍，包括如何配置镜像加速等内容。<br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/103915632">Docker新手宝典（必备）</a>：因为后面要将的内容要构建DockerFile，所以如果还不知道DockerFile是啥的朋友，可以看一下这篇文章。<br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104383089">详细SpringBoot教程之入门（一）</a>：这篇文章看完，就可以构建一个简单的hello world应用了。</p>
+<ul>
+<li>一个简单的SpringBoot2.x程序，里面就单纯的创建一个Controller控制器，可以访问<a target="_blank" rel="noopener" href="http://localhost/index%EF%BC%8C%E5%A6%82%E4%B8%8B">http://localhost/index，如下</a><br><img src="https://img-blog.csdnimg.cn/20200327105143301.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></li>
+<li>Docker我使用的是19版本</li>
+<li>我的服务器用的是CentOS7系统<h2 id="手动使用DockerFile构建"><a href="#手动使用DockerFile构建" class="headerlink" title="手动使用DockerFile构建"></a>手动使用DockerFile构建</h2>这里解释一下Dockfile，Dockfile是一种被Docker程序解释的脚本，Dockerfile由一条一条的指令组成，每条指令对应Linux下面的一条命令。Docker程序将这些Dockerfile指令翻译真正的Linux命令。Dockerfile有自己书写格式和支持的命令，Docker程序解决这些命令间的依赖关系，类似于Makefile。Docker程序将读取Dockerfile，根据指令生成定制的image。相比image这种黑盒子，Dockerfile这种显而易见的脚本更容易被使用者接受，它明确的表明image是怎么产生的。有了Dockerfile，当我们需要定制自己额外的需求时，只需在Dockerfile上添加或者修改指令，重新生成image即可，省去了敲命令的麻烦。</li>
+</ul>
+<p>首先，我们把上面的SpringBoot应用打包，使用Maven指令如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mvn <span class="keyword">package</span></span><br></pre></td></tr></table></figure>
+<p>当然，你如果使用的是Idea作为dev的话，可以通过Maven工具打包，不需要输入指令，如下<br><img src="https://img-blog.csdnimg.cn/20200327105533786.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>这样就会将项目打包好了jar包，我这里打包的jar包改名为<code>example.jar</code>，更直观一点，然后接着我们到目标服务器上（注意了，服务器上要已经安装好了Docker），然后随便找个目录创建DockerFile文件，因为我用的是CentOS7，习惯在<code>/var/tmp</code>下创建，创建Dockerfile文件指令如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">touch Dockerfile</span><br></pre></td></tr></table></figure>
+<p>注意力，Dockerfile必须和Jar包在同一路径下，所以你在上传jar包的时候，要注意了。下面贴出DockerFile的内容，只是用最基本的构建指令，更复杂的可以熟悉之后，自行查阅DockerFile指令进行构建</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">FROM java:<span class="number">8</span></span><br><span class="line">EXPOSE <span class="number">8080</span></span><br><span class="line">VOLUME /slm</span><br><span class="line">ADD example.jar boot-docker.jar</span><br><span class="line">RUN sh -c <span class="string">&#x27;touch /boot-docker.jar&#x27;</span></span><br><span class="line">ENV JAVA_OPTS=<span class="string">&quot;&quot;</span></span><br><span class="line">ENTRYPOINT [ <span class="string">&quot;sh&quot;</span>, <span class="string">&quot;-c&quot;</span>, <span class="string">&quot;java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -jar /boot-docker.jar&quot;</span> ]</span><br></pre></td></tr></table></figure>
+<p>这里稍微解释一下基本语法</p>
+<ul>
+<li>FROM 基础镜像必要，代表你的项目将构建在这个基础上面</li>
+<li>EXPOSE 允许指定端口转发</li>
+<li>VOLUME 创建一个可以从本地主机或其他容器挂载的挂载点，一般用来存放数据库和需要保持的数据等。</li>
+<li>ADD 将文件从路径 复制添加到容器内部路径 支持远程url 如果是远程url权限将会是600，我这里因为直接上传了，所以就服务器本机就可以了</li>
+<li>ENV 可以用于为docker容器设置环境变量</li>
+<li>ENTRYPOINT 指定 Docker image 运行成 instance (也就是 Docker container) 时，要执行的命令或者文件。</li>
+<li>CMD 和 ENTRYPOINT 都能用来指定开始运行的程序，而且这两个命令都有两种不用的语法：</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">CMD [<span class="string">&quot;ls&quot;</span>,<span class="string">&#x27;&#x27;</span>-l<span class="string">&quot;]</span></span><br><span class="line"><span class="string">CMD ls -l</span></span><br></pre></td></tr></table></figure>
+<p>编写好了DockerFile之后，我们开始构建镜像，指令如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker build -t boot-docker .</span><br></pre></td></tr></table></figure>
+<p><code>-t boot-docker</code> 代表你要构建的名字</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">Sending build context to Docker daemon  <span class="number">16.</span>81MB</span><br><span class="line">Step <span class="number">1</span>/<span class="number">7</span> : FROM java:<span class="number">8</span></span><br><span class="line"> ---&gt; d23bdf5b1b1b</span><br><span class="line">Step <span class="number">2</span>/<span class="number">7</span> : EXPOSE <span class="number">8080</span></span><br><span class="line"> ---&gt; Using cache</span><br><span class="line"> ---&gt; b2445bf62da8</span><br><span class="line">Step <span class="number">3</span>/<span class="number">7</span> : VOLUME /slm</span><br><span class="line"> ---&gt; Using cache</span><br><span class="line"> ---&gt; b73d0b73b868</span><br><span class="line">Step <span class="number">4</span>/<span class="number">7</span> : ADD example.jar boot-docker.jar</span><br><span class="line"> ---&gt; Using cache</span><br><span class="line"> ---&gt; 2b4868aafca9</span><br><span class="line">Step <span class="number">5</span>/<span class="number">7</span> : RUN sh -c <span class="string">&#x27;touch /boot-docker.jar&#x27;</span></span><br><span class="line"> ---&gt; Using cache</span><br><span class="line"> ---&gt; 816b59f199af</span><br><span class="line">Step <span class="number">6</span>/<span class="number">7</span> : ENV JAVA_OPTS=<span class="string">&quot;&quot;</span></span><br><span class="line"> ---&gt; Using cache</span><br><span class="line"> ---&gt; 784f033b9dd6</span><br><span class="line">Step <span class="number">7</span>/<span class="number">7</span> : ENTRYPOINT [ <span class="string">&quot;sh&quot;</span>, <span class="string">&quot;-c&quot;</span>, <span class="string">&quot;java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -jar /boot-docker.jar&quot;</span> ]</span><br><span class="line"> ---&gt; Using cache</span><br><span class="line"> ---&gt; 92a0da91ea19</span><br><span class="line">Successfully built 92a0da91ea19</span><br><span class="line">Successfully tagged bootdocker:latest</span><br></pre></td></tr></table></figure>
+<p>我们可以看到已经构建完成，<code>Successfully built 92a0da91ea19</code>这句话指明了刚刚构建的镜像ID现在我们可以根据这个ID来进行操作。输入run命令来启动。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -itd -p <span class="number">8080</span>:<span class="number">8080</span> --name example 92a0da91ea19</span><br></pre></td></tr></table></figure>
+<ul>
+<li>-d 表示后台运行</li>
+<li>-p映射端口</li>
+<li>–name 容器名称</li>
+</ul>
+<p>已经运行成功访问接口。注意这里因为映射到了宿主机的端口所以访问的是宿主机的IP加端口，比如<a target="_blank" rel="noopener" href="http://ip:8080/index">http://ip:8080/index</a></p>
+<h2 id="使用Maven构建"><a href="#使用Maven构建" class="headerlink" title="使用Maven构建"></a>使用Maven构建</h2><p>上面说了使用Dockerfile构建，现在使用Maven来构建，我们还是使用上面的DockerFile内容，我们在项目的目录下创建DockerFile，把上面DockerFIle内容复制过去，结构如下<br><img src="https://img-blog.csdnimg.cn/20200327123355916.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>在pom中加入docker构建依赖</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">&lt;plugin&gt;</span><br><span class="line">	&lt;!--新增的docker maven插件--&gt;</span><br><span class="line">	&lt;groupId&gt;com.spotify&lt;/groupId&gt;</span><br><span class="line">	&lt;artifactId&gt;docker-maven-plugin&lt;/artifactId&gt;</span><br><span class="line">	&lt;version&gt;0.4.13&lt;/version&gt;</span><br><span class="line">	&lt;!--execution 节点中配置当执行 mvn <span class="keyword">package</span> 的时候，顺便也执行一下 docker:build--&gt;</span><br><span class="line">	&lt;executions&gt;</span><br><span class="line">        &lt;execution&gt;</span><br><span class="line">            &lt;id&gt;build-image&lt;/id&gt;</span><br><span class="line">            &lt;phase&gt;package&lt;/phase&gt;</span><br><span class="line">            &lt;goals&gt;</span><br><span class="line">                &lt;goal&gt;build&lt;/goal&gt;</span><br><span class="line">            &lt;/goals&gt;</span><br><span class="line">        &lt;/execution&gt;</span><br><span class="line">    &lt;/executions&gt;</span><br><span class="line">	&lt;configuration&gt;</span><br><span class="line">		&lt;!--Docker 的主机地址--&gt;</span><br><span class="line">		&lt;dockerHost&gt;http:<span class="comment">//192.168.66.131:2375&lt;/dockerHost&gt;</span></span><br><span class="line">		&lt;!--镜像名字--&gt;</span><br><span class="line">		&lt;imageName&gt;$&#123;docker.image.prefix&#125;/$&#123;project.artifactId&#125;&lt;/imageName&gt;</span><br><span class="line">		&lt;!--DokcerFile文件地址--&gt;</span><br><span class="line">		&lt;dockerDirectory&gt;$&#123;project.basedir&#125;&lt;/dockerDirectory&gt;</span><br><span class="line">		&lt;!--镜像的 tags--&gt;</span><br><span class="line">		&lt;imageTags&gt;</span><br><span class="line">            &lt;imageTag&gt;$&#123;project.version&#125;&lt;/imageTag&gt;</span><br><span class="line">        &lt;/imageTags&gt;</span><br><span class="line">		&lt;resources&gt;</span><br><span class="line">			&lt;resource&gt;</span><br><span class="line">				&lt;targetPath&gt;/&lt;/targetPath&gt;</span><br><span class="line">				&lt;directory&gt;$&#123;project.build.directory&#125;&lt;/directory&gt;</span><br><span class="line">				&lt;include&gt;$&#123;project.build.finalName&#125;.jar&lt;/include&gt;</span><br><span class="line">			&lt;/resource&gt;</span><br><span class="line">		&lt;/resources&gt;</span><br><span class="line">	&lt;/configuration&gt;</span><br><span class="line">&lt;/plugin&gt;</span><br></pre></td></tr></table></figure>
+<p>注意dockerDirectory还是要设置Dockerfile文件的路径，然后如果你不配置<code>dockerHost</code>的话，要把项目复制到Linux主机中，执行解压命令</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">unzip boot-docker.zip</span><br><span class="line">cd boot-docker</span><br></pre></td></tr></table></figure>
+<p>执行命令：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mvn <span class="keyword">package</span> docker:build</span><br></pre></td></tr></table></figure>
+<p>而如果配置了<code>dockerHost</code>的话<br><img src="https://img-blog.csdnimg.cn/20200327105533786.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+<p>上面两种方式都开始构建build</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">[INFO] Building image boot-docker/boot-docker</span><br><span class="line">Step <span class="number">1</span>/<span class="number">7</span> : FROM java:<span class="number">8</span></span><br><span class="line"> ---&gt; d23bdf5b1b1b</span><br><span class="line">Step <span class="number">2</span>/<span class="number">7</span> : EXPOSE <span class="number">8080</span></span><br><span class="line"> ---&gt; Using cache</span><br><span class="line"> ---&gt; b2445bf62da8</span><br><span class="line">Step <span class="number">3</span>/<span class="number">7</span> : VOLUME /slm</span><br><span class="line"> ---&gt; Using cache</span><br><span class="line"> ---&gt; b73d0b73b868</span><br><span class="line">Step <span class="number">4</span>/<span class="number">7</span> : ADD boot-docker-<span class="number">0.0</span><span class="number">.1</span>-SNAPSHOT.jar boot-docker.jar</span><br><span class="line"> ---&gt; Using cache</span><br><span class="line"> ---&gt; 2b4868aafca9</span><br><span class="line">Step <span class="number">5</span>/<span class="number">7</span> : RUN sh -c <span class="string">&#x27;touch /boot-docker.jar&#x27;</span></span><br><span class="line"> ---&gt; Using cache</span><br><span class="line"> ---&gt; 816b59f199af</span><br><span class="line">Step <span class="number">6</span>/<span class="number">7</span> : ENV JAVA_OPTS=<span class="string">&quot;&quot;</span></span><br><span class="line"> ---&gt; Using cache</span><br><span class="line"> ---&gt; 784f033b9dd6</span><br><span class="line">Step <span class="number">7</span>/<span class="number">7</span> : ENTRYPOINT [ <span class="string">&quot;sh&quot;</span>, <span class="string">&quot;-c&quot;</span>, <span class="string">&quot;java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -jar /boot-docker.jar&quot;</span> ]</span><br><span class="line"> ---&gt; Using cache</span><br><span class="line"> ---&gt; 92a0da91ea19</span><br><span class="line">ProgressMessage&#123;id=<span class="keyword">null</span>, status=<span class="keyword">null</span>, stream=<span class="keyword">null</span>, error=<span class="keyword">null</span>, progress=<span class="keyword">null</span>, progressDetail=<span class="keyword">null</span>&#125;</span><br><span class="line">Successfully built 92a0da91ea19</span><br><span class="line">Successfully tagged boot-docker/boot-docker:latest</span><br><span class="line">[INFO] Built boot-docker/boot-docker</span><br><span class="line">[INFO] ------------------------------------------------------------------------</span><br><span class="line">[INFO] BUILD SUCCESS</span><br><span class="line">[INFO] ------------------------------------------------------------------------</span><br><span class="line">[INFO] Total time: <span class="number">19.</span>908s</span><br><span class="line">[INFO] Finished at: Wed Jul <span class="number">10</span> <span class="number">16</span>:<span class="number">00</span>:<span class="number">21</span> CST <span class="number">2019</span></span><br><span class="line">[INFO] Final Memory: 35M/86M</span><br><span class="line">[INFO] ------------------------------------------------------------------------</span><br></pre></td></tr></table></figure>
+<p>接着就可以启动容器了</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -itd -p <span class="number">8080</span>:<span class="number">8080</span> --name example 92a0da91ea19</span><br></pre></td></tr></table></figure>
+<p>已经运行成功访问接口。注意这里因为映射到了宿主机的端口所以访问的是宿主机的IP加端口，比如<a target="_blank" rel="noopener" href="http://ip:8080/index">http://ip:8080/index</a></p>
+<h2 id="使用Idea部署"><a href="#使用Idea部署" class="headerlink" title="使用Idea部署"></a>使用Idea部署</h2><p>沿用在Maven构建中的pom中的配置，此时我们的 IDEA 中多了一个选项，就是 docker，如下：<br><img src="https://img-blog.csdnimg.cn/2020032712400069.png#pic_center" alt="在这里插入图片描述"><br>点击左边的绿色启动按钮，连接上 Docker 容器，连接成功之后，我们就可以看到目前 Docker 中的所有容器和镜像了，当然也包括我们刚刚创建的 Docker 镜像，如下：<br><img src="https://img-blog.csdnimg.cn/20200327124116922.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>此时，我们选中这个镜像，右键单击，即可基于此镜像创建出一个容器，如下图<br><img src="https://img-blog.csdnimg.cn/20200327124154996.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>我们选择 Create container，然后填入容器的一些必要信息，配置一下容器名称，镜像 ID 会自动填上，暴露的端口使用 Specify 即可，然后写上端口的映射关系：<br><img src="https://img-blog.csdnimg.cn/20200327124229736.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>配置完成后，点击下方的 run 按钮，就可以开始运行了。</p>
+<p>应用容器化是近年来的热点。而且容器技术层出不穷，掌握应用的容器化技术还是很有必要的。今天我们一步一步从零利用 Docker 构建了一个 Spring Boot 容器 。希望对你有所帮助。</p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>DengBoCong</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="http://dengbocong.cn/Spring-Boot/f90f7de884de/">http://dengbocong.cn/Spring-Boot/f90f7de884de/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Licensed under the Apache License, Version 2.0 (the "License")</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Stay hungry, Stay foolish.</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/Sprint-Boot/"># Sprint Boot</a>
+                    
+                        <a href="/tags/Docker/"># Docker</a>
+                    
+                        <a href="/tags/Maven/"># Maven</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/Spring-Boot/fafc44587d95/">SpringBoot的流行实践解读</a>
+            
+            
+            <a class="next" rel="next" href="/Spring-Boot/a86e53449298/">看完这一篇，你就对Spring-Security略窥门径了</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+        </div>
+        <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Copyright 2020-2021 DengBoCong. All Rights Reserved. 赣ICP备20002291号</span>
+    </div>
+</footer>
+
+    </div>
+    <div id="u-search">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="container">
+                    <form id="u-search-modal-form" class="u-search-modal-form">
+                        <button type="submit" class="form-submit-btn">
+                            <img src="/image/search.png" class="search-btn-img" />
+                        </button>
+                        <input placeholder="请输入关键字搜索文章..." class="form-input" onchange="inputChange(event)" id="modal-form-input">
+                    </form>
+                    <a class="modal-close">x</a>
+                </div>
+                <div class="search-loading">
+                    <div class="search-loading-bar"></div>
+                </div>
+            </div>
+            <div class="modal-body">
+            </div>
+        </div>
+        <div class="modal-overlay"></div>
+    </div>
+</body>
+</html>

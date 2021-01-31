@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<link rel="stylesheet" href="/css/search.css">
+<script src="/js/jquery-3.4.1.min.js"></script>
+<script src="/js/search.js"></script>
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
+<style>
+    .pace .pace-progress {
+        background: #5cb0ff; /*进度条颜色*/
+        height: 2px;
+    }
+    .pace .pace-progress-inner {
+        box-shadow: 0 0 10px #1E92FB, 0 0 5px     #1E92FB; /*阴影颜色*/
+    }
+    .pace .pace-activity {
+        border-top-color: #1E92FB;    /*上边框颜色*/
+        border-left-color: #1E92FB;    /*左边框颜色*/
+    }
+</style>
+
+    <meta name="author" content="DengBoCong">
+
+
+    <meta name="subtitle" content="NLP | Deep Learning | Java">
+
+
+
+
+<title>看完这一篇，你就对Spring-Security略窥门径了 | DengBoCong</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+    
+
+
+<meta name="generator" content="Hexo 5.3.0"></head>
+<body>
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">DengBoCong</a></div>
+            <div class="menu navbar-right">
+                <div class="search" style="float: left; margin-top: 7px;">
+                    <form class="form-search">
+                        <input class="input" placeholder="search content..." autocomplete="off" onchange="inputChange(event)" id="pc-search-input"/>
+                    </form>
+                    <div class="search-btn">
+                        <img src="/image/search.png" class="search-btn-img" />
+                    </div>
+                </div>
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/projects">Projects</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">DengBoCong</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/projects">Projects</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+        <div class="main">
+            <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    document.ready(
+        function () {
+            tocbot.init({
+                tocSelector: '.tocbot-list',
+                contentSelector: '.post-content',
+                headingSelector: 'h1, h2, h3, h4, h5',
+                collapseDepth: 1,
+                orderedList: false,
+                scrollSmooth: true,
+            })
+        }
+    )
+
+    function expand_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 6,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "collapse_toc()");
+        b.innerHTML = "Collapse all"
+    }
+
+    function collapse_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 1,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "expand_toc()");
+        b.innerHTML = "Expand all"
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">看完这一篇，你就对Spring-Security略窥门径了</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">DengBoCong</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">March 18, 2020&nbsp;&nbsp;21:10:24</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Spring-Boot/">Spring-Boot</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h2 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h2><p>开发Web应用，对页面的安全控制通常是必须的。比如：对于没有访问权限的用户需要转到登录表单页面。要实现访问控制的方法多种多样，可以通过Aop、拦截器实现，也可以通过框架实现，例如：Apache Shiro、Spring Security。我们这里要讲的Spring Security 就是一个Spring生态中关于安全方面的框架。它能够为基于Spring的企业应用系统提供声明式的安全访问控制解决方案。</p>
+<h2 id="默认认证用户名密码"><a href="#默认认证用户名密码" class="headerlink" title="默认认证用户名密码"></a>默认认证用户名密码</h2><p>项目pom.xml添加spring-boot-starter-security依赖</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;spring-boot-starter-security&lt;/artifactId&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+<p>重启你的应用。再次打开页面，你讲看到一个登录页面</p>
+<p><img src="https://img-blog.csdnimg.cn/20200308205647401.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>既然跳到了登录页面，那么这个时候我们就会想，这个登录的用户名以及密码是什么呢？让我们来从SpringBoot源码寻找一下。你搜一下输出日志，会看到下面一段输出：<br><img src="https://img-blog.csdnimg.cn/20200308205717917.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>这段日志是UserDetailsServiceAutoConfiguration类里面的如下方法输出的：<br><img src="https://img-blog.csdnimg.cn/20200318115748850.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>通过上面的这个类，我们可以看出，是SecurityProperties这个Bean管理了用户名和密码。在SecurityProperties里面的一个内部静态类User类里面，管理了默认的认证的用户名与密码。代码如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ConfigurationProperties(</span></span><br><span class="line"><span class="meta">    prefix = &quot;spring.security&quot;</span></span><br><span class="line"><span class="meta">)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SecurityProperties</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> BASIC_AUTH_ORDER = <span class="number">2147483642</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> IGNORED_ORDER = -<span class="number">2147483648</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> DEFAULT_FILTER_ORDER = -<span class="number">100</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> SecurityProperties.Filter filter = <span class="keyword">new</span> SecurityProperties.Filter();</span><br><span class="line">    <span class="keyword">private</span> SecurityProperties.User user = <span class="keyword">new</span> SecurityProperties.User();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">SecurityProperties</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> SecurityProperties.<span class="function">User <span class="title">getUser</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.user;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> SecurityProperties.<span class="function">Filter <span class="title">getFilter</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.filter;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">User</span> </span>&#123;</span><br><span class="line">        <span class="keyword">private</span> String name = <span class="string">&quot;user&quot;</span>;</span><br><span class="line">        <span class="keyword">private</span> String password = UUID.randomUUID().toString();</span><br><span class="line">        <span class="keyword">private</span> List&lt;String&gt; roles = <span class="keyword">new</span> ArrayList();</span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">boolean</span> passwordGenerated = <span class="keyword">true</span>;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="title">User</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> String <span class="title">getName</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">this</span>.name;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setName</span><span class="params">(String name)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">this</span>.name = name;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> String <span class="title">getPassword</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">this</span>.password;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setPassword</span><span class="params">(String password)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">if</span> (StringUtils.hasLength(password)) &#123;</span><br><span class="line">                <span class="keyword">this</span>.passwordGenerated = <span class="keyword">false</span>;</span><br><span class="line">                <span class="keyword">this</span>.password = password;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> List&lt;String&gt; <span class="title">getRoles</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">this</span>.roles;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setRoles</span><span class="params">(List&lt;String&gt; roles)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">this</span>.roles = <span class="keyword">new</span> ArrayList(roles);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isPasswordGenerated</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">this</span>.passwordGenerated;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Filter</span> </span>&#123;</span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">int</span> order = -<span class="number">100</span>;</span><br><span class="line">        <span class="keyword">private</span> Set&lt;DispatcherType&gt; dispatcherTypes;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="title">Filter</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">this</span>.dispatcherTypes = <span class="keyword">new</span> HashSet(Arrays.asList(DispatcherType.ASYNC, DispatcherType.ERROR, DispatcherType.REQUEST));</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getOrder</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">this</span>.order;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setOrder</span><span class="params">(<span class="keyword">int</span> order)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">this</span>.order = order;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> Set&lt;DispatcherType&gt; <span class="title">getDispatcherTypes</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">this</span>.dispatcherTypes;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setDispatcherTypes</span><span class="params">(Set&lt;DispatcherType&gt; dispatcherTypes)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">this</span>.dispatcherTypes = dispatcherTypes;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>综上所述，security默认的用户名是user, 默认密码是应用启动的时候，通过UUID算法随机生成的，默认的role是”USER”。当然，如果我们想简单改一下这个用户名密码，可以在<code>application.properties</code>配置你的用户名密码，例如<br><img src="https://img-blog.csdnimg.cn/20200318120347187.png#pic_center" alt="在这里插入图片描述"><br>当然这只是一个初级的配置，更复杂的配置，可以分不用角色，在控制范围上，能够拦截到方法级别的权限控制。</p>
+<h2 id="内存用户名密码认证"><a href="#内存用户名密码认证" class="headerlink" title="内存用户名密码认证"></a>内存用户名密码认证</h2><p>在上面的内容，我们什么都没做，就添加了spring-boot-starter-security依赖，整个应用就有了默认的认证安全机制。下面，我们来定制用户名密码。写一个继承了 WebSecurityConfigurerAdapter的配置类，具体内容如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Configuration;</span><br><span class="line"><span class="keyword">import</span> org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;</span><br><span class="line"><span class="keyword">import</span> org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;</span><br><span class="line"><span class="keyword">import</span> org.springframework.security.config.annotation.web.builders.HttpSecurity;</span><br><span class="line"><span class="keyword">import</span> org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;</span><br><span class="line"><span class="keyword">import</span> org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@EnableWebSecurity</span></span><br><span class="line"><span class="meta">@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WebSecurityConfig</span> <span class="keyword">extends</span> <span class="title">WebSecurityConfigurerAdapter</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">configure</span><span class="params">(HttpSecurity http)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>.configure(http);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">configure</span><span class="params">(AuthenticationManagerBuilder auth)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        auth.inMemoryAuthentication()</span><br><span class="line">                .passwordEncoder(<span class="keyword">new</span> BCryptPasswordEncoder())</span><br><span class="line">                .withUser(<span class="string">&quot;admin&quot;</span>)</span><br><span class="line">                .password(<span class="keyword">new</span> BCryptPasswordEncoder().encode(<span class="string">&quot;1234567&quot;</span>))</span><br><span class="line">                .roles(<span class="string">&quot;USER&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>这里对上面的代码进行简要说明</strong>：</p>
+<ul>
+<li><p>Spring security 5.0中新增了多种加密方式，也改变了默认的密码格式。需要修改一下configure中的代码，我们要将前端传过来的密码进行某种方式加密，Spring Security 官方推荐的是使用<code>bcrypt</code>加密方式。<code>inMemoryAuthentication().passwordEncoder(new BCryptPasswordEncoder())</code>，这相当于登陆时用BCrypt加密方式对用户密码进行处理。以前的”<code>.password(&quot;123&quot;)</code>“ 变成了 “<code>.password(new BCryptPasswordEncoder().encode(&quot;123&quot;))</code>“，这相当于对内存中的密码进行Bcrypt编码加密。如果比对时一致，说明密码正确，才允许登陆。</p>
+</li>
+<li><p>通过 <code>@EnableWebSecurity</code>注解开启Spring Security的功能。使用<code>@EnableGlobalMethodSecurity(prePostEnabled = true)</code>这个注解，可以开启security的注解，我们可以在需要控制权限的方法上面使用<code>@PreAuthorize</code>，<code>@PreFilter</code>这些注解。</p>
+</li>
+<li><p>继承 WebSecurityConfigurerAdapter 类，并重写它的方法来设置一些web安全的细节。我们结合<code>@EnableWebSecurity</code>注解和继承WebSecurityConfigurerAdapter，来给我们的系统加上基于web的安全机制。</p>
+</li>
+<li><p>在<code>configure(HttpSecurity http)</code>方法里面，我们进入到源码中，就会看到默认的认证代码是：</p>
+</li>
+</ul>
+<p><img src="https://img-blog.csdnimg.cn/20200318121502574.png" alt="在这里插入图片描述"><br>从方法名我们基本可以看懂这些方法的功能。上面的那个默认的登录页面，就是SpringBoot默认的用户名密码认证的login页面。我们使用SpringBoot默认的配置<code>super.configure(http)</code>，它通过 <code>authorizeRequests()</code> 定义哪些URL需要被保护、哪些不需要被保护。默认配置是所有访问页面都需要认证，才可以访问。</p>
+<ul>
+<li><p>通过 <code>formLogin()</code> 定义当需要用户登录时候，转到的登录页面。</p>
+</li>
+<li><p><code>configureGlobal(AuthenticationManagerBuilder auth)</code> 方法，在内存中创建了一个用户，该用户的名称为root，密码为root，用户角色为USER。这个默认的登录页面是怎么冒出来的呢？是的，SpringBoot内置的，SpringBoot甚至给我们做好了一个极简的登录页面。这个登录页面是通过Filter实现的。具体的实现类是<code>org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter</code>。同时，这个DefaultLoginPageGeneratingFilter也是SpringBoot的默认内置的Filter。</p>
+</li>
+</ul>
+<p>输入用户名，密码，点击Login。不过，我们发现，SpringBoot应用的启动日志还是打印了如下一段：<br><img src="https://img-blog.csdnimg.cn/20200318122300838.png" alt="在这里插入图片描述"><br>但实际上，已经使用了我们定制的用户名密码了。如果我们要配置多个用户，多个角色，可参考使用如下示例的代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">configure</span><span class="params">(AuthenticationManagerBuilder auth)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        auth.inMemoryAuthentication()</span><br><span class="line">                .passwordEncoder(<span class="keyword">new</span> BCryptPasswordEncoder())</span><br><span class="line">                .withUser(<span class="string">&quot;admin&quot;</span>)</span><br><span class="line">                .password(<span class="keyword">new</span> BCryptPasswordEncoder().encode(<span class="string">&quot;1234567&quot;</span>))</span><br><span class="line">                .roles(<span class="string">&quot;USER&quot;</span>)</span><br><span class="line">                .and()</span><br><span class="line">                .withUser(<span class="string">&quot;admin1&quot;</span>)</span><br><span class="line">                .password(<span class="keyword">new</span> BCryptPasswordEncoder().encode(<span class="string">&quot;123&quot;</span>))</span><br><span class="line">                .roles(<span class="string">&quot;ADMIN&quot;</span>, <span class="string">&quot;USER&quot;</span>);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<h2 id="角色权限控制"><a href="#角色权限控制" class="headerlink" title="角色权限控制"></a>角色权限控制</h2><p>当我们的系统功能模块当需求发展到一定程度时，会不同的用户，不同角色使用我们的系统。这样就要求我们的系统可以做到，能够对不同的系统功能模块，开放给对应的拥有其访问权限的用户使用。Spring Security提供了Spring EL表达式，允许我们在定义URL路径访问(@RequestMapping)的方法上面添加注解，来控制访问权限。在标注访问权限时，根据对应的表达式返回结果，控制访问权限：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">true</span>，表示有权限</span><br><span class="line">fasle，表示无权限</span><br></pre></td></tr></table></figure>
+<p>Spring Security可用表达式对象的基类是SecurityExpressionRoot。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">SecurityExpressionRoot</span> <span class="keyword">implements</span> <span class="title">SecurityExpressionOperations</span> </span>&#123;</span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">final</span> Authentication authentication;</span><br><span class="line">    <span class="keyword">private</span> AuthenticationTrustResolver trustResolver;</span><br><span class="line">    <span class="keyword">private</span> RoleHierarchy roleHierarchy;</span><br><span class="line">    <span class="keyword">private</span> Set&lt;String&gt; roles;</span><br><span class="line">    <span class="keyword">private</span> String defaultRolePrefix = <span class="string">&quot;ROLE_&quot;</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">boolean</span> permitAll = <span class="keyword">true</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">boolean</span> denyAll = <span class="keyword">false</span>;</span><br><span class="line">    <span class="keyword">private</span> PermissionEvaluator permissionEvaluator;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">final</span> String read = <span class="string">&quot;read&quot;</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">final</span> String write = <span class="string">&quot;write&quot;</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">final</span> String create = <span class="string">&quot;create&quot;</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">final</span> String delete = <span class="string">&quot;delete&quot;</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">final</span> String admin = <span class="string">&quot;administration&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">SecurityExpressionRoot</span><span class="params">(Authentication authentication)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (authentication == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">&quot;Authentication object cannot be null&quot;</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">this</span>.authentication = authentication;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">boolean</span> <span class="title">hasAuthority</span><span class="params">(String authority)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.hasAnyAuthority(authority);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">boolean</span> <span class="title">hasAnyAuthority</span><span class="params">(String... authorities)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.hasAnyAuthorityName((String)<span class="keyword">null</span>, authorities);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">boolean</span> <span class="title">hasRole</span><span class="params">(String role)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.hasAnyRole(role);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">boolean</span> <span class="title">hasAnyRole</span><span class="params">(String... roles)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.hasAnyAuthorityName(<span class="keyword">this</span>.defaultRolePrefix, roles);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">hasAnyAuthorityName</span><span class="params">(String prefix, String... roles)</span> </span>&#123;</span><br><span class="line">        Set&lt;String&gt; roleSet = <span class="keyword">this</span>.getAuthoritySet();</span><br><span class="line">        String[] var4 = roles;</span><br><span class="line">        <span class="keyword">int</span> var5 = roles.length;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> var6 = <span class="number">0</span>; var6 &lt; var5; ++var6) &#123;</span><br><span class="line">            String role = var4[var6];</span><br><span class="line">            String defaultedRole = getRoleWithDefaultPrefix(prefix, role);</span><br><span class="line">            <span class="keyword">if</span> (roleSet.contains(defaultedRole)) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">final</span> Authentication <span class="title">getAuthentication</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.authentication;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">boolean</span> <span class="title">permitAll</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">boolean</span> <span class="title">denyAll</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">boolean</span> <span class="title">isAnonymous</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.trustResolver.isAnonymous(<span class="keyword">this</span>.authentication);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">boolean</span> <span class="title">isAuthenticated</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> !<span class="keyword">this</span>.isAnonymous();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">boolean</span> <span class="title">isRememberMe</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.trustResolver.isRememberMe(<span class="keyword">this</span>.authentication);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">boolean</span> <span class="title">isFullyAuthenticated</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> !<span class="keyword">this</span>.trustResolver.isAnonymous(<span class="keyword">this</span>.authentication) &amp;&amp; !<span class="keyword">this</span>.trustResolver.isRememberMe(<span class="keyword">this</span>.authentication);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">getPrincipal</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.authentication.getPrincipal();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setTrustResolver</span><span class="params">(AuthenticationTrustResolver trustResolver)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.trustResolver = trustResolver;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setRoleHierarchy</span><span class="params">(RoleHierarchy roleHierarchy)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.roleHierarchy = roleHierarchy;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setDefaultRolePrefix</span><span class="params">(String defaultRolePrefix)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.defaultRolePrefix = defaultRolePrefix;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> Set&lt;String&gt; <span class="title">getAuthoritySet</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">this</span>.roles == <span class="keyword">null</span>) &#123;</span><br><span class="line">            Collection&lt;? extends GrantedAuthority&gt; userAuthorities = <span class="keyword">this</span>.authentication.getAuthorities();</span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">this</span>.roleHierarchy != <span class="keyword">null</span>) &#123;</span><br><span class="line">                userAuthorities = <span class="keyword">this</span>.roleHierarchy.getReachableGrantedAuthorities(userAuthorities);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">this</span>.roles = AuthorityUtils.authorityListToSet(userAuthorities);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.roles;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">hasPermission</span><span class="params">(Object target, Object permission)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.permissionEvaluator.hasPermission(<span class="keyword">this</span>.authentication, target, permission);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">hasPermission</span><span class="params">(Object targetId, String targetType, Object permission)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.permissionEvaluator.hasPermission(<span class="keyword">this</span>.authentication, (Serializable)targetId, targetType, permission);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setPermissionEvaluator</span><span class="params">(PermissionEvaluator permissionEvaluator)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.permissionEvaluator = permissionEvaluator;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> String <span class="title">getRoleWithDefaultPrefix</span><span class="params">(String defaultRolePrefix, String role)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (role == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> role;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (defaultRolePrefix != <span class="keyword">null</span> &amp;&amp; defaultRolePrefix.length() != <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> role.startsWith(defaultRolePrefix) ? role : defaultRolePrefix + role;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> role;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>通过阅读源码，我们可以更加深刻的理解其EL写法，并在写代码的时候正确的使用。变量defaultRolePrefix硬编码约定了role的前缀是”ROLE_”。同时，我们可以看出hasRole跟hasAnyRole是一样的。hasAnyRole是调用的<code>hasAnyAuthorityName(defaultRolePrefix, roles)</code>。所以，我们在学习一个框架或者一门技术的时候，最准确的就是源码。通过源码，我们可以更好更深入的理解技术的本质。</p>
+<p>SecurityExpressionRoot为我们提供的使用Spring EL表达式总结如下：<br>| 表达式 | 描述 |<br>|–|–|<br>|hasRole([role])    |当前用户是否拥有指定角色。|<br>|hasAnyRole([role1,role2])    |多个角色是一个以逗号进行分隔的字符串。如果当前用户拥有指定角色中的任意一个则返回true。|<br>|hasAuthority([auth])    |等同于hasRole|<br>|hasAnyAuthority([auth1,auth2])    |等同于hasAnyRole|<br>|Principle    |代表当前用户的principle对象|<br>|authentication    |直接从SecurityContext获取的当前Authentication对象|<br>|permitAll    |总是返回true，表示允许所有的|<br>|denyAll|    总是返回false，表示拒绝所有的|<br>|isAnonymous()    |当前用户是否是一个匿名用户|<br>|isRememberMe()|    表示当前用户是否是通过Remember-Me自动登录的|<br>|isAuthenticated()    |表示当前用户是否已经登录认证成功了。|<br>|isFullyAuthenticated()    |如果当前用户既不是一个匿名用户，同时又不是通过Remember-Me自动登录的，则返回true。|</p>
+<p>在Controller方法上添加@PreAuthorize这个注解，<code>value=&quot;hasRole(&#39;ADMIN&#39;)&quot;)</code>是Spring-EL expression，当表达式值为true，标识这个方法可以被调用。如果表达式值是false，标识此方法无权限访问。</p>
+<h2 id="在Spring-Security里面获取当前登录认证通过的用户信息"><a href="#在Spring-Security里面获取当前登录认证通过的用户信息" class="headerlink" title="在Spring Security里面获取当前登录认证通过的用户信息"></a>在Spring Security里面获取当前登录认证通过的用户信息</h2><p>如果我们想要在前端页面显示当前登录的用户怎么办呢？在在Spring Security里面怎样获取当前登录认证通过的用户信息？下面我们就来探讨这个问题。其实很好办。我们添加一个LoginFilter，默认拦截所有请求，把当前登录的用户放到系统session中即可。在Spring Security中，用户信息保存在SecurityContextHolder中。Spring Security使用一个Authentication对象来持有所有系统的安全认证相关的信息。这个信息的内容格式如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="string">&quot;accountNonExpired&quot;</span>:<span class="keyword">true</span>,</span><br><span class="line">    <span class="string">&quot;accountNonLocked&quot;</span>:<span class="keyword">true</span>,</span><br><span class="line">    <span class="string">&quot;authorities&quot;</span>:[&#123;</span><br><span class="line">        <span class="string">&quot;authority&quot;</span>:<span class="string">&quot;ROLE_ADMIN&quot;</span></span><br><span class="line">    &#125;,&#123;</span><br><span class="line">        <span class="string">&quot;authority&quot;</span>:<span class="string">&quot;ROLE_USER&quot;</span></span><br><span class="line">    &#125;],</span><br><span class="line">    <span class="string">&quot;credentialsNonExpired&quot;</span>:<span class="keyword">true</span>,</span><br><span class="line">    <span class="string">&quot;enabled&quot;</span>:<span class="keyword">true</span>,</span><br><span class="line">    <span class="string">&quot;username&quot;</span>:<span class="string">&quot;root&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个Authentication对象信息其实就是User实体的信息，类似如下(当然，密码没放进来)。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">User</span> <span class="keyword">implements</span> <span class="title">UserDetails</span>, <span class="title">CredentialsContainer</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String password;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> String username;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Set&lt;GrantedAuthority&gt; authorities;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">boolean</span> accountNonExpired;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">boolean</span> accountNonLocked;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">boolean</span> credentialsNonExpired;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">boolean</span> enabled;</span><br><span class="line">        ....</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们可以使用下面的代码（Java）获得当前身份验证的用户的名称:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (principal <span class="keyword">instanceof</span> UserDetails) &#123;</span><br><span class="line">    String username = ((UserDetails)principal).getUsername();</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    String username = principal.toString();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>通过调用getContext()返回的对象是SecurityContext的实例对象，该实例对象保存在ThreadLocal线程本地存储中。使用Spring Security框架，通常的认证机制都是返回UserDetails实例，通过如上这种方式，我们就可以拿到认证登录的用户信息。</p>
+<h2 id="用数据库存储用户和角色，实现安全认证"><a href="#用数据库存储用户和角色，实现安全认证" class="headerlink" title="用数据库存储用户和角色，实现安全认证"></a>用数据库存储用户和角色，实现安全认证</h2><p>很多时候，我们需要的是实现一个用数据库存储用户和角色，实现系统的安全认证。为了简化讲解，本例中在权限角色上，我们简单设计两个用户角色：USER，ADMIN。我们设计页面的权限如下：</p>
+<ul>
+<li>首页/ : 所有人可访问</li>
+<li>登录页 /login: 所有人可访问</li>
+<li>普通用户权限页 /httpapi, /httpsuite: 登录后的用户都可访问</li>
+<li>管理员权限页 /httpreport ： 仅管理员可访问</li>
+<li>无权限提醒页： 当一个用户访问了其没有权限的页面，我们使用全局统一的异常处理页面提示。</li>
+</ul>
+<h3 id="配置Spring-Security"><a href="#配置Spring-Security" class="headerlink" title="配置Spring Security"></a>配置Spring Security</h3><p>我们首先使用Spring Security帮我们做登录、登出的处理，以及当用户未登录时只能访问: <a target="_blank" rel="noopener" href="http://localhost:8080/">http://localhost:8080/</a> 以及 <a target="_blank" rel="noopener" href="http://localhost:8080/login">http://localhost:8080/login</a> 两个页面。同样的，我们要写一个继承WebSecurityConfigurerAdapter的配置类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.springboot.in.action.service.LightSwordUserDetailService;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Bean;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Configuration;</span><br><span class="line"><span class="keyword">import</span> org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;</span><br><span class="line"><span class="keyword">import</span> org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;</span><br><span class="line"><span class="keyword">import</span> org.springframework.security.config.annotation.web.builders.HttpSecurity;</span><br><span class="line"><span class="keyword">import</span> org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;</span><br><span class="line"><span class="keyword">import</span> org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;</span><br><span class="line"><span class="keyword">import</span> org.springframework.security.core.userdetails.UserDetailsService;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Created by jack on 2017/4/27.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@EnableWebSecurity</span></span><br><span class="line"><span class="meta">@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)</span></span><br><span class="line"><span class="comment">//使用@EnableGlobalMethodSecurity(prePostEnabled = true)</span></span><br><span class="line"><span class="comment">// 这个注解，可以开启security的注解，我们可以在需要控制权限的方法上面使用@PreAuthorize，@PreFilter这些注解。</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WebSecurityConfig</span> <span class="keyword">extends</span> <span class="title">WebSecurityConfigurerAdapter</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> UserDetailsService <span class="title">userDetailsService</span><span class="params">()</span> </span>&#123; <span class="comment">//覆盖写userDetailsService方法 (1)</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> AdminUserDetailService();</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * If subclassed this will potentially override subclass configure(HttpSecurity)</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> http</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">configure</span><span class="params">(HttpSecurity http)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="comment">//super.configure(http);</span></span><br><span class="line">        http.csrf().disable();</span><br><span class="line"></span><br><span class="line">        http.authorizeRequests()</span><br><span class="line">            .antMatchers(<span class="string">&quot;/&quot;</span>).permitAll()</span><br><span class="line">            .antMatchers(<span class="string">&quot;/amchart/**&quot;</span>,</span><br><span class="line">                <span class="string">&quot;/bootstrap/**&quot;</span>,</span><br><span class="line">                <span class="string">&quot;/build/**&quot;</span>,</span><br><span class="line">                <span class="string">&quot;/css/**&quot;</span>,</span><br><span class="line">                <span class="string">&quot;/dist/**&quot;</span>,</span><br><span class="line">                <span class="string">&quot;/documentation/**&quot;</span>,</span><br><span class="line">                <span class="string">&quot;/fonts/**&quot;</span>,</span><br><span class="line">                <span class="string">&quot;/js/**&quot;</span>,</span><br><span class="line">                <span class="string">&quot;/pages/**&quot;</span>,</span><br><span class="line">                <span class="string">&quot;/plugins/**&quot;</span></span><br><span class="line">            ).permitAll() <span class="comment">//默认不拦截静态资源的url pattern （2）</span></span><br><span class="line">            .anyRequest().authenticated().and()</span><br><span class="line">            .formLogin().loginPage(<span class="string">&quot;/login&quot;</span>)<span class="comment">// 登录url请求路径 (3)</span></span><br><span class="line">            .defaultSuccessUrl(<span class="string">&quot;/httpapi&quot;</span>).permitAll().and() <span class="comment">// 登录成功跳转路径url(4)</span></span><br><span class="line">            .logout().permitAll();</span><br><span class="line"></span><br><span class="line">        http.logout().logoutSuccessUrl(<span class="string">&quot;/&quot;</span>); <span class="comment">// 退出默认跳转页面 (5)</span></span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">configure</span><span class="params">(AuthenticationManagerBuilder auth)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="comment">//AuthenticationManager使用我们的 Service来获取用户信息，Service可以自己写，其实就是简单的读取数据库的操作</span></span><br><span class="line">        auth.userDetailsService(()); <span class="comment">// （6）</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面的代码只做了基本的配置，其中：</p>
+<ul>
+<li>覆盖写userDetailsService方法，具体的AdminUserDetailsService实现类，就是之前说的获取用户信息的service层类。</li>
+<li>默认不拦截静态资源的url pattern。我们也可以用下面的WebSecurity这个方式跳过静态资源的认证。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">configure</span><span class="params">(WebSecurity web)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">    web</span><br><span class="line">        .ignoring()</span><br><span class="line">        .antMatchers(<span class="string">&quot;/resourcesDir/**&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>跳转登录页面url请求路径为/login，我们需要定义一个Controller把路径映射到login.html。</li>
+<li>登录成功后跳转的路径为/httpapi</li>
+<li>退出后跳转到的url为/</li>
+<li>认证鉴权信息的Bean，采用我们自定义的从数据库中获取用户信息的AdminUserDetailService类。</li>
+</ul>
+<p>我们同样使用<code>@EnableGlobalMethodSecurity(prePostEnabled = true)</code>这个注解，开启security的注解，这样我们可以在需要控制权限的方法上面使用<code>@PreAuthorize</code>，<code>@PreFilter</code>这些注解。</p>
+<h3 id="用户退出"><a href="#用户退出" class="headerlink" title="用户退出"></a>用户退出</h3><p>我们在configure(HttpSecurity http)方法里面定义了任何权限都允许退出，当然SpringBoot集成Security的默认退出请求是/logout </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http.logout().logoutSuccessUrl(<span class="string">&quot;/&quot;</span>); <span class="comment">// 退出默认跳转页面 (4)</span></span><br></pre></td></tr></table></figure>
+<h3 id="配置错误处理页面"><a href="#配置错误处理页面" class="headerlink" title="配置错误处理页面"></a>配置错误处理页面</h3><p>访问发生错误时，跳转到系统统一异常处理页面。我们首先添加一个<code>GlobalExceptionHandlerAdvice</code>，使用<code>@ControllerAdvice</code>注解：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.springframework.web.bind.annotation.&#123;ControllerAdvice, ExceptionHandler&#125;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.context.request.WebRequest</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.servlet.ModelAndView</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * Created by jack on 2017/4/27.</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="meta">@ControllerAdvice</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GlobalExceptionHandlerAdvice</span> </span>&#123;</span><br><span class="line">  <span class="meta">@ExceptionHandler(value = Exception.class)</span><span class="comment">//表示捕捉到所有的异常，你也可以捕捉一个你自定义的异常</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> ModelAndView <span class="title">exception</span><span class="params">(Exception exception, WebRequest request)</span></span>&#123;</span><br><span class="line">        ModelAndView modelAndView = <span class="keyword">new</span> ModelAndView(<span class="string">&quot;/error&quot;</span>);</span><br><span class="line">        modelAndView.addObject(<span class="string">&quot;errorMessage&quot;</span>, exception.getMessage());</span><br><span class="line">        modelAndView.addObject(<span class="string">&quot;stackTrace&quot;</span>, exception.getStackTrace());</span><br><span class="line">        <span class="keyword">return</span> modelAndView;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其中，@ExceptionHandler(value = Exception.class)，表示捕捉到所有的异常，这里你也可以捕捉一个你自定义的异常。比如说，针对安全认证的Exception，我们可以单独定义处理。此处不再赘述。</p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>DengBoCong</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="http://dengbocong.cn/Spring-Boot/a86e53449298/">http://dengbocong.cn/Spring-Boot/a86e53449298/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Licensed under the Apache License, Version 2.0 (the "License")</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Stay hungry, Stay foolish.</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/Sprint-Boot/"># Sprint Boot</a>
+                    
+                        <a href="/tags/Spring-Security/"># Spring Security</a>
+                    
+                        <a href="/tags/Spring/"># Spring</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/Spring-Boot/f90f7de884de/">多种方式轻松搞定SpringBoot部署Docker</a>
+            
+            
+        </section>
+
+
+    </article>
+</div>
+
+        </div>
+        <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Copyright 2020-2021 DengBoCong. All Rights Reserved. 赣ICP备20002291号</span>
+    </div>
+</footer>
+
+    </div>
+    <div id="u-search">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="container">
+                    <form id="u-search-modal-form" class="u-search-modal-form">
+                        <button type="submit" class="form-submit-btn">
+                            <img src="/image/search.png" class="search-btn-img" />
+                        </button>
+                        <input placeholder="请输入关键字搜索文章..." class="form-input" onchange="inputChange(event)" id="modal-form-input">
+                    </form>
+                    <a class="modal-close">x</a>
+                </div>
+                <div class="search-loading">
+                    <div class="search-loading-bar"></div>
+                </div>
+            </div>
+            <div class="modal-body">
+            </div>
+        </div>
+        <div class="modal-overlay"></div>
+    </div>
+</body>
+</html>

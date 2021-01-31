@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<link rel="stylesheet" href="/css/search.css">
+<script src="/js/jquery-3.4.1.min.js"></script>
+<script src="/js/search.js"></script>
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
+<style>
+    .pace .pace-progress {
+        background: #5cb0ff; /*进度条颜色*/
+        height: 2px;
+    }
+    .pace .pace-progress-inner {
+        box-shadow: 0 0 10px #1E92FB, 0 0 5px     #1E92FB; /*阴影颜色*/
+    }
+    .pace .pace-activity {
+        border-top-color: #1E92FB;    /*上边框颜色*/
+        border-left-color: #1E92FB;    /*左边框颜色*/
+    }
+</style>
+
+    <meta name="author" content="DengBoCong">
+
+
+    <meta name="subtitle" content="NLP | Deep Learning | Java">
+
+
+
+
+<title>有必要了解的Subword算法模型 | DengBoCong</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+    
+
+
+<meta name="generator" content="Hexo 5.3.0"></head>
+<body>
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">DengBoCong</a></div>
+            <div class="menu navbar-right">
+                <div class="search" style="float: left; margin-top: 7px;">
+                    <form class="form-search">
+                        <input class="input" placeholder="search content..." autocomplete="off" onchange="inputChange(event)" id="pc-search-input"/>
+                    </form>
+                    <div class="search-btn">
+                        <img src="/image/search.png" class="search-btn-img" />
+                    </div>
+                </div>
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/projects">Projects</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">DengBoCong</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/projects">Projects</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+        <div class="main">
+            <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    document.ready(
+        function () {
+            tocbot.init({
+                tocSelector: '.tocbot-list',
+                contentSelector: '.post-content',
+                headingSelector: 'h1, h2, h3, h4, h5',
+                collapseDepth: 1,
+                orderedList: false,
+                scrollSmooth: true,
+            })
+        }
+    )
+
+    function expand_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 6,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "collapse_toc()");
+        b.innerHTML = "Collapse all"
+    }
+
+    function collapse_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 1,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "expand_toc()");
+        b.innerHTML = "Expand all"
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">有必要了解的Subword算法模型</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">DengBoCong</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">December 4, 2020&nbsp;&nbsp;17:07:04</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Deep-Learning/">Deep-Learning</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><blockquote>
+<p>说明：讲解时会对相关文章资料进行思想、结构、优缺点，内容进行提炼和记录，相关引用会标明出处，引用之处如有侵权，烦请告知删除。<br>转载请注明：DengBoCong</p>
+</blockquote>
+<p>Subword算法在预训练语言模型中有着不小的地位，它在分词和字典方面的优化改进带来的影响，间接或直接影响着任务最终的性能效果，因此，作为NLP研究者或开发者，有必要了解下Subword算法的原理。</p>
+<h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p>在NLP领域，对语料进行预处理的过程中，我们需要进行分词和生成词典。很多时候用多了框架的API，觉得分词和生成字典就是调用的事情，不过事情并没有那么简单，比如其中涉及到的未登录词的问题，就对任务性能影响很大。一种很朴素的做法就是将未见过的词编码成#UNK ，有时为了不让字典太大，只会把出现频次大于某个阈值的词丢到字典里边，剩下所有的词都统一编码成#UNK 。</p>
+<blockquote>
+<p>未登录词：简单来讲就是在验证集或测试集出现了训练集从来没见到过的单词。</p>
+</blockquote>
+<p>总结而言就是，任务（如对话、机翻）的词表是定长的，但是需要实际输入的词汇是开放的(out of vocabulary)。以前的做法是新词汇添加到词典中，但是过大的词典会带来两个问题：</p>
+<ul>
+<li>稀疏问题：某些词汇出现的频率很低，得不到充分的训练</li>
+<li>计算量问题：词典过大，也就意味着embedding过程的计算量会变大</li>
+</ul>
+<p>对于分词和生成字典方面，常见的方法有：</p>
+<ul>
+<li>给低频次再设置一个back-off 表，当出现低频次的时候就去查表</li>
+<li>不做word-level转而使用char-level，既然以词为对象进行建模会有未登录词的问题，那么以单个字母或单个汉字为对象建模不就可以解决了嘛？因为不管是什么词它肯定是由若干个字母组成的。</li>
+</ul>
+<p>第一种方法，简单直接，若干back-off做的很好的话，对低频词的效果会有很大的提升，但是这种方法依赖于back-off表的质量，而且也没法处理非登录词问题。第二种方法，的确可以从源头解决未登录词的问题，但是这种模型粒度太细。</p>
+<p>下面举例word-level和subword-level的一种直观感受：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">训练集的词汇: old older oldest smart smarter smartest</span><br><span class="line">word-level 词典: old older oldest smart smarter smartest 长度为 <span class="number">6</span></span><br><span class="line">subword-level 词典: old smart er est 长度为 <span class="number">4</span></span><br></pre></td></tr></table></figure>
+<h1 id="Subword算法"><a href="#Subword算法" class="headerlink" title="Subword算法"></a>Subword算法</h1><p>如何将词分解成subword，依据不同的策略，产生了几种主流的方法: Byte Pair Encoding (BPE)、wordpiece 和 Unigram Language Model等。值得一提的是，这几种算法的处理流程跟语言学没有太大的关系，单纯是统计学的解决思路，Subword模型的主要趋势：</p>
+<ul>
+<li>与单词级别的模型架构相同，但使用的是字符级别的输入</li>
+<li>采用混合架构，输入主要是字符，但是会混入其他信息</li>
+</ul>
+<h3 id="Byte-Pair-Encoding（BPE）"><a href="#Byte-Pair-Encoding（BPE）" class="headerlink" title="Byte Pair Encoding（BPE）"></a>Byte Pair Encoding（BPE）</h3><p>BPE算法流程可参考<a target="_blank" rel="noopener" href="https://arxiv.org/abs/1508.07909">论文</a>。Byte Pair Encoding最初是一种压缩算法，其主要是使用一些出现频率高的byte pair来组成新的byte。但它也可以作为一种分词算法(尽管其本质是自下而上的聚类方法)，它以数据中所有（Unicode）字符的单字组词汇开头并且使用最常见的n-gram对来组成一个新的n-gram。例如”loved”,”loving”,”loves”这三个单词，其本身的语义都是”爱”的意思。BPE通过训练，能够把上面的3个单词拆分成”lov”,”ed”,”ing”,”es”几部分，这样可以把词的本身的意思和时态分开，有效的减少了词表的数量。</p>
+<p><strong>这个算法有一些需要注意的地方</strong>：</p>
+<ul>
+<li>有一个目标词汇量大小并在到达时停止训练</li>
+<li>需要确定单词的最长分割片段</li>
+<li>分词过程仅在由某些先前的标记器（通常为MT的Moses标记器）标识的单词内进行。</li>
+<li>自动决定系统的词汇，不再以常规方式过度使用“单词”</li>
+</ul>
+<p><strong>获取subword词表的流程（learn-bpe）</strong>：</p>
+<ul>
+<li>准备足够大的训练语料</li>
+<li>确定期望的subword词表大小</li>
+<li>将单词拆分为字符序列并在末尾添加后缀“ &lt;/ w&gt;”，统计单词频率。 本阶段的subword的粒度是字符。 例如，“ low”的频率为5，那么我们将其改写为“ l o w &lt;/ w&gt;”：5</li>
+<li>统计每一个连续字节对的出现频率，选择最高频者合并成新的subword</li>
+<li>重复第4步直到达到第2步设定的subword词表大小或下一个最高频的字节对出现频率为1</li>
+</ul>
+<p><strong>示例</strong>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">第一步：&#123;<span class="string">&#x27;l o w &lt;/w&gt;&#x27;</span>: <span class="number">5</span>, <span class="string">&#x27;l o w e r &lt;/w&gt;&#x27;</span>: <span class="number">2</span>, <span class="string">&#x27;n e w e s t &lt;/w&gt;&#x27;</span>: <span class="number">6</span>, <span class="string">&#x27;w i d e s t &lt;/w&gt;&#x27;</span>: <span class="number">3</span>&#125;</span><br><span class="line">第二步：&#123;<span class="string">&#x27;l o w &lt;/w&gt;&#x27;</span>: <span class="number">5</span>, <span class="string">&#x27;l o w e r &lt;/w&gt;&#x27;</span>: <span class="number">2</span>, <span class="string">&#x27;n e w es t &lt;/w&gt;&#x27;</span>: <span class="number">6</span>, <span class="string">&#x27;w i d es t &lt;/w&gt;&#x27;</span>: <span class="number">3</span>&#125;</span><br><span class="line">第三步：&#123;<span class="string">&#x27;l o w &lt;/w&gt;&#x27;</span>: <span class="number">5</span>, <span class="string">&#x27;l o w e r &lt;/w&gt;&#x27;</span>: <span class="number">2</span>, <span class="string">&#x27;n e w est &lt;/w&gt;&#x27;</span>: <span class="number">6</span>, <span class="string">&#x27;w i d est &lt;/w&gt;&#x27;</span>: <span class="number">3</span>&#125;</span><br><span class="line">第四步：&#123;<span class="string">&#x27;l o w &lt;/w&gt;&#x27;</span>: <span class="number">5</span>, <span class="string">&#x27;l o w e r &lt;/w&gt;&#x27;</span>: <span class="number">2</span>, <span class="string">&#x27;n e w est&lt;/w&gt;&#x27;</span>: <span class="number">6</span>, <span class="string">&#x27;w i d est&lt;/w&gt;&#x27;</span>: <span class="number">3</span>&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>实现（论文给出示例，如下）</strong>：<br><img src="https://img-blog.csdnimg.cn/20201204144643865.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<p><strong>编码和解码（apply-bpe及其逆过程）</strong>：</p>
+<ul>
+<li>在之前的算法中，我们已经得到了subword的词表，对该词表按照子词长度由大到小排序。编码时，对于每个单词，遍历排好序的子词词表寻找是否有token是当前单词的子字符串，如果有，则该token是表示单词的tokens之一。</li>
+<li>我们从最长的token迭代到最短的token，尝试将每个单词中的子字符串替换为token。 最终，我们将迭代所有tokens，并将所有子字符串替换为tokens。 如果仍然有子字符串没被替换但所有token都已迭代完毕，则将剩余的子词替换为特殊token，如<unk>。</li>
+</ul>
+<blockquote>
+<p>停止符”</w>“的意义在于表示subword是词后缀。举例来说：”st”字词不加”</w>“可以出现在词首如”st ar”，加了”</w>“表明改字词位于词尾，如”wide st</w>“，二者意义截然不同。</p>
+</blockquote>
+<p><strong>示例</strong>：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">编码过程：</span><br><span class="line"><span class="comment"># 给定单词序列</span></span><br><span class="line">[“the&lt;/w&gt;”, “highest&lt;/w&gt;”, “mountain&lt;/w&gt;”]</span><br><span class="line"><span class="comment"># 假设已有排好序的subword词表</span></span><br><span class="line">[“errrr&lt;/w&gt;”, “tain&lt;/w&gt;”, “moun”, “est&lt;/w&gt;”, “high”, “the&lt;/w&gt;”, “a&lt;/w&gt;”]</span><br><span class="line"><span class="comment"># 迭代结果</span></span><br><span class="line">&quot;the&lt;/w&gt;&quot; -&gt; [&quot;the&lt;/w&gt;&quot;]</span><br><span class="line">&quot;highest&lt;/w&gt;&quot; -&gt; [&quot;high&quot;, &quot;est&lt;/w&gt;&quot;]</span><br><span class="line">&quot;mountain&lt;/w&gt;&quot; -&gt; [&quot;moun&quot;, &quot;tain&lt;/w&gt;&quot;]</span><br><span class="line"></span><br><span class="line">解码过程：</span><br><span class="line"><span class="comment"># 编码序列</span></span><br><span class="line">[“the&lt;/w&gt;”, “high”, “est&lt;/w&gt;”, “moun”, “tain&lt;/w&gt;”]</span><br><span class="line"><span class="comment"># 解码序列</span></span><br><span class="line">“the&lt;/w&gt; highest&lt;/w&gt; mountain&lt;/w&gt;”</span><br></pre></td></tr></table></figure>
+<p>更直观的以单词“where”为例，首先按照字符拆分开，然后查找词表文件，逐对合并，优先合并频率靠前的字符对。85 319 9 15 表示在该字符对在词表文件中的评率排名。<br><img src="https://img-blog.csdnimg.cn/20201204143517536.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>最终where</w>可以在词表文件中被找到，因此where的bpe分词结果为where</w>，对于其他并不能像where一样能在词表文件中找到整个词的词来说，bpe分词结果以最终查询结束时的分词结果为准。</p>
+<h3 id="Wordpiece-Sentecepiece-model"><a href="#Wordpiece-Sentecepiece-model" class="headerlink" title="Wordpiece\Sentecepiece model"></a>Wordpiece\Sentecepiece model</h3><p>Google NMT使用了借鉴了上面的方法，其V1使用的是<a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1609.08144.pdf">wordpiece mode</a>，V2使用的是sentecepiece model。它并没有采取字符集别的n-gram计数方法，而是使用贪心近似来最大化语言模型日志可能性来选择片段。添加n-gram信息，是为了最大限度地减少perplexity，Wordpiece模型标记化内部的单词，Sentencepiece模型则对原始文本进行处理。</p>
+<p>wordpiece作为BERT使用的分词方式，其生成词表的方式和BPE非常相近，都是用合并token的方式来生成新的token，最大的区别在于选择合并哪两个token。BPE选择频率最高的相邻字符对进行合并，而wordpiece是基于概率生成的。</p>
+<p>BERT模型使用的是wordpiece的变体，对于一些常见词如1910s、at、fairfax等词直接使用，对于其他词则根据wordpieces来构建。所以，需要注意方在其他任务中使用bert时，必须处理这个问题。</p>
+<blockquote>
+<p>Choose the new word unit out of all possible ones that increase the likelihood on the training data the most when added to the mode.</p>
+</blockquote>
+<p>从字面上可能有些难以理解，列一下公式就比较清楚了。在做分词的时候假设词和词之间是独立的，所以句子的likelihood等于句子中每个词概率的乘积：<br>$$logP(Sentence)=\sum_{i=1}^nlogP(t_i) \quad if\ Sentence\ has\ token\ t_1…t_n$$<br>如果把相邻的 $x$ 和 $y$ 两个token合并生成一个新的token叫做 $z$，那么整个句子likelihood的变化可以用下面的式子来表达：<br>$$logP(t_z)-(logP(t_x) + logP(t_y))=log\frac{P(t_z)}{P(t_x\cdot P(t_y))}$$<br>这不就是两个token之间的互信息嘛！所以wordpiece和BPE的核心区别就在于wordpiece是按token间的互信息来进行合并而BPE是按照token一同出现的频率来合并的。</p>
+<p>wordpiece算法中subword词表的学习跟BPE也差不多：</p>
+<ul>
+<li>准备语料，分解成最小单元，比如英文中26个字母加上各种符号，作为原始词表</li>
+<li>利用上述语料训练语言模型</li>
+<li>从所有可能的subword单元中选择加入语言模型后能最大程度地增加训练数据概率的单元作为新的单元</li>
+<li>重复上步骤，直至词表大小达到设定值或概率增量低于某一阈值</li>
+</ul>
+<h3 id="unigram-language-model"><a href="#unigram-language-model" class="headerlink" title="unigram language model"></a>unigram language model</h3><p>语言模型作为NLP的大厦根基，也是unigram分词的基础。在wordpiece算法中，其实已经用到了language modeling，在选择token进行合并的时候目标就是能提高句子的likelihood。而<a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1804.10959.pdf">unigram</a>分词则更进一步，直接以最大化句子的likelihood为目标来直接构建整个词表。</p>
+<p>首先，了解一下怎么样在给定词表的条件下最大化句子的likelihood。 给定词表及对应概率值: {“你”:0.18, “们”:0.16, “好”:0.18, “你们”:0.15}，对句子”你们好“进行分词:</p>
+<ul>
+<li>划分为”你” “们” “好” 的概率为 0.18<em>0.16</em>0.18=0.005184</li>
+<li>划分为”你们” “好” 的概率为 0.15*0.18=0.027</li>
+</ul>
+<p>明显看出后一种分词方式要比前一种好，当然在真实的案例下词表可能有几万个token，直接罗列各种组合的概率显然不可能，所以需要用到Viterbi算法。因此在给定词表的情况下，可以 </p>
+<ul>
+<li>计算每个token对应的概率</li>
+<li>找到一个句子最好的分词方式</li>
+</ul>
+<p>但是在词表没有确定的情况下，同时要优化词表和词表里每个token的概率很难做到。unigram分词使用逐步迭代的方式来求解，具体步骤如下：</p>
+<ul>
+<li>首先初始化一个很大的词表</li>
+<li>重复以下步骤直到词表数量减少到预先设定的阈值：<ul>
+<li>保持词表不变，用EM算法来求解每个token的概率</li>
+<li>对于每一个token，计算如果把这个token从词表中移除而导致的likelihood减少值，作为这个token的loss</li>
+<li>按loss从大到小排序，保留前n%（原文中为80%）的token。</li>
+</ul>
+</li>
+</ul>
+<p>初始化词表可以用不同的方法，一个比较直接的办法就是用所有长度为1的token加上高频出现的ngram来作为起始词表。</p>
+<h1 id="其他Subword模型"><a href="#其他Subword模型" class="headerlink" title="其他Subword模型"></a>其他Subword模型</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1610.03017.pdf">Fully Character-Level Neural Machine Translation without Explicit Segmentation</a><br><img src="https://img-blog.csdnimg.cn/2020120416231516.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></li>
+<li><a target="_blank" rel="noopener" href="http://proceedings.mlr.press/v32/santos14.pdf">Character-level to build word-level</a>：该网络结构主要是对字符进行卷积以生成单词嵌入，同时使用固定窗口对PoS标记的字嵌入进行操作。<br><img src="https://img-blog.csdnimg.cn/20201204162518375.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1508.06615.pdf">Character-Aware Neural Language Models</a>：这是一个更加复杂的方法，其主要动机在于：提供一种功能强大，功能强大的语言模型，可以在各种语言中有效。其可编码子词相关性：eventful, eventfully, uneventful。同时解决先前模型的罕见字问题，使用更少的参数获得可比较的表现力。</li>
+</ul>
+<p><img src="https://img-blog.csdnimg.cn/20201204163241225.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<ul>
+<li>Hybrid NMT(<a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1604.00788.pdf)%EF%BC%9A%E8%BF%99%E6%98%AF%E4%B8%80%E4%B8%AA%E9%9D%9E%E5%B8%B8%E5%87%BA%E8%89%B2%E7%9A%84%E6%A1%86%E6%9E%B6%EF%BC%8C%E4%B8%BB%E8%A6%81%E6%98%AF%E5%9C%A8%E5%8D%95%E8%AF%8D%E7%BA%A7%E5%88%AB%E8%BF%9B%E8%A1%8C%E7%BF%BB%E8%AF%91%EF%BC%8C%E4%BD%86%E6%98%AF%E5%9C%A8%E6%9C%89%E9%9C%80%E8%A6%81%E7%9A%84%E6%97%B6%E5%80%99%E5%8F%AF%E4%BB%A5%E5%BE%88%E6%96%B9%E4%BE%BF%E7%9A%84%E4%BD%BF%E7%94%A8%E5%AD%97%E7%AC%A6%E7%BA%A7%E5%88%AB%E7%9A%84%E8%BE%93%E5%85%A5%E3%80%82">https://arxiv.org/pdf/1604.00788.pdf)：这是一个非常出色的框架，主要是在单词级别进行翻译，但是在有需要的时候可以很方便的使用字符级别的输入。</a><br><img src="https://img-blog.csdnimg.cn/20201204163135592.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1606.02601.pdf">chars for word embeddings</a>：该模型的目标与word2vec相同，但是使用的时字符集别的输入。它使用了双向的LSTM结构尝试捕获形态并且能够推断出词根。<br><img src="https://img-blog.csdnimg.cn/20201204163452177.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1607.04606.pdf">Enriching Word Vectors with Subword Information</a>：它是word2vec的升级版，对于具有大量形态学的稀有词和语言有更好的表征，它也可以说是带有字符n-gram的w2v skip-gram模型的扩展。</li>
+</ul>
+<p>参考资料：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/86965595">深入理解NLP Subword算法：BPE、WordPiece、ULM</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/112444056">NLP中的subword算法及实现</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/4b5e84c48628">CS224N(12)-子词模型</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/rsennrich/subword-nmt">subword-nmt</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/69414965">CS224N笔记(十二):Subword模型</a></li>
+<li><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Byte_pair_encoding">Byte pair encoding</a></li>
+</ul>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>DengBoCong</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="http://dengbocong.cn/Deep-Learning/38fa61dd1a7b/">http://dengbocong.cn/Deep-Learning/38fa61dd1a7b/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Licensed under the Apache License, Version 2.0 (the "License")</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Stay hungry, Stay foolish.</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/%E8%AF%8D%E8%A2%8B/"># 词袋</a>
+                    
+                        <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/"># 深度学习</a>
+                    
+                        <a href="/tags/NLP/"># NLP</a>
+                    
+                        <a href="/tags/Subword/"># Subword</a>
+                    
+                        <a href="/tags/BPE/"># BPE</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/Paper-Reading/5dff8ecd5ba4/">论文阅读笔记：使用Transformer进行语音合成</a>
+            
+            
+            <a class="next" rel="next" href="/Paper-Reading/19ca8a5a5db8/">论文阅读笔记：对NMT架构的超参数首次进行大规模消融实验分析</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+        </div>
+        <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Copyright 2020-2021 DengBoCong. All Rights Reserved. 赣ICP备20002291号</span>
+    </div>
+</footer>
+
+    </div>
+    <div id="u-search">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="container">
+                    <form id="u-search-modal-form" class="u-search-modal-form">
+                        <button type="submit" class="form-submit-btn">
+                            <img src="/image/search.png" class="search-btn-img" />
+                        </button>
+                        <input placeholder="请输入关键字搜索文章..." class="form-input" onchange="inputChange(event)" id="modal-form-input">
+                    </form>
+                    <a class="modal-close">x</a>
+                </div>
+                <div class="search-loading">
+                    <div class="search-loading-bar"></div>
+                </div>
+            </div>
+            <div class="modal-body">
+            </div>
+        </div>
+        <div class="modal-overlay"></div>
+    </div>
+</body>
+</html>

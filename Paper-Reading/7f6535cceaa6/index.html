@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<link rel="stylesheet" href="/css/search.css">
+<script src="/js/jquery-3.4.1.min.js"></script>
+<script src="/js/search.js"></script>
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
+<style>
+    .pace .pace-progress {
+        background: #5cb0ff; /*进度条颜色*/
+        height: 2px;
+    }
+    .pace .pace-progress-inner {
+        box-shadow: 0 0 10px #1E92FB, 0 0 5px     #1E92FB; /*阴影颜色*/
+    }
+    .pace .pace-activity {
+        border-top-color: #1E92FB;    /*上边框颜色*/
+        border-left-color: #1E92FB;    /*左边框颜色*/
+    }
+</style>
+
+    <meta name="author" content="DengBoCong">
+
+
+    <meta name="subtitle" content="NLP | Deep Learning | Java">
+
+
+
+
+<title>论文阅读笔记：四种用于学习对话上下文表示的无监督预训练方法的对比和分析 | DengBoCong</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+    
+
+
+<meta name="generator" content="Hexo 5.3.0"></head>
+<body>
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">DengBoCong</a></div>
+            <div class="menu navbar-right">
+                <div class="search" style="float: left; margin-top: 7px;">
+                    <form class="form-search">
+                        <input class="input" placeholder="search content..." autocomplete="off" onchange="inputChange(event)" id="pc-search-input"/>
+                    </form>
+                    <div class="search-btn">
+                        <img src="/image/search.png" class="search-btn-img" />
+                    </div>
+                </div>
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/projects">Projects</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">DengBoCong</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/projects">Projects</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+        <div class="main">
+            <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    document.ready(
+        function () {
+            tocbot.init({
+                tocSelector: '.tocbot-list',
+                contentSelector: '.post-content',
+                headingSelector: 'h1, h2, h3, h4, h5',
+                collapseDepth: 1,
+                orderedList: false,
+                scrollSmooth: true,
+            })
+        }
+    )
+
+    function expand_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 6,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "collapse_toc()");
+        b.innerHTML = "Collapse all"
+    }
+
+    function collapse_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 1,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "expand_toc()");
+        b.innerHTML = "Expand all"
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">论文阅读笔记：四种用于学习对话上下文表示的无监督预训练方法的对比和分析</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">DengBoCong</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">September 13, 2020&nbsp;&nbsp;22:15:17</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Paper-Reading/">Paper-Reading</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><blockquote>
+<p>标题：Pretraining Methods for Dialog Context Representation Learning<br>原文链接：<a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1906.00414.pdf">Link</a><br>Github：<a target="_blank" rel="noopener" href="https://github.com/DengBoCong/nlp-paper">NLP相关Paper笔记和实现</a><br>说明：阅读论文时进行相关思想、结构、优缺点，内容进行提炼和记录，论文和相关引用会标明出处，引用之处如有侵权，烦请告知删除。<br>转载请注明：DengBoCong</p>
+</blockquote>
+<h1 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h1><p>本文考察了各种用于学习对话上下文表示的无监督预训练目标， 提出了两种新颖的对话上下文编码器预训练方法，并研究了四种方法。使用MultiWoz数据集对每个预训练目标进行了微调，并在一组下游对话任务上进行了评估，并观察到了出色的性能改进。 进一步的评估表明，我们的预训练目标不仅可以带来更好的性能，而且可以带来更好的收敛性，并且模型需要的数据更少，并且具有更好的领域通用性。</p>
+<h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>目前预训练方法仍处在起步阶段，我们仍然不能完全了解他们的性质。大多数方法都是基于语言模型的，给一个句子，预测当前词，下一个词或者被mask的词。如Word2Vec，Glove，ELMO等。这些方法将自然语言看作是word token的流，需要复杂的模型利用大规模的语料库和庞杂的计算来发现更高级别的依赖关系。BERT模型也是基于语言模型，但是加入了句子对级别的信息，预测两句话是否是连续的。这种方法在预训练时利用了语句之间的关系。但是，在对话上下文建模这种存在多轮的依赖关系的任务上还并没有行之有效的预训练方法，于是本文在这个方面做了一些尝试。本文目的就是研究几个预训练话语级语言表示的方法，本文迈出了建立对话系统预训练方法系统分析框架的第一步。</p>
+<p>评估预训练方法的四个假设：</p>
+<ul>
+<li>预训练能够在整个可用数据集上进行微调，且提升下游任务</li>
+<li>预训练结果需要更好的收敛</li>
+<li>预训练将在有限的数据下表现出色</li>
+<li>预训练有助于领域通用化</li>
+</ul>
+<p>对话与其他文本的区别：</p>
+<ul>
+<li>对话必须是语句之间连贯的，并在多轮上达到一个交际的目的。</li>
+<li>对话在本质上是互动的，说话者之间有反馈，而且说话者轮流进行发言。</li>
+</ul>
+<p>本文的主要贡献：</p>
+<ul>
+<li>针对对话上下文表示研究四个不同的预训练方法，包括两个新的方法</li>
+<li>在四个下游任务上，综合分析预训练对对话上下文表示的影响</li>
+</ul>
+<h1 id="Related-Work"><a href="#Related-Work" class="headerlink" title="Related Work"></a>Related Work</h1><p>这项工作与NLP系统的辅助多任务学习和带预训练的迁移学习的研究紧密相关。</p>
+<h2 id="Training-with-Auxiliary-Tasks"><a href="#Training-with-Auxiliary-Tasks" class="headerlink" title="Training with Auxiliary Tasks"></a>Training with Auxiliary Tasks</h2><p>结合有用的辅助损失函数来补充主要目标已被证明可以改善深度神经网络模型的性能。一些辅助损失函数专门设计来提高特殊任务的性能。在一些案例中，辅助函数被用来提升模型的泛化能力。经过适当的辅助任务预训练后，模型可以捕获更长的依赖关系。</p>
+<h2 id="Transfer-Learning-with-Pretraining"><a href="#Transfer-Learning-with-Pretraining" class="headerlink" title="Transfer Learning with Pretraining"></a>Transfer Learning with Pretraining</h2><p>基本过程通常是首先在无监督目标的海量文本数据上预训练功能强大的神经编码器。 第二步是使用更小的域内数据集对特定的下游任务微调此预训练模型。ELMo使用BiLSTM网络来训练双向语言模型来同时预测前一个词和后一个词。OpenAI的GPT使用Transformer网络和BERT进行了两个目标的同时训练：掩蔽语言模型和下一句预测。每个模型均已在GLUE基准上展示了最新的结果。这些利用大规模预训练的模型优于仅使用域内数据的系统。用于学习从输入文本中提取话语级别信息的预训练方法的工作很少。BERT中的下一句话预测损失是朝着这个方向迈出的一步。尽管这些预训练方法擅长于对顺序文本进行建模，但它们并未明确考虑对话的独特话语级功能。因此，我们在研究预训练目标时采取了第一步，以提取对话上下文的更好的话语级表示形式。</p>
+<h1 id="Pretraining-Objectives"><a href="#Pretraining-Objectives" class="headerlink" title="Pretraining Objectives"></a>Pretraining Objectives</h1><p>本文定义了一种强有力的表示形式，它可以捕获整个对话历史中的话语级信息以及构成该历史的话语中的话语级信息，在本文的定义下，当表示允许模型在各种下游任务上表现更好时，表示就足够通用了。</p>
+<ul>
+<li>一个任意T轮对话（对话历史）的表示符号：$c = [u_1,…,u_t]$，$u_i$是一个话语。</li>
+<li>对话回复$R = {r_1,…,r_M}$</li>
+</ul>
+<h2 id="Next-Utterance-Retrieval（NUR-检索下一句话）"><a href="#Next-Utterance-Retrieval（NUR-检索下一句话）" class="headerlink" title="Next-Utterance Retrieval（NUR-检索下一句话）"></a>Next-Utterance Retrieval（NUR-检索下一句话）</h2><p>NUR的目的就是在$k$个候选回复中选择正确的下一句话。对于此任务，本文使用分层编码器来生成对话上下文的表示，方法是首先通过双向长期短期记忆网络（biLSTM）独立运行每个话语，然后使用所得的话语表示来生成整个对话上下文的表示。给定$[u_1，… u_{T-1}]$，NUR的任务是从R中选择正确的下一个话语$u_T$。损失运算公式如下：<br>$$<br>\hat{u_i}=f_u(u_i), i\in [1,T-1]$$<br>$$r_{gt} = f_r(u_T)$$<br>$$r_{j} = f_r(r_j),r_j\sim p_n(r)$$<br>$$a_{gt} = (h_{T-1})^{T}r_{gt}$$<br>$$a_{j} = (h_{T-1})^{T}r_{j}$$<br>总损失如下：<br>$$<br>L = -log_p(u_T|u_1,…u_{T-1})=-log(\frac{exp(a_{gt})}{exp(a_{gt}+\sum_{j=1}^{K}exp(a_j)})<br>$$</p>
+<h2 id="Next-Utterance-Generation（NUG-生成下一句话）"><a href="#Next-Utterance-Generation（NUG-生成下一句话）" class="headerlink" title="Next-Utterance Generation（NUG-生成下一句话）"></a>Next-Utterance Generation（NUG-生成下一句话）</h2><p>给定对话历史，根据对话历史生成下一句话。预训练时使用分层Encoder-Decoder结构，在进行下游任务时，仅使用Encoder。对话上下文和下一个话语被编码为式8，最小化损失为式9：<br>$$<br>L = -log_p(u_T|u_1,…u_{T-1})\<br>=-\sum_{k}^{N}log_p(w_k|w&lt;k,h_{T-1})<br>$$</p>
+<h2 id="Masked-Utterance-Retrieval（MUR-根据mask的对话历史检索下一句话）"><a href="#Masked-Utterance-Retrieval（MUR-根据mask的对话历史检索下一句话）" class="headerlink" title="Masked-Utterance Retrieval（MUR-根据mask的对话历史检索下一句话）"></a>Masked-Utterance Retrieval（MUR-根据mask的对话历史检索下一句话）</h2><p>与NUR相同，给定对话历史，从$K$个候选回复中选择正确的下一句话，区别</p>
+<ul>
+<li>对话历史中的一句话被随机选择的另一句话替换。</li>
+<li>用替换掉的句子的表示作为对话历史的表示。</li>
+</ul>
+<p>替换的语句索引为$t$，且是在对话部分中随机采样的<br>$$<br>t \sim Uniform[1,T]<br>$$<br>其中<br>$$<br>\hat{u_i}=f_u(u_i), i\in [1,T]$$<br>$$r_{gt} = f_r(u_T)$$<br>$$r_{j} = f_r(r_j),r_j\sim p_n(r)$$<br>$$a_{gt} = (h_T)^{T}r_{gt}$$<br>$$a_{j} = (h_T)^{T}r_{j}<br>$$</p>
+<p>总损失：<br>$$<br>L = -log_p(u_T|u_1,…,q,…u_{T-1})\<br>=-log(\frac{exp(a_{gt})}{exp(a_{gt}+\sum_{j=1}^{K}exp(a_j)})<br>$$</p>
+<h2 id="Inconsistency-Identification（InI-识别不一致语句）"><a href="#Inconsistency-Identification（InI-识别不一致语句）" class="headerlink" title="Inconsistency Identification（InI-识别不一致语句）"></a>Inconsistency Identification（InI-识别不一致语句）</h2><p>识别一段对话历史中不一致的句子。输入是一段对话历史，其中的一句被随机替换掉，模型需要找到被替换的是哪一句。<br>$$<br>L = -log_p(t|u_1,…,q,…u_T)\<br>=-log(\frac{exp(a_t)}{\sum_{j=1}^{T}exp(a_i)})<br>$$<br>其中<br>$$<br>\hat{u_i}=f_u(u_i)),i\in [1,T]\<br>[h_1…h_T]=f_c(\hat{u_1},…\hat{u_T})\<br>a_i=(h_T)^{T}h_i,i\in[1,T]<br>$$<br>这个任务的目标是建模单个语句的表示和对话上下文的全局表示的一致性。</p>
+<h1 id="Downstream-Tasks"><a href="#Downstream-Tasks" class="headerlink" title="Downstream Tasks"></a>Downstream Tasks</h1><p>本文选择了以下四个下游任务来测试预训练表示的通用性和有效性。实验数据用的是MultiWoz，其中8422个对话用于训练，1000个用于验证，另外1000个用于测试。</p>
+<ul>
+<li>预测对话状态：这是一个多分类任务，给定对话历史，预测当前的对话状态。对话状态由27种实体的1784个值的one-hot向量拼接而成。这个任务度量了系统维护完整且准确的对话上下文状态表示的能力。由于输出有1784维，这就要求预训练的对话历史表示模型必须有足够强的概括性，才能对对话状态进行准确的预测。</li>
+<li>预测对话行为：与上个任务类似，是一种多分类任务。给定对话历史，预测系统下一步可能采取的动作，输出是一个32维的对话行为向量。</li>
+<li>生成下一句话</li>
+<li>检索下一句话</li>
+</ul>
+<h1 id="Experiments"><a href="#Experiments" class="headerlink" title="Experiments"></a>Experiments</h1><p>每个模型都训练了15个epoch，选择在验证集上表现最好的模型用于测试。实验中所用参数如下：<br><img src="https://img-blog.csdnimg.cn/20200913193940733.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>为了更直接的评估预训练过程中目标设置不同的差异，这里的预训练和fine-tune都是在同一数据集上进行的。在完整数据集上的表现：<br><img src="https://img-blog.csdnimg.cn/20200913194136216.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>该实验是为了测试预训练是否对下游任务有用。表中的第一行对每个任务的模型进行随机初始化。如表一所示，预训练表示展示出了它的有效性和通用性。通过非监督的预训练，模型产生的对话表示提升了很多下游任务的性能。通用性体现在这些下游任务都受益于相同的预训练模型。</p>
+<p>在对话行为预测（DAP）和下一句话生成（NUG）任务上，以识别不一致语句（InI）为目标的预训练模型效果最好。这可能是因为在序列生成模型中全局上下文表示和局部话语表示同样重要。</p>
+<p>在对话行为预测（DAP）任务上，以识别不一致语句（InI）和根据mask的对话历史检索下一句话（MUR）的得分都远远高于基线和其他方法，这可能是因为这两种方法都是训练来学习每个话语的表示，而不仅仅是一个整体的上下文表示。</p>
+<p>在检索下一句话（NUR）任务上，以生成下一句话（NUG）为目标进行预训练时效果最好，这可能是因为生成下一个话语必须捕获的信息与检索下一个话语所需的信息类似。</p>
+<ul>
+<li>本文设置了实验观察预训练表示对下游任务在收敛性上的影响。实验证明，预训练过的模型能更快地收敛到更好的效果。</li>
+<li>一个好的预训练模型应该在下游任务中仅有少量数据的微调的情况下，也能达到很好地效果。本文做了实验验证在微调数据仅有(1%, 2%, 5%, 10% and 50%)时，在下游任务上的表现。</li>
+<li>该实验模拟了在下游任务中添加新域时的场景，假设在所有领域都存在大量的无监督的未标记数据，而对于下游任务仅有50个（0.1%）域内的标记数据和1000个（2%）新域的标注数据。在域内数据上做测试，实验证明预训练模型产生了更通用的表示，并促进了域的泛化。</li>
+</ul>
+<h1 id="Conclusions"><a href="#Conclusions" class="headerlink" title="Conclusions"></a>Conclusions</h1><p>在这篇文章中，提到了4种无监督的预训练目标来学习对话的上下文的表示，并在有限的微调数据和域外数据的条件下，证明了预训练模型对于提高下游任务性能方面的有效性。其中根据mask的对话历史检索下一句话和不一致语句识别是本文提出的两种新的目标。</p>
+<p>在本文中，无监督预训练被证明能够有效地学习对话上下文的表示。也就是说在有大量未标记的对话数据时，可以采取本文中的几种方法进行预训练。尤其是在标注数据量比较少的情况下。</p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>DengBoCong</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="http://dengbocong.cn/Paper-Reading/7f6535cceaa6/">http://dengbocong.cn/Paper-Reading/7f6535cceaa6/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Licensed under the Apache License, Version 2.0 (the "License")</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Stay hungry, Stay foolish.</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/%E5%AF%B9%E8%AF%9D%E7%B3%BB%E7%BB%9F/"># 对话系统</a>
+                    
+                        <a href="/tags/Paper/"># Paper</a>
+                    
+                        <a href="/tags/%E6%97%A0%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/"># 无监督学习</a>
+                    
+                        <a href="/tags/%E9%A2%84%E8%AE%AD%E7%BB%83/"># 预训练</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/Paper-Reading/14883e8ec3b5/">论文阅读笔记：Attention-Is-All-You-Need</a>
+            
+            
+            <a class="next" rel="next" href="/Spring-Boot/c3c6ba065761/">聊一聊Spring-Boot中跨域场景</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+        </div>
+        <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Copyright 2020-2021 DengBoCong. All Rights Reserved. 赣ICP备20002291号</span>
+    </div>
+</footer>
+
+    </div>
+    <div id="u-search">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="container">
+                    <form id="u-search-modal-form" class="u-search-modal-form">
+                        <button type="submit" class="form-submit-btn">
+                            <img src="/image/search.png" class="search-btn-img" />
+                        </button>
+                        <input placeholder="请输入关键字搜索文章..." class="form-input" onchange="inputChange(event)" id="modal-form-input">
+                    </form>
+                    <a class="modal-close">x</a>
+                </div>
+                <div class="search-loading">
+                    <div class="search-loading-bar"></div>
+                </div>
+            </div>
+            <div class="modal-body">
+            </div>
+        </div>
+        <div class="modal-overlay"></div>
+    </div>
+</body>
+</html>

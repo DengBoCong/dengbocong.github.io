@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<link rel="stylesheet" href="/css/search.css">
+<script src="/js/jquery-3.4.1.min.js"></script>
+<script src="/js/search.js"></script>
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
+<style>
+    .pace .pace-progress {
+        background: #5cb0ff; /*进度条颜色*/
+        height: 2px;
+    }
+    .pace .pace-progress-inner {
+        box-shadow: 0 0 10px #1E92FB, 0 0 5px     #1E92FB; /*阴影颜色*/
+    }
+    .pace .pace-activity {
+        border-top-color: #1E92FB;    /*上边框颜色*/
+        border-left-color: #1E92FB;    /*左边框颜色*/
+    }
+</style>
+
+    <meta name="author" content="DengBoCong">
+
+
+    <meta name="subtitle" content="NLP | Deep Learning | Java">
+
+
+
+
+<title>论文阅读笔记：Recent-Advances-and-Challenges-in-Task... | DengBoCong</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+    
+
+
+<meta name="generator" content="Hexo 5.3.0"></head>
+<body>
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">DengBoCong</a></div>
+            <div class="menu navbar-right">
+                <div class="search" style="float: left; margin-top: 7px;">
+                    <form class="form-search">
+                        <input class="input" placeholder="search content..." autocomplete="off" onchange="inputChange(event)" id="pc-search-input"/>
+                    </form>
+                    <div class="search-btn">
+                        <img src="/image/search.png" class="search-btn-img" />
+                    </div>
+                </div>
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/projects">Projects</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">DengBoCong</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/projects">Projects</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+        <div class="main">
+            <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    document.ready(
+        function () {
+            tocbot.init({
+                tocSelector: '.tocbot-list',
+                contentSelector: '.post-content',
+                headingSelector: 'h1, h2, h3, h4, h5',
+                collapseDepth: 1,
+                orderedList: false,
+                scrollSmooth: true,
+            })
+        }
+    )
+
+    function expand_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 6,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "collapse_toc()");
+        b.innerHTML = "Collapse all"
+    }
+
+    function collapse_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 1,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "expand_toc()");
+        b.innerHTML = "Expand all"
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">论文阅读笔记：Recent-Advances-and-Challenges-in-Task...</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">DengBoCong</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">September 28, 2020&nbsp;&nbsp;21:41:37</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Paper-Reading/">Paper-Reading</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><blockquote>
+<p>标题：Recent Advances and Challenges in Task-oriented Dialog Systems<br>原文链接：<a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2003.07490.pdf">Link</a><br>Github：<a target="_blank" rel="noopener" href="https://github.com/DengBoCong/nlp-paper">NLP相关Paper笔记和实现</a><br>说明：阅读论文时进行相关思想、结构、优缺点，内容进行提炼和记录，论文和相关引用会标明出处，引用之处如有侵权，烦请告知删除。<br>转载请注明：DengBoCong</p>
+</blockquote>
+<h1 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h1><p>由于在人机交互和自然语言处理中的重要性和价值，面向任务的对话系统在学术界和工业界都受到越来越多的关注。在本文中，我们调查了面向任务的对话系统的最新进展和挑战。我们还讨论了面向任务的对话系统的三个关键主题：（1）提高数据效率以促进在资源匮乏的环境中进行对话建模；（2）为对话策略学习建模多回合模型以实现更好的任务完成性能；（3）将领域本体知识整合到对话模型中。此外，我们回顾了对话评估和一些常用语料库的最新进展。我们认为，尽管这项调查不完整，但可以为面向任务的对话系统的未来研究提供启发。</p>
+<h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>通常，面向任务的对话系统是建立在结构化本体之上的，该本体定义了任务的领域知识。有关面向任务的对话系统的现有研究可以大致分为两类：pipeline和end-to-end。建立pipeline系统通常需要大规模的标记对话数据来训练每个组件，模块化的结构使系统比端到端的系统更具解释性和稳定性，因此，大多数现实世界的商业系统都是以这种方式构建的。而端到端的结构像是黑匣子，这更加不可控。如下图所示，对于pipeline和end-to-end方法中的每个单独组件，我们列出了一些关键问题，在这些问题中提出了典型的作品。<br><img src="https://img-blog.csdnimg.cn/20200928160614477.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>在pipeline方法中，最近的研究更多地集中在对话框状态跟踪和对话框策略组件上，这也称为“对话框管理”。基于域本体，通过预测每个槽的值，DST任务可以视为分类任务（受限制与训练数据，OOV问题），对话策略学习任务通常被认为是强化学习任务。然而，与其他众所周知的RL任务不同，对话策略的训练需要真实的人作为环境，这是非常昂贵的。面向任务的对话系统中的三个关键问题：</p>
+<ul>
+<li>数据效率：资源匮乏的问题是主要的挑战之一。</li>
+<li>多回合策略：提出了许多解决方案以解决多轮交互式训练中的这些问题，以更好地进行策略学习，包括基于模型的计划，奖励估计和端到端策略学习。</li>
+<li>本体整合：面向任务的对话系统必须查询知识库（KB）以检索一些实体以生成响应，由于没有显式的状态表示形式，因此这种简化使构造查询变得困难。</li>
+</ul>
+<h1 id="Modules-and-Approaches"><a href="#Modules-and-Approaches" class="headerlink" title="Modules and Approaches"></a>Modules and Approaches</h1><p>有关面向任务的对话系统的现有研究可以大致分为两类：pipeline和end-to-end。在pipeline方法中，该模型通常由几个组件组成，包括自然语言理解（NLU），对话状态跟踪（DST），对话策略和自然语言生成（NLG），如下图所示：<br><img src="https://img-blog.csdnimg.cn/2020092820241314.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>值得注意的是，尽管NLU-DST-Policy-NLG框架是pipeline系统的典型配置，但还有其他一些配置。有一些研究合并了一些典型的组件，例如单词级DST和单词级策略。在端到端方法中，对话系统在端到端方式，无需指定每个单独的组件。</p>
+<ul>
+<li>NLU：主要是识别对话动作，其由意图和插槽值组成，即由意图识别和槽值提取组成，示例如下。</li>
+</ul>
+<p><img src="https://img-blog.csdnimg.cn/2020092820284111.png#pic_center" alt="在这里插入图片描述"></p>
+<ul>
+<li>DST：对话状态跟踪器通过将整个对话上下文作为输入来估算每个时间步的用户目标。在时间 $t$ 的对话状态可以看作是直到 $t$ 之前的对话回合的抽象表示。</li>
+<li>对话策略：以对话状态为条件，对话策略会产生下一个系统动作。如下图所示，在特定的时间步 $t$ 处，用户在 $a_t$ 处执行操作，收到奖励 $R_t$，状态更新为 $S_t$。<br><img src="https://img-blog.csdnimg.cn/20200928204116814.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></li>
+<li>NLG：该任务将对话用作输入并生成自然语言响应。为了改善用户体验，所产生的话语应该（1）充分传达对话行为的语义以完成任务，并且（2）与人类语言类似，是自然的，特定的，信息丰富的。</li>
+<li>End-to-end方法：面向任务的对话系统的端到端方法受到开放域对话系统研究的启发，如下图。<br><img src="https://img-blog.csdnimg.cn/20200928205223851.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><h1 id="Evaluation"><a href="#Evaluation" class="headerlink" title="Evaluation"></a>Evaluation</h1>大多数评估研究都遵循PARADISE框架，一种是对话成本，它衡量对话中产生的成本，例如对话回合数。另一个是任务成功，评估系统是否成功解决了用户问题。评估面向任务的对话系统的方法可以大致分为以下三种：</li>
+<li>Automatic Evaluation</li>
+<li>Simulated Evaluation</li>
+<li>Human Evaluation</li>
+</ul>
+<h1 id="Corpora"><a href="#Corpora" class="headerlink" title="Corpora"></a>Corpora</h1><p>收集了具有不同域和注释粒度的大量语料库，以促进对面向任务的对话系统的研究。如下图所示：</p>
+<ul>
+<li>informable slot 一般是由用户告知系统的，用来约束对话的一些条件，系统为了完成任务必须满足这些约束。</li>
+<li>requestable slot 一般是用户向系统咨询的，可以来做选择的一些slot。</li>
+</ul>
+<p><img src="https://img-blog.csdnimg.cn/20200928210217414.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+<h1 id="Challenges"><a href="#Challenges" class="headerlink" title="Challenges"></a>Challenges</h1><ul>
+<li>数据效率：资源匮乏的问题是主要的挑战之一。回顾了为缓解此问题而提出的一些最新方法。我们首先回顾一下迁移学习方法，这些方法可以从大规模数据中获取先验知识，或者从其他任务中采用经过训练的模型。然后，我们介绍了一些无监督的方法，这些方法可以通过启发式规则在资源很少的情况下直接学习而几乎没有注释。此外，我们还回顾了最近在构建数据驱动的用户模拟器方面的工作。</li>
+<li>多回合策略：提出了许多解决方案以解决多轮交互式训练中的这些问题，以更好地进行策略学习，包括基于模型的计划，奖励估计和端到端策略学习。面向任务的对话系统的对话管理的最新研究主要集中在以下主题上：（1）带有带有用于自由槽位的值解码器的DST；（2）进行对话计划以提高策略学习中的样本效率（3）用户目标估计，以预测任务成功和用户满意度。</li>
+<li>本体整合：面向任务的对话系统必须查询知识库（KB）以检索一些实体以生成响应，由于没有显式的状态表示形式，因此这种简化使构造查询变得困难。我们介绍有关（1）对话任务模式集成（2）面向任务的对话模型中的知识库集成的一些最新进展。</li>
+</ul>
+<h1 id="Discussion-and-Future-Trends"><a href="#Discussion-and-Future-Trends" class="headerlink" title="Discussion and Future Trends"></a>Discussion and Future Trends</h1><p>在本文中，我们回顾了面向任务的对话系统的最新进展，并讨论了三个关键主题：数据效率、多回合策略、本体知识整合。最后，我们讨论面向任务的对话系统的一些未来趋势：</p>
+<ul>
+<li>对话系统的预训练方法</li>
+<li>领域适应，跨领域应用</li>
+<li>鲁棒性</li>
+<li>End-to-end模型</li>
+</ul>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>DengBoCong</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="http://dengbocong.cn/Paper-Reading/a78371b14017/">http://dengbocong.cn/Paper-Reading/a78371b14017/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Licensed under the Apache License, Version 2.0 (the "License")</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Stay hungry, Stay foolish.</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/"># 深度学习</a>
+                    
+                        <a href="/tags/NLP/"># NLP</a>
+                    
+                        <a href="/tags/%E5%AF%B9%E8%AF%9D%E7%B3%BB%E7%BB%9F/"># 对话系统</a>
+                    
+                        <a href="/tags/%E9%9D%A2%E5%90%91%E4%BB%BB%E5%8A%A1/"># 面向任务</a>
+                    
+                        <a href="/tags/%E7%BB%BC%E8%BF%B0/"># 综述</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/Paper-Reading/66c85cb16080/">论文阅读笔记：An-End-to-End-Trainable-Neural-Network-Model-with...</a>
+            
+            
+            <a class="next" rel="next" href="/Paper-Reading/9f6b46ae549c/">论文阅读笔记：MultiWOZ-2.2</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+        </div>
+        <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Copyright 2020-2021 DengBoCong. All Rights Reserved. 赣ICP备20002291号</span>
+    </div>
+</footer>
+
+    </div>
+    <div id="u-search">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="container">
+                    <form id="u-search-modal-form" class="u-search-modal-form">
+                        <button type="submit" class="form-submit-btn">
+                            <img src="/image/search.png" class="search-btn-img" />
+                        </button>
+                        <input placeholder="请输入关键字搜索文章..." class="form-input" onchange="inputChange(event)" id="modal-form-input">
+                    </form>
+                    <a class="modal-close">x</a>
+                </div>
+                <div class="search-loading">
+                    <div class="search-loading-bar"></div>
+                </div>
+            </div>
+            <div class="modal-body">
+            </div>
+        </div>
+        <div class="modal-overlay"></div>
+    </div>
+</body>
+</html>
