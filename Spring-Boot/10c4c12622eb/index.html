@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<link rel="stylesheet" href="/css/search.css">
+<script src="/js/jquery-3.4.1.min.js"></script>
+<script src="/js/search.js"></script>
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
+<style>
+    .pace .pace-progress {
+        background: #5cb0ff; /*进度条颜色*/
+        height: 2px;
+    }
+    .pace .pace-progress-inner {
+        box-shadow: 0 0 10px #1E92FB, 0 0 5px     #1E92FB; /*阴影颜色*/
+    }
+    .pace .pace-activity {
+        border-top-color: #1E92FB;    /*上边框颜色*/
+        border-left-color: #1E92FB;    /*左边框颜色*/
+    }
+</style>
+
+    <meta name="author" content="DengBoCong">
+
+
+    <meta name="subtitle" content="NLP | Deep Learning | Java">
+
+
+
+
+<title>详细SpringBoot教程之Web开发（三） | DengBoCong</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+    
+
+
+<meta name="generator" content="Hexo 5.3.0"></head>
+<body>
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">DengBoCong</a></div>
+            <div class="menu navbar-right">
+                <div class="search" style="float: left; margin-top: 7px;">
+                    <form class="form-search">
+                        <input class="input" placeholder="search content..." autocomplete="off" onchange="inputChange(event)" id="pc-search-input"/>
+                    </form>
+                    <div class="search-btn">
+                        <img src="/image/search.png" class="search-btn-img" />
+                    </div>
+                </div>
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/projects">Projects</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">DengBoCong</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/projects">Projects</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+        <div class="main">
+            <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    document.ready(
+        function () {
+            tocbot.init({
+                tocSelector: '.tocbot-list',
+                contentSelector: '.post-content',
+                headingSelector: 'h1, h2, h3, h4, h5',
+                collapseDepth: 1,
+                orderedList: false,
+                scrollSmooth: true,
+            })
+        }
+    )
+
+    function expand_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 6,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "collapse_toc()");
+        b.innerHTML = "Collapse all"
+    }
+
+    function collapse_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 1,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "expand_toc()");
+        b.innerHTML = "Expand all"
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">详细SpringBoot教程之Web开发（三）</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">DengBoCong</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">February 26, 2020&nbsp;&nbsp;23:15:10</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Spring-Boot/">Spring-Boot</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h2 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h2><p>鉴于有人留言说想要学习SpringBoot相关的知识，我这里打算写一个SpringBoot系列的相关博文，目标呢是想让看了这一系列博文的同学呢，能够对SpringBoot略窥门径，这一系列的博文初步都定下来包括SpringBoot介绍、入门、配置、日志相关、web开发、数据访问、结合docker、缓存、消息队列、检索、任务安全、分布式等等一系列的博文，工作量很大，是个漫长的过程，每一步我都尽量详细，配上截图说明，也希望对看的同学真的有用。<br><strong>单纯就是想分享技术博文，还想说一句就是，如果觉得有用，请点个关注、给个赞吧，也算对我来说是个宽慰，毕竟也得掉不少头发，嘿嘿嘿</strong></p>
+<h2 id="系列文章传送条"><a href="#系列文章传送条" class="headerlink" title="系列文章传送条"></a>系列文章传送条</h2><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104383089">详细SpringBoot教程之入门（一）</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104429074">详细SpringBoot教程之入门（二）</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104446690">详细SpringBoot教程之配置文件（一）</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104448353">详细SpringBoot教程之配置文件（二）</a><br><a target="_blank" rel="noopener" href="https://dengbocong.blog.csdn.net/article/details/104456941">详细SpringBoot教程之日志框架</a><br><a target="_blank" rel="noopener" href="https://dengbocong.blog.csdn.net/article/details/104473765">详细SpringBoot教程之Web开发（一）</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104503158">详细SpringBoot教程之Web开发（二）</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104503231">详细SpringBoot教程之Web开发（三）</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104527730">详细SpringBoot教程之数据访问</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104541113">详细SpringBoot教程之启动配置原理</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104559440">详细SpringBoot教程之缓存开发</a></p>
+<h2 id="错误处理机制"><a href="#错误处理机制" class="headerlink" title="错误处理机制"></a>错误处理机制</h2><h3 id="SpringBoot默认的错误处理机制"><a href="#SpringBoot默认的错误处理机制" class="headerlink" title="SpringBoot默认的错误处理机制"></a>SpringBoot默认的错误处理机制</h3><p>我们接上一篇博文的项目，我们现在把拦截器关掉，直接在主配置文件注释掉注入就可以直接关掉了，像这样<br><img src="https://img-blog.csdnimg.cn/20200225191208491.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>然后我们现在通过浏览器随便访问一个不存在的连接，会出现下面这样的错误提示，应该不陌生吧，之前肯定是遇到过的。<br><img src="https://img-blog.csdnimg.cn/20200225191441571.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>我们可以查看一下浏览器发送请求的请求头，如下：<br><img src="https://img-blog.csdnimg.cn/2020022519272210.png#pic_center" alt="在这里插入图片描述"></p>
+<p>当然SpringBoot还另外规定了客户端访问无效链接的错误机制，如果我们通过客户端访问会返回一个默认的json数据，像下面这样</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">	<span class="string">&quot;timestamp&quot;</span>: 1519637719324,</span><br><span class="line">	<span class="string">&quot;status&quot;</span>: 404,</span><br><span class="line">	<span class="string">&quot;error&quot;</span>: <span class="string">&quot;Not Found&quot;</span>,</span><br><span class="line">	<span class="string">&quot;message&quot;</span>: <span class="string">&quot;No message avaliable&quot;</span>,</span><br><span class="line">	<span class="string">&quot;path&quot;</span>:  <span class="string">&quot;/dbc/aaa&quot;</span>,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="默认错误处理机制原理"><a href="#默认错误处理机制原理" class="headerlink" title="默认错误处理机制原理"></a>默认错误处理机制原理</h3><p>老样子，我们想要错误处理机制也有自己的自动配置类（之前说过，SpringBoot功能是通过配置文件来进行控制的，而配置文件一般是通过xxxAutoConfiguration这样的自动配置类来实现的），所以SpringBoot的默认的错误处理机制可以参照自动配置类，也就是ErrorMvcAutoConfiguration。</p>
+<p>ErrorMvcAutoConfiguration通过给给容器中添加了以下组件，来控制错误处理机制</p>
+<ul>
+<li>DefaultErrorAttributes：帮我们在页面共享信息；</li>
+<li>BasicErrorController：处理默认/error请求</li>
+<li>ErrorPageCustomizer：系统出现错误以后来到error请求进行处理；</li>
+<li>DefaultErrorViewResolver：用来控制错误时，启用模板引擎视图，还是默认；</li>
+</ul>
+<p>也就是默认的错误处理流程是，一但系统出现4xx或者5xx之类的错误，ErrorPageCustomizer就会生效（定制错误的响应规则），接着就会来到/error请求，然后就可以通过<strong>BasicErrorController</strong>来进行处理，进行相应时，响应页面去哪个页面是由<strong>DefaultErrorViewResolver</strong>解析得到的；</p>
+<h3 id="如何定制错误响应"><a href="#如何定制错误响应" class="headerlink" title="如何定制错误响应"></a>如何定制错误响应</h3><h4 id="如何定制错误页面"><a href="#如何定制错误页面" class="headerlink" title="如何定制错误页面"></a>如何定制错误页面</h4><p>如果有模板引擎的情况下（我们项目中使用的是Thymeleaf模板引擎），可以通过error/状态码的形式来进行控制，也就是说，我们可以将错误页面命名为“错误状态码.html”，然后放在模板引擎文件夹（即templates目录下）里面的error文件夹下，没有error文件夹就创建一个，发生此状态码的错误就会来到 对应的页面，因为SpringBoot规则中已经默认规定好了。</p>
+<p>更准确的将我们可以使用4xx和5xx作为错误页面的文件名，进而来匹配该种类型的所有错误，匹配的时候遵循精确优先（优先寻找精确的状态码.html），像下面这样<br><img src="https://img-blog.csdnimg.cn/20200226184048531.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>我们在默认的错误页面中可以获得如下信息：、</p>
+<ul>
+<li>timestamp：时间戳</li>
+<li>tstatus：状态码</li>
+<li>terror：错误提示</li>
+<li>texception：异常对象</li>
+<li>tmessage：异常消息</li>
+<li>terrors：JSR303数据校验的错误都在这里</li>
+</ul>
+<p>这里要说明一下的是，如果我们项目中没有使用模板引擎（或者模板引擎找不到这个错误页面），就会去静态资源文件夹下找。如果静态资源文件夹中也没有错误页面，就是默认来到SpringBoot默认的错误提示页面。</p>
+<h4 id="如何定制错误的json"><a href="#如何定制错误的json" class="headerlink" title="如何定制错误的json"></a>如何定制错误的json</h4><p>可以自定义异常处理和返回定制json数据，像下面这样，我们可以专门定义一个配置类用来解决错误定制的，我这里命名为MyExceptionHandler，然后通过@ExceptionHandler来定制响应的相关错误，进而返回定制数据<br><img src="https://img-blog.csdnimg.cn/20200226184639486.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>不过这样处理会有个问题，就是我们确实是定制了返回的json数据，但是本来SpringBoot会根据我们用什么访问请求，然后响应什么，比如我们用浏览器访问，响应html页面，客户端响应json数据，现在这样写，返回的都是接送数据了，所以我们需要换种方式，通过将相应转发到/error进行自适应响应效果处理，像下面这样<br><img src="https://img-blog.csdnimg.cn/2020022618532286.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+<h4 id="携带定制数据"><a href="#携带定制数据" class="headerlink" title="携带定制数据"></a>携带定制数据</h4><p>前面我们讲过，出现错误以后，会来到/error请求，会被BasicErrorController处理，响应出去可以获取的数据是由getErrorAttributes得到的（是AbstractErrorController（ErrorController）规定的方法）</p>
+<p>所以，我们可以通过编写一个ErrorController的实现类或者是编写AbstractErrorController的子类，然后放在容器中，我们要知道，页面上能用的数据，或者是json返回能用的数据都是通过errorAttributes.getErrorAttributes得到，也就是说容器中DefaultErrorAttributes.getErrorAttributes()来默认进行数据处理的，我们定制自定义ErrorAttributes，如下<br><img src="https://img-blog.csdnimg.cn/20200226185756995.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>这样，我们的错误响应是自适应的，可以通过定制ErrorAttributes改变需要返回的内容，就不在只有原先的默认属性了，形象的将，我们返回的信息就会是如下</p>
+<ul>
+<li>timestamp：时间戳</li>
+<li>tstatus：状态码</li>
+<li>terror：错误提示</li>
+<li>texception：异常对象</li>
+<li>tmessage：异常消息</li>
+<li>terrors：JSR303数据校验的错误都在这里</li>
+<li>author： dbc</li>
+</ul>
+<h2 id="配置嵌入式Servlet容器"><a href="#配置嵌入式Servlet容器" class="headerlink" title="配置嵌入式Servlet容器"></a>配置嵌入式Servlet容器</h2><p>SpringBoot默认使用Tomcat作为嵌入式的Servlet容器，这我们都是知道的<br><img src="https://img-blog.csdnimg.cn/20200226190317180.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>那么这个时候我们如果想要换成其他的Servlet容器，我们应该怎么做呢？那么接下来我们就来讲解怎么搞</p>
+<h3 id="如何定制和修改Servlet容器的相关配置"><a href="#如何定制和修改Servlet容器的相关配置" class="headerlink" title="如何定制和修改Servlet容器的相关配置"></a>如何定制和修改Servlet容器的相关配置</h3><p>修改和server有关的配置（ServerProperties即也是使用WebServerFactoryCustomizer），在主配置文件中可以通过这样的形式来设置<br><img src="https://img-blog.csdnimg.cn/20200226222617476.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>除了在主配置文件中进行相关的设置之外，我们还可以通过注册WebServerFactoryCustomizer<ConfigurableWebServerFactory>组件来在类中自定义配置，也就是嵌入式的Servlet容器的定制器，来修改Servlet容器的配置<br><img src="https://img-blog.csdnimg.cn/20200226223525597.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+<h3 id="注册Servlet三大组件"><a href="#注册Servlet三大组件" class="headerlink" title="注册Servlet三大组件"></a>注册Servlet三大组件</h3><p>Servlet三大组件分别是Servlet、Filter、Listener，如果我们原先熟悉SpringMVC开发的应该知道，我们在Webapp下面的web.xml中，经常需要配置这三大组件用来过滤监听相关的请求，而在SpringBoot中，由于SpringBoot默认是以jar包的方式启动嵌入式的Servlet容器来启动SpringBoot的web应用，所以并没有没有web.xml文件。但是我们依旧可以通过SpringBoot特有的相关注册Bean进行注册，分别是</p>
+<ul>
+<li>ServletRegistrationBean</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//注册三大组件</span></span><br><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> ServletRegistrationBean <span class="title">myServlet</span><span class="params">()</span></span>&#123;</span><br><span class="line">    ServletRegistrationBean registrationBean = <span class="keyword">new</span> ServletRegistrationBean(<span class="keyword">new</span> MyServlet(),<span class="string">&quot;/myServlet&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> registrationBean;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<ul>
+<li>FilterRegistrationBean</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> FilterRegistrationBean <span class="title">myFilter</span><span class="params">()</span></span>&#123;</span><br><span class="line">    FilterRegistrationBean registrationBean = <span class="keyword">new</span> FilterRegistrationBean();</span><br><span class="line">    registrationBean.setFilter(<span class="keyword">new</span> MyFilter());</span><br><span class="line">    registrationBean.setUrlPatterns(Arrays.asList(<span class="string">&quot;/hello&quot;</span>,<span class="string">&quot;/myServlet&quot;</span>));</span><br><span class="line">    <span class="keyword">return</span> registrationBean;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>ServletListenerRegistrationBean</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> ServletListenerRegistrationBean <span class="title">myListener</span><span class="params">()</span></span>&#123;</span><br><span class="line">    ServletListenerRegistrationBean&lt;MyListener&gt; registrationBean = <span class="keyword">new</span> ServletListenerRegistrationBean&lt;&gt;(<span class="keyword">new</span> MyListener());</span><br><span class="line">    <span class="keyword">return</span> registrationBean;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>SpringBoot帮我们自动配置SpringMVC的时候，会自动的注册SpringMVC的前端控制器，即DIspatcherServlet，我们通过查阅DispatcherServletAutoConfiguration发现，会默认拦截，“/”的所有请求，包括静态资源，但是不拦截jsp请求，/*会拦截jsp，可以通过server.servletPath来修改SpringMVC前端控制器默认拦截的请求路径</p>
+<h3 id="更换其他嵌入式Servlet容器"><a href="#更换其他嵌入式Servlet容器" class="headerlink" title="更换其他嵌入式Servlet容器"></a>更换其他嵌入式Servlet容器</h3><p>我们知道，SpringBoot是默认支持Tomcat的，也就是在pom.xml中通过如下依赖引入的<br><img src="https://img-blog.csdnimg.cn/20200226224726267.png#pic_center" alt="在这里插入图片描述"><br>所以，我们不能整个去除web依赖，因为里面还有其他除了Tomcat的依赖，所以我们在web下直接排除Tomcat的依赖就可以了，然后添加其他的嵌入式Servlet容器的依赖，不同的嵌入式Servlet依赖如下</p>
+<h4 id="Jetty"><a href="#Jetty" class="headerlink" title="Jetty"></a>Jetty</h4><p><img src="https://img-blog.csdnimg.cn/20200226225112744.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+<h4 id="Undertow"><a href="#Undertow" class="headerlink" title="Undertow"></a>Undertow</h4><p><img src="https://img-blog.csdnimg.cn/20200226225326573.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+<h2 id="使用外置的Servlet容器"><a href="#使用外置的Servlet容器" class="headerlink" title="使用外置的Servlet容器"></a>使用外置的Servlet容器</h2><p>在我们之前学习的SpringBoot应用，是通过嵌入式Servlet容器，应用打成可执行的jar，这样做的优点显而易见，就是简单、便携，但是缺点就是默认不支持JSP、优化定制比较复杂（使用定制器ServerProperties、自定义WebServerFactoryCustomizer，自己编写嵌入式Servlet容器的创建工厂ConfigurableWebServerFactory）；<br>但是不着急，我们可以使用外置的Servlet容器，也就是外面安装Tomcat，然后应用war包的方式打包。</p>
+<h3 id="步骤"><a href="#步骤" class="headerlink" title="步骤"></a>步骤</h3><ul>
+<li><p>必须创建一个war项目，利用idea创建好目录结构<br><img src="https://img-blog.csdnimg.cn/20200226230435665.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+</li>
+<li><p>将嵌入式的Tomcat指定为provided；</p>
+</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-tomcat<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">scope</span>&gt;</span>provided<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>必须编写一个<strong>SpringBootServletInitializer</strong>的子类，并调用configure方法<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ServletInitializer</span> <span class="keyword">extends</span> <span class="title">SpringBootServletInitializer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">   <span class="meta">@Override</span></span><br><span class="line">   <span class="function"><span class="keyword">protected</span> SpringApplicationBuilder <span class="title">configure</span><span class="params">(SpringApplicationBuilder application)</span> </span>&#123;</span><br><span class="line">       <span class="comment">//传入SpringBoot应用的主程序</span></span><br><span class="line">      <span class="keyword">return</span> application.sources(SpringBoot04WebJspApplication.class);</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>启动服务器就可以使用；</li>
+</ul>
+<p>我这里说一下jar包和war包启动的区别</p>
+<ul>
+<li>jar包：执行SpringBoot主类的main方法，启动ioc容器，创建嵌入式的Servlet容器；</li>
+<li>war包：启动服务器，<strong>服务器启动SpringBoot应用</strong>通过SpringBootServletInitializer，启动ioc容器；</li>
+</ul>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>DengBoCong</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="http://dengbocong.cn/Spring-Boot/10c4c12622eb/">http://dengbocong.cn/Spring-Boot/10c4c12622eb/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Licensed under the Apache License, Version 2.0 (the "License")</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Stay hungry, Stay foolish.</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/Sprint-Boot/"># Sprint Boot</a>
+                    
+                        <a href="/tags/Web/"># Web</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/Spring-Boot/8fcfcb4d5ce9/">详细SpringBoot教程之数据访问</a>
+            
+            
+            <a class="next" rel="next" href="/Spring-Boot/22741562e341/">详细SpringBoot教程之Web开发（二）</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+        </div>
+        <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Copyright 2020-2021 DengBoCong. All Rights Reserved. 赣ICP备20002291号</span>
+    </div>
+</footer>
+
+    </div>
+    <div id="u-search">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="container">
+                    <form id="u-search-modal-form" class="u-search-modal-form">
+                        <button type="submit" class="form-submit-btn">
+                            <img src="/image/search.png" class="search-btn-img" />
+                        </button>
+                        <input placeholder="请输入关键字搜索文章..." class="form-input" onchange="inputChange(event)" id="modal-form-input">
+                    </form>
+                    <a class="modal-close">x</a>
+                </div>
+                <div class="search-loading">
+                    <div class="search-loading-bar"></div>
+                </div>
+            </div>
+            <div class="modal-body">
+            </div>
+        </div>
+        <div class="modal-overlay"></div>
+    </div>
+</body>
+</html>

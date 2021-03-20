@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<link rel="stylesheet" href="/css/search.css">
+<script src="/js/jquery-3.4.1.min.js"></script>
+<script src="/js/search.js"></script>
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
+<style>
+    .pace .pace-progress {
+        background: #5cb0ff; /*进度条颜色*/
+        height: 2px;
+    }
+    .pace .pace-progress-inner {
+        box-shadow: 0 0 10px #1E92FB, 0 0 5px     #1E92FB; /*阴影颜色*/
+    }
+    .pace .pace-activity {
+        border-top-color: #1E92FB;    /*上边框颜色*/
+        border-left-color: #1E92FB;    /*左边框颜色*/
+    }
+</style>
+
+    <meta name="author" content="DengBoCong">
+
+
+    <meta name="subtitle" content="NLP | Deep Learning | Java">
+
+
+
+
+<title>打造一个能够在线部署的深度学习对话系统--开源更新中 | DengBoCong</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+    
+
+
+<meta name="generator" content="Hexo 5.3.0"></head>
+<body>
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">DengBoCong</a></div>
+            <div class="menu navbar-right">
+                <div class="search" style="float: left; margin-top: 7px;">
+                    <form class="form-search">
+                        <input class="input" placeholder="search content..." autocomplete="off" onchange="inputChange(event)" id="pc-search-input"/>
+                    </form>
+                    <div class="search-btn">
+                        <img src="/image/search.png" class="search-btn-img" />
+                    </div>
+                </div>
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/projects">Projects</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">DengBoCong</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/projects">Projects</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+        <div class="main">
+            <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    document.ready(
+        function () {
+            tocbot.init({
+                tocSelector: '.tocbot-list',
+                contentSelector: '.post-content',
+                headingSelector: 'h1, h2, h3, h4, h5',
+                collapseDepth: 1,
+                orderedList: false,
+                scrollSmooth: true,
+            })
+        }
+    )
+
+    function expand_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 6,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "collapse_toc()");
+        b.innerHTML = "Collapse all"
+    }
+
+    function collapse_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 1,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "expand_toc()");
+        b.innerHTML = "Expand all"
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">打造一个能够在线部署的深度学习对话系统--开源更新中</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">DengBoCong</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">February 15, 2021&nbsp;&nbsp;19:14:27</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Code/">Code</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h1 id="项目说明"><a href="#项目说明" class="headerlink" title="项目说明"></a>项目说明</h1><p>一个能够在线部署的全流程对话系统，项目地址：<a target="_blank" rel="noopener" href="https://github.com/DengBoCong/nlp-dialogue">nlp-dialogue</a>。本项目的目标是奔着构建一个能够在线部署、执行、应用的全流程对话系统，即包含语料处理、训练、评估、推断、部署、Web服务的从头到尾的UI化系统功能。项目中计划同时包含开放域和面向任务型两种对话系统，模型的思路来源即为针对相关模型进行复现（论文阅读笔记放置在另一个项目：<a target="_blank" rel="noopener" href="https://github.com/DengBoCong/nlp-paper">nlp-paper</a>）。本项目中同时使用TensorFlow和Pytorch两种计算框架进行实现，可按需要进行切换，目前实现功能模型如下：</p>
+<ul>
+<li>TensorFlow模型<ul>
+<li>Transformer</li>
+<li>Seq2Seq</li>
+<li>SMN检索式模型</li>
+<li>Scheduled Sampling的Transformer</li>
+<li>GPT2</li>
+<li>Task Dialogue</li>
+</ul>
+</li>
+<li>Pytorch模型<ul>
+<li>Transformer</li>
+<li>Seq2Seq</li>
+</ul>
+</li>
+</ul>
+<h1 id="功能效果"><a href="#功能效果" class="headerlink" title="功能效果"></a>功能效果</h1><p>项目可以在开发终端使用命令行进行测试和使用（执行和目录说明见后面小节），下面的demo演示为使用<code>beam size</code>为<code>3</code>的BeamSearch进行推断，有时因为语料的原因，对话可能略偏杂乱，词汇量不足也会出现<code>&lt;unk&gt;</code>的情况，命令行终端使用如下：<br><img src="https://img-blog.csdnimg.cn/20210215120151867.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>Web服务界面进行聊天使用如下（启动server，详细请看后节执行说明）：<br><img src="https://img-blog.csdnimg.cn/2021021512025911.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/20210215121035158.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<h1 id="语料"><a href="#语料" class="headerlink" title="语料"></a>语料</h1><p>在本项目中的<a target="_blank" rel="noopener" href="https://github.com/DengBoCong/nlp-dialogue/tree/main/dialogue/data">data</a>目录下放着各语料的玩具数据，可用于验证系统执行性，完整语料以及Paper可以在<a target="_blank" rel="noopener" href="https://github.com/DengBoCong/nlp-paper">这里</a>查看。语料方面这里知识简单陈列了比较容易找到的，其实还有很多丰富的对话语料，包括逻辑学习语料等，可自行收集：</p>
+<ul>
+<li>LCCC</li>
+<li>CrossWOZ</li>
+<li>小黄鸡</li>
+<li>豆瓣</li>
+<li>Ubuntu</li>
+<li>微博</li>
+<li>青云</li>
+<li>贴吧</li>
+</ul>
+<h1 id="执行说明"><a href="#执行说明" class="headerlink" title="执行说明"></a>执行说明</h1><ul>
+<li>Linux执行run.sh，项目工程目录检查执行check.sh（或check.py）</li>
+<li>根目录下的actuator.py为总执行入口，通过调用如下指令格式执行（执行前注意安装requirements.txt）：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python actuator.py --version [Options] --model [Options] ...</span><br></pre></td></tr></table></figure></li>
+<li>通过根目录下的actuator.py进行执行时，<code>--version</code>、<code>--model</code>和<code>--act</code>为必传参数，其中<code>--version</code>为代码版本<code>tf/torch</code>，<code>--model</code>为执行对应的模型<code>transformer/smn...</code>，而act为执行模式（缺省状态下为<code>pre_treat</code>模式），更详细指令参数参见各模型下的<code>actuator.py</code>或config目录下的对应json配置文件。</li>
+<li><code>--act</code>执行模式说明如下：<ul>
+<li>pre_treat模式为文本预处理模式，如果在没有分词结果集以及字典的情况下，需要先运行pre_treat模式</li>
+<li>train模式为训练模式</li>
+<li>evaluate模式为指标评估模式</li>
+<li>chat模式为对话模式，chat模式下运行时，输入ESC即退出对话。</li>
+</ul>
+</li>
+<li>正常执行顺序为pre_treat-&gt;train-&gt;evaluate-&gt;chat</li>
+<li>各模型下单独有一个actuator.py，可以绕开外层耦合进行执行开发，不过执行时注意调整工程目录路径</li>
+</ul>
+<h1 id="目录结构说明"><a href="#目录结构说明" class="headerlink" title="目录结构说明"></a>目录结构说明</h1><ul>
+<li>dialogue下为相关模型的核心代码放置位置，方便日后进行封装打包等<ul>
+<li>checkpoints为检查点保存位置</li>
+<li>config为配置文件保存目录</li>
+<li>data为原始数据储存位置，同时，在模型执行过程中产生的中间数据文件也保存在此目录下</li>
+<li>models为模型保存目录</li>
+<li>tensorflow及pytorch放置模型构建以及各模组执行的核心代码</li>
+<li>preprocess_corpus.py为语料处理脚本，对各语料进行单轮和多轮对话的处理，并规范统一接口调用</li>
+<li>read_data.py用于load_dataset.py的数据加载格式调用</li>
+<li>metrics.py为各项指标脚本</li>
+<li>tools.py为工具脚本，保存有分词器、日志操作、检查点保存/加载脚本等</li>
+</ul>
+</li>
+<li>docs下放置文档说明，包括模型论文阅读笔记</li>
+<li>docker（mobile）用于服务端（移动终端）部署脚本</li>
+<li>server为UI服务界面，使用flask进行构建使用，执行对应的server.py即可</li>
+<li>tools为预留工具目录</li>
+<li>actuator.py（run.sh）为总执行器入口</li>
+<li>check.py（check.sh）为工程目录检查脚本</li>
+</ul>
+<h1 id="SMN模型运行说明"><a href="#SMN模型运行说明" class="headerlink" title="SMN模型运行说明"></a>SMN模型运行说明</h1><p>SMN检索式对话系统使用前需要准备solr环境，solr部署系统环境推荐Linux，工具推荐使用容器部署(推荐Docker)，并准备：</p>
+<ul>
+<li>Solr(8.6.3)</li>
+<li>pysolr(3.9.0)</li>
+</ul>
+<p>以下提供简要说明，更详细可参见文章：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/300165220">搞定检索式对话系统的候选response检索–使用pysolr调用Solr</a></p>
+<h2 id="Solr环境"><a href="#Solr环境" class="headerlink" title="Solr环境"></a>Solr环境</h2><p>需要保证solr在线上运行稳定，以及方便后续维护，请使用DockerFile进行部署，DockerFile获取地址：<a target="_blank" rel="noopener" href="https://github.com/docker-solr/docker-solr">docker-solr</a></p>
+<p>仅测试模型使用，可使用如下最简构建指令：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">docker pull solr:8.6.3</span><br><span class="line"># 然后启动solr</span><br><span class="line">docker run -itd --name solr -p 8983:8983 solr:8.6.3</span><br><span class="line"># 然后创建core核心选择器，这里取名smn(可选)</span><br><span class="line">docker exec -it --user&#x3D;solr solr bin&#x2F;solr create_core -c smn</span><br></pre></td></tr></table></figure>
+<p>关于solr中分词工具有IK Analyzer、Smartcn、拼音分词器等等，需要下载对应jar，然后在Solr核心配置文件managed-schema中添加配置。</p>
+<p><strong>特别说明</strong>：如果使用TF-IDF，还需要在managed-schema中开启相似度配置。</p>
+<h2 id="Python中使用说明"><a href="#Python中使用说明" class="headerlink" title="Python中使用说明"></a>Python中使用说明</h2><p>线上部署好Solr之后，在Python中使用pysolr进行连接使用：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install pysolr</span><br></pre></td></tr></table></figure>
+<p>添加索引数据（一般需要先安全检查）方式如下。将回复数据添加索引，responses是一个json,形式如：[{},{},{},…]，里面每个对象构建按照你回复的需求即可：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">solr &#x3D; pysolr.Solr(url&#x3D;solr_server, always_commit&#x3D;True, timeout&#x3D;10)</span><br><span class="line"># 安全检查</span><br><span class="line">solr.ping()</span><br><span class="line">solr.add(docs&#x3D;responses)</span><br></pre></td></tr></table></figure>
+<p>查询方式如下，以TF-IDF查询所有语句query语句方式如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;!func&#125;sum(product(idf(utterance,key1),tf(utterance,key1),product(idf(utterance,key2),tf(utterance,key2),...)</span><br></pre></td></tr></table></figure>
+<p>使用前需要先将数据添加至Solr，在本SMN模型中使用，先执行pre_treat模式即可。</p>
+<h1 id="参考代码和文献"><a href="#参考代码和文献" class="headerlink" title="参考代码和文献"></a>参考代码和文献</h1><ol>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1706.03762.pdf">Attention Is All You Need</a> | <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/250946855">阅读笔记</a>：Transformer的开山之作，值得精读 | Ashish et al,2017</li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1612.01627v2.pdf">Sequential Matching Network: A New Architecture for Multi-turn Response Selection in Retrieval-Based Chatbots</a> | <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/270554147">阅读笔记</a>：SMN检索式对话模型，多层多粒度提取信息 | Devlin et al,2018</li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1703.03906.pdf">Massive Exploration of Neural Machine Translation Architectures</a> | <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/328801239">阅读笔记</a>：展示了以NMT架构超参数为例的首次大规模分析，实验为构建和扩展NMT体系结构带来了新颖的见解和实用建议。 | Denny et al,2017</li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1906.07651.pdf">Scheduled Sampling for Transformers</a> | <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/267146739">阅读笔记</a>：在Transformer应用Scheduled Sampling | Mihaylova et al,2019</li>
+</ol>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>DengBoCong</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="http://dengbocong.cn/Code/7a43f279d20b/">http://dengbocong.cn/Code/7a43f279d20b/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Licensed under the Apache License, Version 2.0 (the "License")</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Stay hungry, Stay foolish.</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/%E5%AF%B9%E8%AF%9D%E7%B3%BB%E7%BB%9F/"># 对话系统</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/Paper-Reading/e914502af9e0/">论文阅读笔记：Informer--效果远超Transformer的长序列预测模型</a>
+            
+            
+            <a class="next" rel="next" href="/Paper-Reading/f5a757ac2f8f/">论文阅读笔记：Seq2Seq模型解码重复和不停止原因分析</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+        </div>
+        <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Copyright 2020-2021 DengBoCong. All Rights Reserved. 赣ICP备20002291号</span>
+    </div>
+</footer>
+
+    </div>
+    <div id="u-search">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="container">
+                    <form id="u-search-modal-form" class="u-search-modal-form">
+                        <button type="submit" class="form-submit-btn">
+                            <img src="/image/search.png" class="search-btn-img" />
+                        </button>
+                        <input placeholder="请输入关键字搜索文章..." class="form-input" onchange="inputChange(event)" id="modal-form-input">
+                    </form>
+                    <a class="modal-close">x</a>
+                </div>
+                <div class="search-loading">
+                    <div class="search-loading-bar"></div>
+                </div>
+            </div>
+            <div class="modal-body">
+            </div>
+        </div>
+        <div class="modal-overlay"></div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<link rel="stylesheet" href="/css/search.css">
+<script src="/js/jquery-3.4.1.min.js"></script>
+<script src="/js/search.js"></script>
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
+<style>
+    .pace .pace-progress {
+        background: #5cb0ff; /*进度条颜色*/
+        height: 2px;
+    }
+    .pace .pace-progress-inner {
+        box-shadow: 0 0 10px #1E92FB, 0 0 5px     #1E92FB; /*阴影颜色*/
+    }
+    .pace .pace-activity {
+        border-top-color: #1E92FB;    /*上边框颜色*/
+        border-left-color: #1E92FB;    /*左边框颜色*/
+    }
+</style>
+
+    <meta name="author" content="DengBoCong">
+
+
+    <meta name="subtitle" content="NLP | Deep Learning | Java">
+
+
+
+
+<title>论文阅读笔记：这篇文章教你在文本分类任务上微调BERT | DengBoCong</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+    
+
+
+<meta name="generator" content="Hexo 5.3.0"></head>
+<body>
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">DengBoCong</a></div>
+            <div class="menu navbar-right">
+                <div class="search" style="float: left; margin-top: 7px;">
+                    <form class="form-search">
+                        <input class="input" placeholder="search content..." autocomplete="off" onchange="inputChange(event)" id="pc-search-input"/>
+                    </form>
+                    <div class="search-btn">
+                        <img src="/image/search.png" class="search-btn-img" />
+                    </div>
+                </div>
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/projects">Projects</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">DengBoCong</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/projects">Projects</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+        <div class="main">
+            <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    document.ready(
+        function () {
+            tocbot.init({
+                tocSelector: '.tocbot-list',
+                contentSelector: '.post-content',
+                headingSelector: 'h1, h2, h3, h4, h5',
+                collapseDepth: 1,
+                orderedList: false,
+                scrollSmooth: true,
+            })
+        }
+    )
+
+    function expand_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 6,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "collapse_toc()");
+        b.innerHTML = "Collapse all"
+    }
+
+    function collapse_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 1,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "expand_toc()");
+        b.innerHTML = "Expand all"
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">论文阅读笔记：这篇文章教你在文本分类任务上微调BERT</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">DengBoCong</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">March 20, 2021&nbsp;&nbsp;10:11:08</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Paper-Reading/">Paper-Reading</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><blockquote>
+<p>标题：How to Fine-Tune BERT for Text Classification?<br>原文链接：<a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1905.05583.pdf">Link</a><br>nlp-paper：<a target="_blank" rel="noopener" href="https://github.com/DengBoCong/nlp-paper">NLP相关Paper笔记和代码复现</a><br>nlp-dialogue：<a target="_blank" rel="noopener" href="https://github.com/DengBoCong/nlp-dialogue">一个开源的全流程对话系统，更新中！</a><br>说明：阅读原文时进行相关思想、结构、优缺点，内容进行提炼和记录，原文和相关引用会标明出处，引用之处如有侵权，烦请告知删除。<br>转载请注明：DengBoCong</p>
+</blockquote>
+<p>预训练语言模型很强，通过微调可以给你的任务模型带来明显的提升，但是针对具体的任务如何进行微调使用，就涉及到了考经验积累的tricks，最近在打文本相关的比赛，正好用预训练模型为基础构建下游任务模型，所以着重的关注一些相关的BERT微调tricks，凑巧看到这篇文章，里面专门介绍 BERT 用于中文文本分类的各种 tricks，所以在此分享一下。这篇文章分别介绍了Fine-Tuning Strategies、Further Pre-training和Multi-Task Fine-Tuning，具体见后文总结介绍。<br>关于预训练语言模型，可以看论文团队的另一篇文章更新的文章：Pre-trained Models for Natural Language Processing: A Survey（<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/352152573">论文阅读笔记：超详细的NLP预训练语言模型总结清单！</a>）</p>
+<h1 id="前情提要"><a href="#前情提要" class="headerlink" title="前情提要"></a>前情提要</h1><p>首先先确定一下BERT在Text Classification上的一般应用，我们都知道BERT喂入的输入有两个特殊的Token，即[CLS]置于开头，[SEP]用于分隔句子，最后的输出取[CLS]的最后隐藏层状态 $h$ 作为整个序列的表示，然后使用全连接层映射到分类任务上，及：<br>$$p(c|h)=softmax(Wh)$$<br>基于此，论文分别讨论通用微调BERT的方法流程，Fine-Tuning Strategies、Further Pre-training和Multi-Task Fine-Tuning，如下：<br><img src="https://img-blog.csdnimg.cn/20210319222831458.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>论文分析结果用的实验数据共八个，如下，可以归纳为Sentiment analysis、Question classification、Topic classification、Data preprocessing<br><img src="https://img-blog.csdnimg.cn/20210319232645576.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+<blockquote>
+<p>Warmup是在ResNet论文中提到的一种学习率预热的方法，它在训练开始的时候先选择使用一个较小的学习率，训练了一些epoches或者steps</p>
+</blockquote>
+<h1 id="Fine-Tuning策略"><a href="#Fine-Tuning策略" class="headerlink" title="Fine-Tuning策略"></a>Fine-Tuning策略</h1><p>我们来带着如下几个问题进行思考：</p>
+<ul>
+<li>BERT的不同层对语义句法信息有着不同的抽取能力，那么那一层更有利于目标任务？</li>
+<li>如何选择优化算法和学习率</li>
+</ul>
+<p>想要微调BERT适配目标任务，主要有三个因素（和上面思考相匹配）：</p>
+<ul>
+<li>BERT最大处理序列长度为512</li>
+<li>BERT-base有12层，需要挑选合适的层用于目标分类任务</li>
+<li>过拟合</li>
+</ul>
+<p>超参：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">batch_size &#x3D; 24; dropout &#x3D; 0.1; learning-rate&#x3D;2e-5; warm-up proportion &#x3D; 0.1; max_epoch &#x3D; 4;</span><br></pre></td></tr></table></figure>
+<h3 id="BERT最大处理序列长度为512"><a href="#BERT最大处理序列长度为512" class="headerlink" title="BERT最大处理序列长度为512"></a>BERT最大处理序列长度为512</h3><p>针对长度超过512的文本，实验如下三种转换策略（ 预留[CLS] 和 [SEP]）：</p>
+<ul>
+<li>head-only：前510 tokens</li>
+<li>tail-only：后510 tokens;</li>
+<li>head+tail：根据经验选择前 128 和后 382 tokens</li>
+<li>分段：首先将输入文本（长度为L）分成k = L/510个小段落，将它们依次输入BERT得到k个文本段落的表示。每个段落的representation是最后一层[CLS]的hidden state，并分别使用mean pooling, max pooling and self-attention来合并所有段落的representation。</li>
+</ul>
+<p><img src="https://img-blog.csdnimg.cn/20210319235425953.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+<p>实验证实第三种在错误率上有 0.15~0.20% 的优势，也许是因为重要信息在首尾比较多中间比较少？</p>
+<h3 id="BERT-base有12层，需要挑选合适的层用于目标分类任务"><a href="#BERT-base有12层，需要挑选合适的层用于目标分类任务" class="headerlink" title="BERT-base有12层，需要挑选合适的层用于目标分类任务"></a>BERT-base有12层，需要挑选合适的层用于目标分类任务</h3><p>下图是不同层在任务上的测试错误率结果：<br><img src="https://img-blog.csdnimg.cn/20210319235624285.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>很明显，用最后一层还是比较靠谱的。</p>
+<h3 id="过拟合-学习率逐层衰减"><a href="#过拟合-学习率逐层衰减" class="headerlink" title="过拟合-学习率逐层衰减"></a>过拟合-学习率逐层衰减</h3><p>针对学习率的衰减策略，本文继承了 <a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1801.06146.pdf">ULM-Fit</a>）中的方案，叫作 Slanted Triangular，这个方案和 BERT 的原版方案类似，都是带 warmup 的先增后减。通常来说，这类方案对初始学习率的设置并不敏感，但是，在 Fine-Tune阶段使用过大的学习率，会打乱 Pre-train 阶段学习到的句子信息，造成“灾难性遗忘”。这里简单描述一下学习率策略：我们将BERT $L$ 层的参数分别表示为 ${\theta^1,…,\theta^L}$，参数更新策略如下：<br>$$\theta^l_t=\theta^l_{t-1}-\eta^l\cdot \triangledown_{\theta^l}J(\theta)$$<br>其中，$\eta^l$ 表示第 $l$ 层的学习率，并设 $\eta^L$ 为初始学习率，而 $\eta^{k-1}=\xi\cdot\eta^k$，$\xi$ 就是衰减因子，小于或等于 $1$，如何等于 $1$ 那么就是我们所熟悉的SGD了。关于SGD及其扩展的优化算法可以参考我这篇文章：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/343564175">论文阅读笔记：各种Optimizer梯度下降优化算法回顾和总结</a></p>
+<p>这种设置相邻两层的学习率比例，让低层更新幅度更小的方法，系数控制在 0.90 ~ 0.95，整体优化效果不明显，不建议尝试，实验结果如下：<br><img src="https://img-blog.csdnimg.cn/20210320000024861.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/20210320000253814.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+<p>上图显示最右边的 4e-4 已经完全无法收敛了，而 1e-4 的 loss 曲线明显不如 2e-5 和 5e-5 的低。根据作者的数据集大小推测，整个 finetune 过程在 1W 步左右，<strong>实测发现，小数据上更多的 epoch 并不能带来效果的提升，不如早一点终止训练省时间</strong>。</p>
+<h1 id="Further-Pre-training"><a href="#Further-Pre-training" class="headerlink" title="Further Pre-training"></a>Further Pre-training</h1><ul>
+<li>BERT在通用域数据下进行预训练，其数据分布与目标域不同，所以可以考虑进一步使用目标域数据对BERT进行预训练，先对基线做进一步的 pretrain，能够帮助 finetune 效果提升。而Further Pre-training有几种方案：</li>
+<li>使用本任务的训练数据进行预训练</li>
+<li>使用有着类似数据分布的相关任务数据进行预训练</li>
+<li>使用跨领域任务的数据进行预训练</li>
+</ul>
+<p>超参：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">batch_size &#x3D; 32; max_length &#x3D; 128; learning_rate &#x3D; 5e-5; warmup_steps &#x3D; 1W; steps &#x3D; 10W;</span><br></pre></td></tr></table></figure>
+<h3 id="使用本任务的训练数据进行Further-Pre-training"><a href="#使用本任务的训练数据进行Further-Pre-training" class="headerlink" title="使用本任务的训练数据进行Further Pre-training"></a>使用本任务的训练数据进行Further Pre-training</h3><p><img src="https://img-blog.csdnimg.cn/20210320000741171.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>上图显示10W步之后达到最优结果，需要注意的是，pretrain 为了提升训练效率，使用的是偏短的 128 个词句子，学习率仍然是带 warmup 的衰减方式，初始值不用像 finetune 那样设置得那么小。整个训练过程为 10W 步，这个值是作者实验测定的，太短或太长都会影响最终模型的准确率。</p>
+<h3 id="同领域语料和跨领域语料进行Further-Pre-training"><a href="#同领域语料和跨领域语料进行Further-Pre-training" class="headerlink" title="同领域语料和跨领域语料进行Further Pre-training"></a>同领域语料和跨领域语料进行Further Pre-training</h3><p><img src="https://img-blog.csdnimg.cn/20210320092603113.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+<p>上述得到结论，优先使用同领域的无标注数据，其次使用 finetune 的训练数据，什么都没有的话，混一点跨领域数据也可以。</p>
+<h1 id="Multi-Task-Fine-Tuning"><a href="#Multi-Task-Fine-Tuning" class="headerlink" title="Multi-Task Fine-Tuning"></a>Multi-Task Fine-Tuning</h1><ul>
+<li>对目标与中的多个任务同时微调BERT，是否仍然对任务有帮助？</li>
+</ul>
+<p><img src="https://img-blog.csdnimg.cn/20210320093338603.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>在Multi-Task Fine-Tuning中，所有BERT和Embedding都进行共享，只留最后的分类层来适配不同的任务。由实验结果得出Multi-Task Fine-Tuning并不能给Text Classification相关子任务带来很大的提升。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><ul>
+<li>预训练语言模型BERT的最后一层较于其他层来说更加有助于分类</li>
+<li>合适的学习率和层宽有助于BERT的catastrophic forgetting </li>
+<li>使用任务语料或者同域语料进行further pre-training效果更好哦</li>
+<li>是在任务语料太少，混入跨领域数据也可，但是效果并不明显哦</li>
+</ul>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>DengBoCong</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="http://dengbocong.cn/Paper-Reading/bb40f25f3748/">http://dengbocong.cn/Paper-Reading/bb40f25f3748/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Licensed under the Apache License, Version 2.0 (the "License")</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Stay hungry, Stay foolish.</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/NLP/"># NLP</a>
+                    
+                        <a href="/tags/BERT/"># BERT</a>
+                    
+                        <a href="/tags/%E9%A2%84%E8%AE%AD%E7%BB%83%E6%A8%A1%E5%9E%8B/"># 预训练模型</a>
+                    
+                        <a href="/tags/%E5%BE%AE%E8%B0%83/"># 微调</a>
+                    
+                        <a href="/tags/%E6%96%87%E6%9C%AC%E5%88%86%E7%B1%BB/"># 文本分类</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+            
+            <a class="next" rel="next" href="/Paper-Reading/ad96e3afa777/">论文阅读笔记：超详细的NLP预训练语言模型总结清单！</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+        </div>
+        <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Copyright 2020-2021 DengBoCong. All Rights Reserved. 赣ICP备20002291号</span>
+    </div>
+</footer>
+
+    </div>
+    <div id="u-search">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="container">
+                    <form id="u-search-modal-form" class="u-search-modal-form">
+                        <button type="submit" class="form-submit-btn">
+                            <img src="/image/search.png" class="search-btn-img" />
+                        </button>
+                        <input placeholder="请输入关键字搜索文章..." class="form-input" onchange="inputChange(event)" id="modal-form-input">
+                    </form>
+                    <a class="modal-close">x</a>
+                </div>
+                <div class="search-loading">
+                    <div class="search-loading-bar"></div>
+                </div>
+            </div>
+            <div class="modal-body">
+            </div>
+        </div>
+        <div class="modal-overlay"></div>
+    </div>
+</body>
+</html>

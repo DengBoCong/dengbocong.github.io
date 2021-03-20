@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<link rel="stylesheet" href="/css/search.css">
+<script src="/js/jquery-3.4.1.min.js"></script>
+<script src="/js/search.js"></script>
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
+<style>
+    .pace .pace-progress {
+        background: #5cb0ff; /*进度条颜色*/
+        height: 2px;
+    }
+    .pace .pace-progress-inner {
+        box-shadow: 0 0 10px #1E92FB, 0 0 5px     #1E92FB; /*阴影颜色*/
+    }
+    .pace .pace-activity {
+        border-top-color: #1E92FB;    /*上边框颜色*/
+        border-left-color: #1E92FB;    /*左边框颜色*/
+    }
+</style>
+
+    <meta name="author" content="DengBoCong">
+
+
+    <meta name="subtitle" content="NLP | Deep Learning | Java">
+
+
+
+
+<title>详细SpringBoot教程之Web开发（二） | DengBoCong</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+    
+
+
+<meta name="generator" content="Hexo 5.3.0"></head>
+<body>
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">DengBoCong</a></div>
+            <div class="menu navbar-right">
+                <div class="search" style="float: left; margin-top: 7px;">
+                    <form class="form-search">
+                        <input class="input" placeholder="search content..." autocomplete="off" onchange="inputChange(event)" id="pc-search-input"/>
+                    </form>
+                    <div class="search-btn">
+                        <img src="/image/search.png" class="search-btn-img" />
+                    </div>
+                </div>
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/projects">Projects</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">DengBoCong</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/projects">Projects</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+        <div class="main">
+            <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    document.ready(
+        function () {
+            tocbot.init({
+                tocSelector: '.tocbot-list',
+                contentSelector: '.post-content',
+                headingSelector: 'h1, h2, h3, h4, h5',
+                collapseDepth: 1,
+                orderedList: false,
+                scrollSmooth: true,
+            })
+        }
+    )
+
+    function expand_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 6,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "collapse_toc()");
+        b.innerHTML = "Collapse all"
+    }
+
+    function collapse_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 1,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "expand_toc()");
+        b.innerHTML = "Expand all"
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">详细SpringBoot教程之Web开发（二）</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">DengBoCong</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">February 25, 2020&nbsp;&nbsp;23:33:43</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Spring-Boot/">Spring-Boot</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h2 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h2><p>鉴于有人留言说想要学习SpringBoot相关的知识，我这里打算写一个SpringBoot系列的相关博文，目标呢是想让看了这一系列博文的同学呢，能够对SpringBoot略窥门径，这一系列的博文初步都定下来包括SpringBoot介绍、入门、配置、日志相关、web开发、数据访问、结合docker、缓存、消息队列、检索、任务安全、分布式等等一系列的博文，工作量很大，是个漫长的过程，每一步我都尽量详细，配上截图说明，也希望对看的同学真的有用。<br><strong>单纯就是想分享技术博文，还想说一句就是，如果觉得有用，请点个关注、给个赞吧，也算对我来说是个宽慰，毕竟也得掉不少头发，嘿嘿嘿</strong></p>
+<h2 id="系列文章传送条"><a href="#系列文章传送条" class="headerlink" title="系列文章传送条"></a>系列文章传送条</h2><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104383089">详细SpringBoot教程之入门（一）</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104429074">详细SpringBoot教程之入门（二）</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104446690">详细SpringBoot教程之配置文件（一）</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104448353">详细SpringBoot教程之配置文件（二）</a><br><a target="_blank" rel="noopener" href="https://dengbocong.blog.csdn.net/article/details/104456941">详细SpringBoot教程之日志框架</a><br><a target="_blank" rel="noopener" href="https://dengbocong.blog.csdn.net/article/details/104473765">详细SpringBoot教程之Web开发（一）</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104503158">详细SpringBoot教程之Web开发（二）</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104503231">详细SpringBoot教程之Web开发（三）</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104527730">详细SpringBoot教程之数据访问</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104541113">详细SpringBoot教程之启动配置原理</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104559440">详细SpringBoot教程之缓存开发</a></p>
+<h2 id="默认访问首页"><a href="#默认访问首页" class="headerlink" title="默认访问首页"></a>默认访问首页</h2><p>开始正式讲解之前呢，先把整个过程的项目源码贴出来，方便边看边学<a target="_blank" rel="noopener" href="https://github.com/DengBoCong/demo">项目GitHub地址</a>，然后我们在讲解的过程中还会用到Thymeleaf相关语法，可以边打开我的另一篇博文当参考手册，直接点击那篇博文的目录，可以快速导航到对应语法的示例，<a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104480132">模板引擎Thymeleaf？来这一篇就够用了</a></p>
+<p>接上一篇博文创建的项目，我们先在properties配置文件中添加一个这个配置</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#/接随便啥名，我这里用了dbc</span></span><br><span class="line">server.servlet.context-path=/dbc</span><br></pre></td></tr></table></figure>
+<p>意思是应用的上下文路径，也可以称为项目路径，是构成url地址的一部分。也就是说server.servlet.context-path不配置时，默认为 / ，如：localhost:8080/xxxxxx。当server.servlet.context-path有配置时，比如 /dbc，此时的访问方式为localhost:8080/dbc/xxxxxx，这样我们就配置好了默认首页路径。</p>
+<p><img src="https://img-blog.csdnimg.cn/2020022516124813.png#pic_center" alt="在这里插入图片描述"></p>
+<h2 id="国际化"><a href="#国际化" class="headerlink" title="国际化"></a>国际化</h2><p>接着我们再来编写国际化配置文件，在SpringBoot中使用ResouceBundleMessageSource管理国际化配置文件，如果在放在以前的SpringMVC中，我们使用了ResouceBundleMessageSource之后，需要在页面中使用fmt：message取出国际化配置文件，我们我们在SpringBoot中就当然不需要这样来写啦，哈哈哈。在SpringBoot中怎么使用呢，具体步骤如下</p>
+<h3 id="第一步"><a href="#第一步" class="headerlink" title="第一步"></a>第一步</h3><p>我们在Resources目录下，创建一个i18n的包，然后创建三个国际化的properties配置文件<br><img src="https://img-blog.csdnimg.cn/20200225123311248.png#pic_center" alt="在这里插入图片描述"><br>如图，创建了三个国际化的properties配置文件之后，Idea会检测到我们是创建了国际化配置文件，会自动帮我们创建国际化配置文件视图。</p>
+<p>接下来我们随便点进一个国际化配置文件，这里我点击进入login.properties中，然后可以点击Resources Bundle进入，如下<br><img src="https://img-blog.csdnimg.cn/20200225124159783.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>是不是很方便，然后我们这里总共设置了五条国际化的属性，意思一下就好了，不用写那么多，我们知道怎么用就可以了，哈哈哈，如下。<br><img src="https://img-blog.csdnimg.cn/20200225160712916.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+<h3 id="第二步"><a href="#第二步" class="headerlink" title="第二步"></a>第二步</h3><p>SpringBoot自动配置好了管理国际化资源的文件的组件，即ResourceBundleMessageSource，所以我们只要在properties配置文件中启用指定国际化文件就可以了，配置如下<br><img src="https://img-blog.csdnimg.cn/20200225161330353.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+<h3 id="第三步"><a href="#第三步" class="headerlink" title="第三步"></a>第三步</h3><p>去页面获取国际化的值，我们在HTML中使用Thymeleaf语法进行获取<br><img src="https://img-blog.csdnimg.cn/20200225162802273.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>这里还是要说明一下，如果出现了乱码，是因为properties默认是ASCII编码，我们Idea是UTF-8编码，所以会乱码，怎么设置之前的博文有说，这里我就再强调一下，省的你们翻前面的博文。<br><img src="https://img-blog.csdnimg.cn/20200225162956577.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/20200225163043506.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+<h3 id="第四步"><a href="#第四步" class="headerlink" title="第四步"></a>第四步</h3><p>现在我们已经设置好了国际化，怎么测试呢？我们可以切换浏览器国际化信息用进行测试，项目会自动检测浏览器语言环境，然后更换，我这里使用Chrome举例，点开Chrome的设置-&gt;高级，然后更换，如下<br><img src="https://img-blog.csdnimg.cn/20200225163325775.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>为什么会自动检测呢？我们啥都没有配置，我这里简单的说一下按原理，也就是SpringBoot有一个国际化Locale（区域信息对象）以及一个LocaleResolver（获取区域信息对象），这个就是默认的根据请求头里面的，会根据请求头里面的Accept-language的值进行读取配置值。<br><img src="https://img-blog.csdnimg.cn/20200225163809860.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>当然，如果我们不想让浏览器自动检测，而是通过我们点击按钮进行更换语言，像下面这样。<br><img src="https://img-blog.csdnimg.cn/2020022516475413.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>我们可以自己写一个实现LocaleResolver接口的类，我们就可以在链接上携带区域语言信息，不过要注意了，如果我们自己实现了LocaleResolver接口，默认的检测浏览器语言就不生效了，就算我们更换浏览器语言也没有用，我们自己编写的国际化解析器如下<br><img src="https://img-blog.csdnimg.cn/20200225164422290.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>写完了之后记得在主配置文件MyMvcConfig中注册一下我们编写的国际化解析器组件<br><img src="https://img-blog.csdnimg.cn/20200225164520275.png#pic_center" alt="在这里插入图片描述"><br>HTML的按钮发出相关请求，在请求后面带上标记属性，如下<br><img src="https://img-blog.csdnimg.cn/20200225165230925.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>然后现在就可以重启测试了，我们点击按钮之后，就会在连接上出现属性值，然后更换语言<a target="_blank" rel="noopener" href="http://localhost:8080/index.html?l=zh_CN%E5%92%8Chttp://localhost:8080/index.html?l=en_US">http://localhost:8080/index.html?l=zh_CN和http://localhost:8080/index.html?l=en_US</a></p>
+<h2 id="登录进入主页"><a href="#登录进入主页" class="headerlink" title="登录进入主页"></a>登录进入主页</h2><p>我们在登录页面的内容如下，有几个输入框，用来输入账号和密码的，然后我们写入之后发送请求，请求的接口是/user/login<br><img src="https://img-blog.csdnimg.cn/20200225165634815.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>这里我们把/user/login的Controller写出来<br><img src="https://img-blog.csdnimg.cn/20200225165951484.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>在开发中可能会遇到缓存影响我们刷新页面开发的情况，我们在可以在配置文件中将Thymeleaf的默认缓存给关掉<br><img src="https://img-blog.csdnimg.cn/20200225165801865.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>现在就可以重新启动我们的项目了，然后发现可以进入到主页<br><img src="https://img-blog.csdnimg.cn/20200225172738930.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+<h2 id="拦截器"><a href="#拦截器" class="headerlink" title="拦截器"></a>拦截器</h2><p>我们弄好了登录，这个时候就会想，如果我们不通过正常的登录，而是直接通过主页的连接进入到主页，这样子我们的登录界面还有什么意义呢？所以这里我们需要对所有请求进行拦截，写一个LoginHandlerInterceptor实现HandlerInterceptor的接口的拦截器<br><img src="https://img-blog.csdnimg.cn/20200225170407494.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>和LocaleResolver一样，我们编写了自己的拦截器之后呢，我们还是需要在主配置文件中进行注册我们的拦截器组件，顺便设置一些我们不需要进行拦截的请求路径<br><img src="https://img-blog.csdnimg.cn/20200225170906490.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+<h2 id="用户列表功能"><a href="#用户列表功能" class="headerlink" title="用户列表功能"></a>用户列表功能</h2><p>用户列表的功能效果如下，我们可以显示用户的信息，然后进行增删改查的基本操作，所以我们需要创建Dao层和实体类，代码内容如下<br><img src="https://img-blog.csdnimg.cn/20200225174213636.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">import com.example.demo.Entities.Department;</span><br><span class="line">import org.springframework.stereotype.Repository;</span><br><span class="line"></span><br><span class="line">import java.util.Collection;</span><br><span class="line">import java.util.Map;</span><br><span class="line">import java.util.HashMap;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * @program: demo</span><br><span class="line"> * @description:</span><br><span class="line"> * @author: DBC</span><br><span class="line"> * @create: 2020-02-24 22:54</span><br><span class="line"> **/</span><br><span class="line">@Repository</span><br><span class="line">public class DepartmentDao &#123;</span><br><span class="line"></span><br><span class="line">    private static Map&lt;Integer, Department&gt; departments = null;</span><br><span class="line"></span><br><span class="line">    static&#123;</span><br><span class="line">        departments = new HashMap&lt;Integer, Department&gt;();</span><br><span class="line"></span><br><span class="line">        departments.put(101, new Department(101, <span class="string">&quot;D-AA&quot;</span>));</span><br><span class="line">        departments.put(102, new Department(102, <span class="string">&quot;D-BB&quot;</span>));</span><br><span class="line">        departments.put(103, new Department(103, <span class="string">&quot;D-CC&quot;</span>));</span><br><span class="line">        departments.put(104, new Department(104, <span class="string">&quot;D-DD&quot;</span>));</span><br><span class="line">        departments.put(105, new Department(105, <span class="string">&quot;D-EE&quot;</span>));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public Collection&lt;Department&gt; <span class="function"><span class="title">getDepartments</span></span>()&#123;</span><br><span class="line">        <span class="built_in">return</span> departments.values();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public Department getDepartment(Integer id)&#123;</span><br><span class="line">        <span class="built_in">return</span> departments.get(id);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line">import com.example.demo.Entities.Department;</span><br><span class="line">import com.example.demo.Entities.Employee;</span><br><span class="line">import org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line">import org.springframework.stereotype.Repository;</span><br><span class="line"></span><br><span class="line">import java.util.Collection;</span><br><span class="line">import java.util.Map;</span><br><span class="line">import java.util.HashMap;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * @program: demo</span><br><span class="line"> * @description:</span><br><span class="line"> * @author: DBC</span><br><span class="line"> * @create: 2020-02-24 22:56</span><br><span class="line"> **/</span><br><span class="line">@Repository</span><br><span class="line">public class EmployeeDao &#123;</span><br><span class="line"></span><br><span class="line">    private static Map&lt;Integer, Employee&gt; employees = null;</span><br><span class="line"></span><br><span class="line">    @Autowired</span><br><span class="line">    private DepartmentDao departmentDao;</span><br><span class="line"></span><br><span class="line">    static&#123;</span><br><span class="line">        employees = new HashMap&lt;Integer, Employee&gt;();</span><br><span class="line"></span><br><span class="line">        employees.put(1001, new Employee(1001, <span class="string">&quot;E-AA&quot;</span>, <span class="string">&quot;aa@163.com&quot;</span>, 1, new Department(101, <span class="string">&quot;D-AA&quot;</span>)));</span><br><span class="line">        employees.put(1002, new Employee(1002, <span class="string">&quot;E-BB&quot;</span>, <span class="string">&quot;bb@163.com&quot;</span>, 1, new Department(102, <span class="string">&quot;D-BB&quot;</span>)));</span><br><span class="line">        employees.put(1003, new Employee(1003, <span class="string">&quot;E-CC&quot;</span>, <span class="string">&quot;cc@163.com&quot;</span>, 0, new Department(103, <span class="string">&quot;D-CC&quot;</span>)));</span><br><span class="line">        employees.put(1004, new Employee(1004, <span class="string">&quot;E-DD&quot;</span>, <span class="string">&quot;dd@163.com&quot;</span>, 0, new Department(104, <span class="string">&quot;D-DD&quot;</span>)));</span><br><span class="line">        employees.put(1005, new Employee(1005, <span class="string">&quot;E-EE&quot;</span>, <span class="string">&quot;ee@163.com&quot;</span>, 1, new Department(105, <span class="string">&quot;D-EE&quot;</span>)));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private static Integer initId = 1006;</span><br><span class="line"></span><br><span class="line">    public void save(Employee employee)&#123;</span><br><span class="line">        <span class="keyword">if</span>(employee.getId() == null)&#123;</span><br><span class="line">            employee.setId(initId++);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        employee.setDepartment(departmentDao.getDepartment(employee.getDepartment().getId()));</span><br><span class="line">        employees.put(employee.getId(), employee);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    //查询所有员工</span><br><span class="line">    public Collection&lt;Employee&gt; <span class="function"><span class="title">getAll</span></span>()&#123;</span><br><span class="line">        <span class="built_in">return</span> employees.values();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public Employee get(Integer id)&#123;</span><br><span class="line">        <span class="built_in">return</span> employees.get(id);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void delete(Integer id)&#123;</span><br><span class="line">        employees.remove(id);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br></pre></td><td class="code"><pre><span class="line">import com.example.demo.Dao.DepartmentDao;</span><br><span class="line">import com.example.demo.Dao.EmployeeDao;</span><br><span class="line">import com.example.demo.Entities.Department;</span><br><span class="line">import com.example.demo.Entities.Employee;</span><br><span class="line">import org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line">import org.springframework.stereotype.Controller;</span><br><span class="line">import org.springframework.ui.Model;</span><br><span class="line">import org.springframework.web.bind.annotation.*;</span><br><span class="line"></span><br><span class="line">import java.util.Collection;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * @program: demo</span><br><span class="line"> * @description:</span><br><span class="line"> * @author: DBC</span><br><span class="line"> * @create: 2020-02-24 23:14</span><br><span class="line"> **/</span><br><span class="line">@Controller</span><br><span class="line">public class EmployeeController &#123;</span><br><span class="line">    @Autowired</span><br><span class="line">    EmployeeDao employeeDao;</span><br><span class="line"></span><br><span class="line">    @Autowired</span><br><span class="line">    DepartmentDao departmentDao;</span><br><span class="line"></span><br><span class="line">    //查询所有员工返回列表页面</span><br><span class="line">    @GetMapping(<span class="string">&quot;/emps&quot;</span>)</span><br><span class="line">    public String  list(Model model)&#123;</span><br><span class="line">        Collection&lt;Employee&gt; employees = employeeDao.getAll();</span><br><span class="line"></span><br><span class="line">        //放在请求域中</span><br><span class="line">        model.addAttribute(<span class="string">&quot;emps&quot;</span>,employees);</span><br><span class="line">        // thymeleaf默认就会拼串</span><br><span class="line">        // classpath:/templates/xxxx.html</span><br><span class="line">        <span class="built_in">return</span> <span class="string">&quot;emp/list&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    //来到员工添加页面</span><br><span class="line">    @GetMapping(<span class="string">&quot;/emp&quot;</span>)</span><br><span class="line">    public String toAddPage(Model model)&#123;</span><br><span class="line">        //来到添加页面,查出所有的部门，在页面显示</span><br><span class="line">        Collection&lt;Department&gt; departments = departmentDao.getDepartments();</span><br><span class="line">        model.addAttribute(<span class="string">&quot;depts&quot;</span>,departments);</span><br><span class="line">        <span class="built_in">return</span> <span class="string">&quot;emp/add&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    //员工添加</span><br><span class="line">    //SpringMVC自动将请求参数和入参对象的属性进行一一绑定；要求请求参数的名字和javaBean入参的对象里面的属性名是一样的</span><br><span class="line">    @PostMapping(<span class="string">&quot;/emp&quot;</span>)</span><br><span class="line">    public String addEmp(Employee employee)&#123;</span><br><span class="line">        //来到员工列表页面</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;保存的员工信息：&quot;</span>+employee);</span><br><span class="line">        //保存员工</span><br><span class="line">        employeeDao.save(employee);</span><br><span class="line">        // redirect: 表示重定向到一个地址  /代表当前项目路径</span><br><span class="line">        // forward: 表示转发到一个地址</span><br><span class="line">        <span class="built_in">return</span> <span class="string">&quot;redirect:/emps&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    //来到修改页面，查出当前员工，在页面回显</span><br><span class="line">    @GetMapping(<span class="string">&quot;/emp/&#123;id&#125;&quot;</span>)</span><br><span class="line">    public String toEditPage(@PathVariable(<span class="string">&quot;id&quot;</span>) Integer id,Model model)&#123;</span><br><span class="line">        Employee employee = employeeDao.get(id);</span><br><span class="line">        model.addAttribute(<span class="string">&quot;emp&quot;</span>,employee);</span><br><span class="line"></span><br><span class="line">        //页面要显示所有的部门列表</span><br><span class="line">        Collection&lt;Department&gt; departments = departmentDao.getDepartments();</span><br><span class="line">        model.addAttribute(<span class="string">&quot;depts&quot;</span>,departments);</span><br><span class="line">        //回到修改页面(add是一个修改添加二合一的页面);</span><br><span class="line">        <span class="built_in">return</span> <span class="string">&quot;emp/add&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    //员工修改；需要提交员工id；</span><br><span class="line">    @PutMapping(<span class="string">&quot;/emp&quot;</span>)</span><br><span class="line">    public String updateEmployee(Employee employee)&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;修改的员工数据：&quot;</span>+employee);</span><br><span class="line">        employeeDao.save(employee);</span><br><span class="line">        <span class="built_in">return</span> <span class="string">&quot;redirect:/emps&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    //员工删除</span><br><span class="line">    @DeleteMapping(<span class="string">&quot;/emp/&#123;id&#125;&quot;</span>)</span><br><span class="line">    public String deleteEmployee(@PathVariable(<span class="string">&quot;id&quot;</span>) Integer id)&#123;</span><br><span class="line">        employeeDao.delete(id);</span><br><span class="line">        <span class="built_in">return</span> <span class="string">&quot;redirect:/emps&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里顺便说一下，我们在提交日期格式的字符串的时候，SpringBoot有着自己默认的字符串转换日期格式的方法，而这个默认方法是需要日期通过“/”进行分离的，如果我们先想要通过“-”进行分离，那么我们还是需要在主配置文件中设置日期格式的配置，如下<br><img src="https://img-blog.csdnimg.cn/2020022517510785.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<h2 id="HiddenHttpMethodFilter"><a href="#HiddenHttpMethodFilter" class="headerlink" title="HiddenHttpMethodFilter"></a>HiddenHttpMethodFilter</h2><ul>
+<li>SpringMVC中配置HiddenHttpMethodFilter;（SpringBoot自动配置好的）</li>
+<li>页面创建一个post表单</li>
+<li>创建一个input项，name=”_method”;值就是我们指定的请求方式</li>
+</ul>
+<p><img src="https://img-blog.csdnimg.cn/20200225182117145.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>像上面这样子指定请求的方式，通过这种方式，我们就可以使用同一个路径请求进行不同的处理操作<br><img src="https://img-blog.csdnimg.cn/20200225185900240.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<h2 id="下一篇"><a href="#下一篇" class="headerlink" title="下一篇"></a>下一篇</h2><p>这里我们大致上是已经将SpringBoot开发流程走了一遍，不过还有一些web开发相关的操作需要了解，比如错误请求等等，将在下一篇博文中进行讲解。</p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>DengBoCong</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="http://dengbocong.cn/Spring-Boot/22741562e341/">http://dengbocong.cn/Spring-Boot/22741562e341/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Licensed under the Apache License, Version 2.0 (the "License")</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Stay hungry, Stay foolish.</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/Sprint-Boot/"># Sprint Boot</a>
+                    
+                        <a href="/tags/Web/"># Web</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/Spring-Boot/10c4c12622eb/">详细SpringBoot教程之Web开发（三）</a>
+            
+            
+            <a class="next" rel="next" href="/Spring-Boot/565b9f12d0a0/">详细SpringBoot教程之Web开发（一）</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+        </div>
+        <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Copyright 2020-2021 DengBoCong. All Rights Reserved. 赣ICP备20002291号</span>
+    </div>
+</footer>
+
+    </div>
+    <div id="u-search">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="container">
+                    <form id="u-search-modal-form" class="u-search-modal-form">
+                        <button type="submit" class="form-submit-btn">
+                            <img src="/image/search.png" class="search-btn-img" />
+                        </button>
+                        <input placeholder="请输入关键字搜索文章..." class="form-input" onchange="inputChange(event)" id="modal-form-input">
+                    </form>
+                    <a class="modal-close">x</a>
+                </div>
+                <div class="search-loading">
+                    <div class="search-loading-bar"></div>
+                </div>
+            </div>
+            <div class="modal-body">
+            </div>
+        </div>
+        <div class="modal-overlay"></div>
+    </div>
+</body>
+</html>

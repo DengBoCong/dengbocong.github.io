@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<link rel="stylesheet" href="/css/search.css">
+<script src="/js/jquery-3.4.1.min.js"></script>
+<script src="/js/search.js"></script>
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
+<style>
+    .pace .pace-progress {
+        background: #5cb0ff; /*进度条颜色*/
+        height: 2px;
+    }
+    .pace .pace-progress-inner {
+        box-shadow: 0 0 10px #1E92FB, 0 0 5px     #1E92FB; /*阴影颜色*/
+    }
+    .pace .pace-activity {
+        border-top-color: #1E92FB;    /*上边框颜色*/
+        border-left-color: #1E92FB;    /*左边框颜色*/
+    }
+</style>
+
+    <meta name="author" content="DengBoCong">
+
+
+    <meta name="subtitle" content="NLP | Deep Learning | Java">
+
+
+
+
+<title>详细SpringBoot教程之日志框架 | DengBoCong</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+    
+
+
+<meta name="generator" content="Hexo 5.3.0"></head>
+<body>
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">DengBoCong</a></div>
+            <div class="menu navbar-right">
+                <div class="search" style="float: left; margin-top: 7px;">
+                    <form class="form-search">
+                        <input class="input" placeholder="search content..." autocomplete="off" onchange="inputChange(event)" id="pc-search-input"/>
+                    </form>
+                    <div class="search-btn">
+                        <img src="/image/search.png" class="search-btn-img" />
+                    </div>
+                </div>
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/projects">Projects</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">DengBoCong</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/projects">Projects</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+        <div class="main">
+            <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    document.ready(
+        function () {
+            tocbot.init({
+                tocSelector: '.tocbot-list',
+                contentSelector: '.post-content',
+                headingSelector: 'h1, h2, h3, h4, h5',
+                collapseDepth: 1,
+                orderedList: false,
+                scrollSmooth: true,
+            })
+        }
+    )
+
+    function expand_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 6,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "collapse_toc()");
+        b.innerHTML = "Collapse all"
+    }
+
+    function collapse_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 1,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "expand_toc()");
+        b.innerHTML = "Expand all"
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">详细SpringBoot教程之日志框架</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">DengBoCong</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">February 23, 2020&nbsp;&nbsp;17:09:02</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Spring-Boot/">Spring-Boot</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h2 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h2><p>鉴于有人留言说想要学习SpringBoot相关的知识，我这里打算写一个SpringBoot系列的相关博文，目标呢是想让看了这一系列博文的同学呢，能够对SpringBoot略窥门径，这一系列的博文初步都定下来包括SpringBoot介绍、入门、配置、日志相关、web开发、数据访问、结合docker、缓存、消息队列、检索、任务安全、分布式等等一系列的博文，工作量很大，是个漫长的过程，每一步我都尽量详细，配上截图说明，也希望对看的同学真的有用。<br><strong>单纯就是想分享技术博文，还想说一句就是，如果觉得有用，请点个关注、给个赞吧，也算对我来说是个宽慰，毕竟也得掉不少头发，嘿嘿嘿</strong></p>
+<h2 id="系列文章传送条"><a href="#系列文章传送条" class="headerlink" title="系列文章传送条"></a>系列文章传送条</h2><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104383089">详细SpringBoot教程之入门（一）</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104429074">详细SpringBoot教程之入门（二）</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104446690">详细SpringBoot教程之配置文件（一）</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104448353">详细SpringBoot教程之配置文件（二）</a><br><a target="_blank" rel="noopener" href="https://dengbocong.blog.csdn.net/article/details/104456941">详细SpringBoot教程之日志框架</a><br><a target="_blank" rel="noopener" href="https://dengbocong.blog.csdn.net/article/details/104473765">详细SpringBoot教程之Web开发（一）</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104503158">详细SpringBoot教程之Web开发（二）</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104503231">详细SpringBoot教程之Web开发（三）</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104527730">详细SpringBoot教程之数据访问</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104541113">详细SpringBoot教程之启动配置原理</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104559440">详细SpringBoot教程之缓存开发</a></p>
+<h2 id="先通俗来理解日志"><a href="#先通俗来理解日志" class="headerlink" title="先通俗来理解日志"></a>先通俗来理解日志</h2><p>假设现在我们没有日志框架，那么这个时候我们有一个需求，开发一个大型的系统，那么在我们开发的过程中，我们需要检查一些代码的正确与否、是否正常运行、监控代码运行的状况，这时候我们怎么做？当然，我们在需要检查的地方使用System.out.print(“”)进行输出相关信息，当然，我们也可以控制流输出到一个文件中，不过这个方式有个问题就是，如果我们需要改动一些输出的格式或者信息，那么我们又要到项目代码的各个地方去修改，非常的麻烦，那么这个时候我们会想到进行改进。</p>
+<p>如果改进呢，就是专门写一些输出信息的方法，然后把这些方法打包成一个jar进行引用，这样做是的我们可以对使用的方法进行统一的修改，而且还使得我们可以在其他的项目中接着使用，我们可以说已经有一个日志框架的雏形了。不过这个时候我们又有一些想法，既然已经可以输出一些日志信息了，那么我们想要增加几个高大上的功能，比如异步模式、自动扫描等等功能。这个时候我们对jar进行修改升级，加入了这些功能，这样我们的日志框架有有点样子了，可以说是一个正儿八经的日志框架了。</p>
+<p>不过不要高兴的太早，正儿八经的日志框架并不代表成熟，我们还有一个问题需要解决，就是如果我们想要对正在使用的jar包API进行修改升级，这个时候难道我们需要对项目中使用到的地方全部 进行修改么？这样当然不行，所以这个时候日志框架就需要分层，即抽象成和实现层，我们可以像JDBC那样拥有统一的接口层，底层无论使用什么数据库都没关系，我们都可以使用。完成了抽象层和接口层的分离，这个时候的日志框架算是一个成熟的日志框架了。</p>
+<h2 id="SpringBoot日志框架选择"><a href="#SpringBoot日志框架选择" class="headerlink" title="SpringBoot日志框架选择"></a>SpringBoot日志框架选择</h2><p>开发中存在非常多的日志框架，JUL（java.util.logging），JCL（Apche Commons Logging），Log4j， Log4j2，Logback，SLF4j，jboss-logging等。SpringBoot在框架内容部分使用JCL，spring-boot-starter-logging采用了slf4j+logback的形式，SpringBoot也能自动适配（jul，log4j2，logback）并简化配置，可以进行如下分类<br>| 日志的抽象层 | 日志实现 |<br>|–|–|<br>| JCL（Jakarta Commons Logging） SLF4j（Simple Logging Facade for Java） jboss-logging | Log4j JUL（java.util.logging） Log4j2 Logback |</p>
+<p>我们要使用SpringBoot的日志框架，也就是说我们需要一个抽象层和一个实现层，我们这里选择SLF4j作为抽象层，logback作为实现层。这里要说一下的是，SpringBoot底层是Spring框架，Spring框架默认的是JCL作为抽象层。</p>
+<h2 id="SLF4j使用"><a href="#SLF4j使用" class="headerlink" title="SLF4j使用"></a>SLF4j使用</h2><p>（我们创建新项目中已经帮我们导入了slf4j和logback）如何在系统中使用SLF4j？在开发的时候不应该直接使用日志实现类，应该使用日志的抽象层。具体参考 SLF4J 官方。下图是 SLF4J 结合各种日志框架的官方示例，从图中可以清晰的看出 SLF4J API 永远作为日志的门面，直接应用与应用程序中。<br><a target="_blank" rel="noopener" href="http://www.slf4j.org/manual.html">slf4j官网用户手册</a><br><img src="https://img-blog.csdnimg.cn/20200223114438100.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>同时 SLF4 官方给出了简单示例。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">import org.slf4j.Logger;</span><br><span class="line">import org.slf4j.LoggerFactory;</span><br><span class="line"></span><br><span class="line">public class HelloWorld &#123;</span><br><span class="line">  public static void main(String[] args) &#123;</span><br><span class="line">    Logger logger = LoggerFactory.getLogger(HelloWorld.class);</span><br><span class="line">    logger.info(<span class="string">&quot;Hello World&quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>需要注意的是，要为系统导入 SLF4J 的 jar 和 日志框架的实现 jar。由于每一个日志的实现框架都有自己的配置文件，所以在使用 SLF4 之后，配置文件还是要使用实现日志框架的配置文件。</p>
+<h2 id="思考一个问题"><a href="#思考一个问题" class="headerlink" title="思考一个问题"></a>思考一个问题</h2><p>是什么问题呢？这么描述，我们想要写一个SpringBoot项目，日志框架组合我们打算使用Slf4j+logback，然后项目中集成了Spring，Hibernate，MyBatis等等组件依赖，这个时候会有一个问题，就是我们集成的组件框架中存在自己的日志框架，比如Spring自带commons-logging、Hibernate（jboss-logging）等等，那么这个时候，我们的项目里面就像一个日志框架的大杂烩一样，非常的乱，那么我们就需要给我们项目中日志框架做统一，也就是说，不管我依赖的组件自带了什么日志框架，我只要配置我的Slf4j+logback就可以了。<br>问题当然也有解决办法，这里我们来看看<a target="_blank" rel="noopener" href="http://www.slf4j.org/legacy.html">官方文档</a><br><img src="https://img-blog.csdnimg.cn/20200223115214323.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>也就是说，我们需要分别引入我们组件日志的覆盖层，因为我们想要去除组件中的日志，不可能跑去删除组件的日志框架包，这样会导致组件崩溃，底层源码都被该了还不崩溃，所以我们在删除其他组件的日志框架jar包的时候，需要导入一层覆盖层jar包，这个jar中依旧有原来组件的日志框架的API，组件运行就不会报错，就相当于多做了一层适配，我们调用Slf4j+logback，然后通过这层适配层调用各组件的日志框架。</p>
+<h3 id="步骤总结："><a href="#步骤总结：" class="headerlink" title="步骤总结："></a>步骤总结：</h3><p>排除系统中的其他日志框架。<br>使用中间包替换要替换的日志框架。<br>导入我们选择的 SLF4J 实现。</p>
+<h2 id="SpringBoot日志关系"><a href="#SpringBoot日志关系" class="headerlink" title="SpringBoot日志关系"></a>SpringBoot日志关系</h2><p>我们从我们新创建的项目出发要阐述和研究，这样更方便我们理解和说明，首先我们来看我们新项目中的pom.xml文件中的内容，我们是一个新项目，什么都没引入，这些都是自动引入的内容。<br><img src="https://img-blog.csdnimg.cn/20200223121218143.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>发现pom.xml中引入了starter启动器，其实每个启动器都会引入大量的依赖，那么我们怎么查看呢，有两种方法，第一种如下<br><img src="https://img-blog.csdnimg.cn/20200223121320149.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>从上面的分析，Spring Boot 对日志框架的使用已经是清晰明了了，我们也可以使用 IDEA 工具查看 Maven 依赖关系，可以清晰的看到日志框架的引用。<br><img src="https://img-blog.csdnimg.cn/2020022312141669.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center#pic_center" alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/20200223121910280.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>可是话的依赖关系是不是眼前一亮，现在，我们可以来看spring-boot-starter这里，找到spring-boot-starter-logging（每个节点都可以双击点击，点击将进入对应的自动配置类）<br><img src="https://img-blog.csdnimg.cn/20200223122124764.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>进入到spring-boot-starter-logging中，可以看到如下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">  &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;</span><br><span class="line">  &lt;artifactId&gt;spring-boot-starter-logging&lt;/artifactId&gt;</span><br><span class="line">  &lt;version&gt;2.2.4.RELEASE&lt;/version&gt;</span><br><span class="line">  &lt;scope&gt;compile&lt;/scope&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+<p>这就是SpringBoot的日志使用，我们前面博文说过，每一个starter都是一个场景启动器，而这个就是我们SpringBoot用于日志场景的启动器，里面有非常多的依赖<br><img src="https://img-blog.csdnimg.cn/20200223122800324.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+<h3 id="关系总结"><a href="#关系总结" class="headerlink" title="关系总结"></a>关系总结</h3><p>SpringBoot底层也是使用slf4j+logback的方式进行日志记录，SpringBoot也把其他日志框架替换成了slf4j，默认的中间替换包如下<br><img src="https://img-blog.csdnimg.cn/20200223123400280.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br><strong>如果我们要引入其他的框架，一定要把这个框架的默认日志依赖都移除掉。</strong></p>
+<p>SpringBoot能自动适配所有的日志，而且底层使用slf4j+logback的方式记录日志，引入其他框架的时候，只需要把这个框架的依赖的日志框架移除掉。</p>
+<h2 id="日志使用"><a href="#日志使用" class="headerlink" title="日志使用"></a>日志使用</h2><h3 id="logging-level"><a href="#logging-level" class="headerlink" title="logging.level"></a>logging.level</h3><p>用我们新创建的项目直接运行，SpringBoot是帮我们配置了日志的。我们现在测试类中写入如下内容，说明一下的是，这里的顺序是日志的级别，由低到高。我们可以调整输出日志的级别，日志就只会在这个级别及以后的高级别生效。我们先不调整，运行一下这个测试类<br><img src="https://img-blog.csdnimg.cn/20200223152731498.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br> 默认是输出info级别及以上的日志，也就是说info是我们的root级别，当然我们可以在主配置文件中修改，如下<br> <img src="https://img-blog.csdnimg.cn/20200223153701391.png#pic_center" alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/20200223154003582.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+<h3 id="logging-file-name"><a href="#logging-file-name" class="headerlink" title="logging.file.name"></a>logging.file.name</h3><p><img src="https://img-blog.csdnimg.cn/20200223154415463.png#pic_center" alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/20200223154500763.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>当然我们还可以使用logging.path指定我们日志输出的目录，日志文件默认为spring.log。</p>
+<h3 id="logging-pattern-console"><a href="#logging-pattern-console" class="headerlink" title="logging.pattern.console"></a>logging.pattern.console</h3><p><img src="https://img-blog.csdnimg.cn/20200223155331285.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>日志的输出格式如下</p>
+<ul>
+<li>%d表示日期时间</li>
+<li>%thread表示线程名</li>
+<li>%-5level级别从左显示5个字符串</li>
+<li>%logger{50}表示从logger名字最长50个字符，否则按照句点分隔</li>
+<li>%n换行符</li>
+</ul>
+<p>不过这其实是日志的一小部分功能，如果我们还需要使用异步日志等功能的话，那么我们可能需要专门进行编写日志的配置文件，可能一听到编写日志配置文件就头疼，其实不要担心，不难的，<a target="_blank" rel="noopener" href="https://docs.spring.io/spring-boot/docs/2.2.4.RELEASE/reference/html/spring-boot-features.html#boot-features-custom-log-levels">官方日志配置文件说明</a><br><img src="https://img-blog.csdnimg.cn/20200223160345530.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>也就是我们使用的是logback，所以我们可以创建一个logback.xml放在resources目录下，里面写着我们日志配置的相关内容，没错，直接创建就可以了，不需要配置什么，SpringBoot就会自动识别（主要要和官网的命名一样哦）</p>
+<p>这里值得说明一下的是，我们可以创建另一种命名logback-spring.xml，这个文件依然可以被SpringBoot自动识别，但是和logback.xml的区别就是，在这个里面我们可以使用SpringBoot的高级profile功能（profile就是我们之前说的环境分发）<br><img src="https://img-blog.csdnimg.cn/202002231612559.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+<h2 id="切换日志框架"><a href="#切换日志框架" class="headerlink" title="切换日志框架"></a>切换日志框架</h2><p>如果我们想要切换日志框架（当然不建议哈，logback挺好用的，这里只是教你如果有需要的话怎么去做，依旧是打开Diagrams，然后进行如下步骤）<br><img src="https://img-blog.csdnimg.cn/20200223161947519.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>然后在依赖中就会被排除掉，这个时候我们只要在pom.xml中引入我们想要换的那个日志实现层就可以了，切换的依据记得按照上面说的各种日志框架的配置使用，不要切换错了哦。</p>
+<h2 id="下一篇"><a href="#下一篇" class="headerlink" title="下一篇"></a>下一篇</h2><p>SpringBoot的日志框架的相关基础知识我们就讲到这里，写一篇博文我们将要正式开始写一个web应用，体验一下SpringBoot的代码乐趣。</p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>DengBoCong</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="http://dengbocong.cn/Spring-Boot/9fd545d5be72/">http://dengbocong.cn/Spring-Boot/9fd545d5be72/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Licensed under the Apache License, Version 2.0 (the "License")</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Stay hungry, Stay foolish.</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/Sprint-Boot/"># Sprint Boot</a>
+                    
+                        <a href="/tags/%E6%97%A5%E5%BF%97%E6%A1%86%E6%9E%B6/"># 日志框架</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/Spring-Boot/2f14d053285f/">模板引擎Thymeleaf？来这一篇就够用了</a>
+            
+            
+            <a class="next" rel="next" href="/Spring-Boot/45a96b0cb018/">详细SpringBoot教程之配置文件（二）</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+        </div>
+        <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Copyright 2020-2021 DengBoCong. All Rights Reserved. 赣ICP备20002291号</span>
+    </div>
+</footer>
+
+    </div>
+    <div id="u-search">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="container">
+                    <form id="u-search-modal-form" class="u-search-modal-form">
+                        <button type="submit" class="form-submit-btn">
+                            <img src="/image/search.png" class="search-btn-img" />
+                        </button>
+                        <input placeholder="请输入关键字搜索文章..." class="form-input" onchange="inputChange(event)" id="modal-form-input">
+                    </form>
+                    <a class="modal-close">x</a>
+                </div>
+                <div class="search-loading">
+                    <div class="search-loading-bar"></div>
+                </div>
+            </div>
+            <div class="modal-body">
+            </div>
+        </div>
+        <div class="modal-overlay"></div>
+    </div>
+</body>
+</html>

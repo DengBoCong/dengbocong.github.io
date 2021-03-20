@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<link rel="stylesheet" href="/css/search.css">
+<script src="/js/jquery-3.4.1.min.js"></script>
+<script src="/js/search.js"></script>
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
+<style>
+    .pace .pace-progress {
+        background: #5cb0ff; /*进度条颜色*/
+        height: 2px;
+    }
+    .pace .pace-progress-inner {
+        box-shadow: 0 0 10px #1E92FB, 0 0 5px     #1E92FB; /*阴影颜色*/
+    }
+    .pace .pace-activity {
+        border-top-color: #1E92FB;    /*上边框颜色*/
+        border-left-color: #1E92FB;    /*左边框颜色*/
+    }
+</style>
+
+    <meta name="author" content="DengBoCong">
+
+
+    <meta name="subtitle" content="NLP | Deep Learning | Java">
+
+
+
+
+<title>详细SpringBoot教程之配置文件（一） | DengBoCong</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+    
+
+
+<meta name="generator" content="Hexo 5.3.0"></head>
+<body>
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">DengBoCong</a></div>
+            <div class="menu navbar-right">
+                <div class="search" style="float: left; margin-top: 7px;">
+                    <form class="form-search">
+                        <input class="input" placeholder="search content..." autocomplete="off" onchange="inputChange(event)" id="pc-search-input"/>
+                    </form>
+                    <div class="search-btn">
+                        <img src="/image/search.png" class="search-btn-img" />
+                    </div>
+                </div>
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/projects">Projects</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">DengBoCong</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/projects">Projects</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+        <div class="main">
+            <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    document.ready(
+        function () {
+            tocbot.init({
+                tocSelector: '.tocbot-list',
+                contentSelector: '.post-content',
+                headingSelector: 'h1, h2, h3, h4, h5',
+                collapseDepth: 1,
+                orderedList: false,
+                scrollSmooth: true,
+            })
+        }
+    )
+
+    function expand_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 6,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "collapse_toc()");
+        b.innerHTML = "Collapse all"
+    }
+
+    function collapse_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 1,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "expand_toc()");
+        b.innerHTML = "Expand all"
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">详细SpringBoot教程之配置文件（一）</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">DengBoCong</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">February 22, 2020&nbsp;&nbsp;18:40:29</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Spring-Boot/">Spring-Boot</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h2 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h2><p>鉴于有人留言说想要学习SpringBoot相关的知识，我这里打算写一个SpringBoot系列的相关博文，目标呢是想让看了这一系列博文的同学呢，能够对SpringBoot略窥门径，这一系列的博文初步都定下来包括SpringBoot介绍、入门、配置、日志相关、web开发、数据访问、结合docker、缓存、消息队列、检索、任务安全、分布式等等一系列的博文，工作量很大，是个漫长的过程，每一步我都尽量详细，配上截图说明，也希望对看的同学真的有用。<br><strong>单纯就是想分享技术博文，还想说一句就是，如果觉得有用，请点个关注、给个赞吧，也算对我来说是个宽慰，毕竟也得掉不少头发，嘿嘿嘿</strong></p>
+<h2 id="系列文章传送条"><a href="#系列文章传送条" class="headerlink" title="系列文章传送条"></a>系列文章传送条</h2><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104383089">详细SpringBoot教程之入门（一）</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104429074">详细SpringBoot教程之入门（二）</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104446690">详细SpringBoot教程之配置文件（一）</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104448353">详细SpringBoot教程之配置文件（二）</a><br><a target="_blank" rel="noopener" href="https://dengbocong.blog.csdn.net/article/details/104456941">详细SpringBoot教程之日志框架</a><br><a target="_blank" rel="noopener" href="https://dengbocong.blog.csdn.net/article/details/104473765">详细SpringBoot教程之Web开发（一）</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104503158">详细SpringBoot教程之Web开发（二）</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104503231">详细SpringBoot教程之Web开发（三）</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104527730">详细SpringBoot教程之数据访问</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104541113">详细SpringBoot教程之启动配置原理</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104559440">详细SpringBoot教程之缓存开发</a></p>
+<h2 id="配置文件"><a href="#配置文件" class="headerlink" title="配置文件"></a>配置文件</h2><p>SpringBoot可以使用全局配置或者其他配置文件，并且我们在SpringBoot开发中会经常需要去配置某些模块的配置，这样有利于我们业务分离，理清逻辑关系。这个时候可能会说了，不是说SpringBoot的优点之一就是省去了繁琐的配置，为什么这里又要学配置呢？哈哈哈，省去了繁琐的配置是因为SpringBoot帮我们把所有配置弄好了默认，如果我们需要更改一些默认配置，当然需要我们自己手动更改呀。对于一些分布式大型项目，我们需要分各种端口，分各种环境，这些都需要我们修改。而且我们可能需要对可以重复利用的模块进行封装，然后在新项目中作为默认配置进新项目的时候，也需要知道如何进行SpringBoot的配置，所以还是很重要的。</p>
+<p>说了这么多，我们开始来将SpringBoot的配置文件吧，在SpringBoot中配置文件有两种，一种是application.properties，另一种是application.yml，其中yml配置文件是在properties之后才有的。配置文件放在src/main/resources 目录或者类路径/config下，配置文件的作用，就是修改SpringBoot自动配置的默认值，SpringBoot底层都给我们自动配置好了很多默认值，我们就需要通过灵活的使用properties和yml来进行修改默认配置。</p>
+<p>我们通过Idea向导帮我们创建的新项目，在Resources目录下面会帮我们自动生成一个properties配置文件，如下图<br><img src="https://img-blog.csdnimg.cn/2020022217204759.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>在resources目录下我们可以暂时手动再创建一个application.yml文件，为了比较学习他们的区别（说明一下的就是，二者可以同时存在，不过最终只会运行一个，一般默认运行application.properties，不过我们可以通过配置，在application.properties中同时应用yml，达到多个配置文件的目的），依旧在resources目录下，直接右键new-&gt;File，创建一个名为application.yml的文件，如下图<br><img src="https://img-blog.csdnimg.cn/20200222172330728.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>YAML 是 “YAML Ain’t a Markup Language”（YAML 不是一种标记语言）。在开发的这种语言时，YAML 的意思其实是：”Yet Another Markup Language”（仍是一种标记语言）。它使用空白符号缩进和大量依赖外观的特色，特别适合用来表达或编辑数据结构、各种配置文件，即以数据为中心，比json、xml等更加适合做配置文件，以前的项目大都是使用xml作为配置文件的。在全局配置文件中，可以对一些默认配置值进行修改，比如我们修改默认的端口号，我们如果使用xml作为配置文件，配置端口可能会是如下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;server&gt;</span><br><span class="line">	&lt;port&gt;8090&lt;/port&gt;</span><br><span class="line">&lt;/server&gt;</span><br></pre></td></tr></table></figure>
+<p>发现了没有，xml会浪费大量的内容给标签的开闭上，那如果我们在SpringBoot项目中使用properties和yml设置端口，又该如何呢，如下，左边是yml，右边是properties，两者看起来是不是都很简略<br><img src="https://img-blog.csdnimg.cn/202002221737225.png#pic_center" alt="在这里插入图片描述"></p>
+<h2 id="YAML语法"><a href="#YAML语法" class="headerlink" title="YAML语法"></a>YAML语法</h2><p>properties我们常见，我这里说一下YAML的一些基本语法，想要深入的可以直接到网上查，应该有很多详细的文档，我这里只是说一下基本语法，方便我们后面的讲解。</p>
+<h3 id="基本语法"><a href="#基本语法" class="headerlink" title="基本语法"></a>基本语法</h3><ul>
+<li>大小写敏感</li>
+<li>使用缩进表示层级关系</li>
+<li>缩进不允许使用tab，只允许空格</li>
+<li>缩进的空格数不重要，只要相同层级的元素左对齐即可</li>
+<li>‘#’表示注释</li>
+</ul>
+<h3 id="数据类型"><a href="#数据类型" class="headerlink" title="数据类型"></a>数据类型</h3><p>YAML 支持以下几种数据类型：</p>
+<ul>
+<li>对象：键值对的集合，又称为映射/ 哈希 / 字典</li>
+<li>数组：一组按次序排列的值，又称为序列 / 列表</li>
+<li>字面量：单个的、不可再分的值</li>
+</ul>
+<h3 id="字面量写法"><a href="#字面量写法" class="headerlink" title="字面量写法"></a>字面量写法</h3><p>字面量是最基本的，不可再分的值，包括：字符串、布尔值、整数、浮点数、时间、Null、日期。使用一个例子来快速了解字面量的基本使用：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">boolean: </span><br><span class="line">    - TRUE  <span class="comment">#true,True都可以</span></span><br><span class="line">    - FALSE  <span class="comment">#false，False都可以</span></span><br><span class="line"><span class="comment">#例子：isEmpty: false</span></span><br><span class="line"><span class="built_in">float</span>:</span><br><span class="line">    - 3.14</span><br><span class="line">    - 6.8523015e+5  <span class="comment">#可以使用科学计数法</span></span><br><span class="line"><span class="comment">#例子：value: 3.14</span></span><br><span class="line">int:</span><br><span class="line">    - 123</span><br><span class="line">    - 0b1010_0111_0100_1010_1110    <span class="comment">#二进制表示</span></span><br><span class="line"><span class="comment">#例子：value: 123</span></span><br><span class="line">null:</span><br><span class="line">    nodeName: <span class="string">&#x27;node&#x27;</span></span><br><span class="line">    parent: ~  <span class="comment">#使用~表示null</span></span><br><span class="line"><span class="comment">#例子：value: ~</span></span><br><span class="line">string:</span><br><span class="line">    - 哈哈</span><br><span class="line">    - <span class="string">&#x27;Hello world&#x27;</span>  <span class="comment">#可以使用双引号或者单引号包裹特殊字符</span></span><br><span class="line">    - newline</span><br><span class="line">      newline2    <span class="comment">#字符串可以拆成多行，每一行会被转化成一个空格</span></span><br><span class="line"><span class="comment">#例子：value: 哈哈</span></span><br><span class="line">date:</span><br><span class="line">    - 2018-02-17    <span class="comment">#日期必须使用ISO 8601格式，即yyyy-MM-dd</span></span><br><span class="line"><span class="comment">#例子：value: 2018-02-17</span></span><br><span class="line">datetime: </span><br><span class="line">    -  2018-02-17T15:02:31+08:00    <span class="comment">#时间使用ISO 8601格式，时间和</span></span><br><span class="line">                              <span class="comment">#日期之间使用T连接，最后使用+代表时区</span></span><br></pre></td></tr></table></figure>
+<p>这里多说一些字符串，字符串默认不用加上单引号或者双引号。其中，双引号不会转移字符串里面的特殊字符，特殊字符会作为本身祥表示的意思，比如<br>name: “I am \n dbc”  输出 I am 换行 dbc<br>而单引号则会转义字符串里面的特殊字符，特殊字符最终只是一个普通的字符串数据，比如<br>name: “I am \n dbc”  输出 I am \n dbc</p>
+<h3 id="YAML-数组"><a href="#YAML-数组" class="headerlink" title="YAML 数组"></a>YAML 数组</h3><p>以 - 开头的行表示构成一个数组：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">num:</span><br><span class="line"> - A</span><br><span class="line"> - B</span><br><span class="line"> - C</span><br></pre></td></tr></table></figure>
+<p>YAML 支持多维数组，可以使用行内表示：key: [value1, value2, …]</p>
+<h3 id="YAML-对象"><a href="#YAML-对象" class="headerlink" title="YAML 对象"></a>YAML 对象</h3><p>对象键值对使用冒号结构表示 key: value，冒号后面要加一个空格。<br>也可以使用 key:{key1: value1, key2: value2, …}。还可以使用缩进表示层级关系，如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">key: </span><br><span class="line">    child-key: value</span><br><span class="line">    child-key2: value2</span><br></pre></td></tr></table></figure>
+<p>较为复杂的对象格式，可以使用问号加一个空格代表一个复杂的 key，配合一个冒号加一个空格代表一个 value：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">?  </span><br><span class="line">    - complexkey1</span><br><span class="line">    - complexkey2</span><br><span class="line">:</span><br><span class="line">    - complexvalue1</span><br><span class="line">    - complexvalue2</span><br></pre></td></tr></table></figure>
+<p>意思即对象的属性是一个数组 [complexkey1,complexkey2]，对应的值也是一个数组 [complexvalue1,complexvalue2]<br>YMAL基本语法先讲到这里，需要深入了解的自行查阅其他教程。</p>
+<h2 id="配置文件注入简单案例"><a href="#配置文件注入简单案例" class="headerlink" title="配置文件注入简单案例"></a>配置文件注入简单案例</h2><p>这里我们在application.yml中写入一些数据，就是写一个类的属性值以及对应的数值，如下<br><img src="https://img-blog.csdnimg.cn/20200222180708544.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>为了方便，我也把内容粘贴出来</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">person:</span><br><span class="line">  lastName: dbc</span><br><span class="line">  age: 22</span><br><span class="line">  boss: <span class="literal">false</span></span><br><span class="line">  birth: 2017/12/12</span><br><span class="line">  maps: &#123;k1: v2,k2: ;2&#125;</span><br><span class="line">  lists:</span><br><span class="line">   - lisi</span><br><span class="line">   - dbc</span><br><span class="line">  dog:</span><br><span class="line">   name: 小狗</span><br><span class="line">   age: 12</span><br></pre></td></tr></table></figure>
+<p>写好了之后，我们创建一个Person类和一个Dog类，类中的属性值和配置文件中的属性值要一一对应，并在Person的类上加上@ConfigurationProperties注解，注解中的前缀填写我们在配置文件中的person，如下<br><img src="https://img-blog.csdnimg.cn/20200222181024192.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/20200222181146591.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>因为我们需要将配置文件中配置的每一个属性值，映射到组件中，所以我们在Person类上添加一个@ConfigurationProperties，意思是告诉SpringBoot将本类中所有属性和配置文件中相关的配置进行绑定，prefix意思就是配置映射关系。这个时候发现编辑器提示如下<br><img src="https://img-blog.csdnimg.cn/20200222181337829.png#pic_center" alt="在这里插入图片描述"><br>我这里直接把依赖粘贴出来，然后把这段依赖粘贴进pom.xml文件中，Idea会自动加载依赖，加载完依赖之后，原本红色的提示，变成 了绿色即可，如下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;spring-boot-configuration-processor&lt;/artifactId&gt;</span><br><span class="line">    &lt;optional&gt;<span class="literal">true</span>&lt;/optional&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+<p><img src="https://img-blog.csdnimg.cn/20200222181645652.png#pic_center" alt="在这里插入图片描述"><br>现在，完成了依赖的导入，也完成了配置文件的映射（即将配置文件和类进行了关联映射），映射之后，我们成这个映射为组件，不过现在我们只是完成了组件映射，我们还需要将这个组件注入到Spring容器中，因为只有这个组件是容器中的组件，才能容器提供的@ConfigurationProperties功能获取，所以我们还需要添加@Component，把类组件加到容器中，如图<br><img src="https://img-blog.csdnimg.cn/20200222182033549.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+<h2 id="测试案例"><a href="#测试案例" class="headerlink" title="测试案例"></a>测试案例</h2><p>这样就完成了一个组件的注入，我们可以在容器中使用这个组件了，接下来我们进行单元测试了，细心的人会发现，我们使用Idea创建的SpringBoot项目中，在test目录下有一个java文件夹，被Idea标为绿色（如下），这个文件夹就是单元测试用的，当然我们手动创建的Maven项目，也可以手动配置，很简单，创建项目属性就可以了。接下来我们讲一下单元测试中的内容，如何使用<br><img src="https://img-blog.csdnimg.cn/20200222182257394.png#pic_center" alt="在这里插入图片描述"><br>SpringBoot 的单元测试 ,可以在测试期间很方便的通过类似编码一样的方式，进行自动注入容器的功能，我们进入到那个DemoApplicationTests里面，其中有一个注解@SpringBootTest ，它标注是SpringBoot的单元测试。接着我们只需要在测试类中注入我们刚刚编写好的Person类，然后在方法中输出一下就可以了，毕竟我们只是检查一下我们编写的配置文件有没有成功配置好。执行之后在下方的日志中我们可以检查输出，测试类的内容和输出的日志结果如下图<br><img src="https://img-blog.csdnimg.cn/20200222182635867.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/2020022218270061.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+<h2 id="使用properties完成案例"><a href="#使用properties完成案例" class="headerlink" title="使用properties完成案例"></a>使用properties完成案例</h2><p>我们前面完成了使用yml类型的配置文件，进行映射注入，现在我们来试试使用properties类型的配置文件进行映射注入，其实不难，我们可以先将yml配置文件中的内容注释掉（当然不注释也可以，因为默认是读取properties）。我们开始编写properties里面的内容，会发现我们在properties中编写的时候，已经有person的提示了，是因为我们已经建类组件注入容器了，现在我们在里面编写内容如下<br><img src="https://img-blog.csdnimg.cn/20200222183223947.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>流程和yml中写的一样，获取配置文件值注入，导入处理器，注入写一个类，然后使用@ConfigurationProperties注解，注意了还得把类注入容器组件@Component<br>（在这里我们只要把内容写进properties就可以了，类、映射和注入在测试yml的时候已经写好了）。编写好之后运行测试，发现依旧能够读取到，结果如下<br><img src="https://img-blog.csdnimg.cn/20200222183531224.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>细心的人会发现，我们输出的结果出现了乱码，而出现乱码的原因是因为我们Idea默认的是utf-8编码，而properties用的是ASCII码，我们只要在Idea中将文件编码设置成Utf-8就可以了，如下<br><img src="https://img-blog.csdnimg.cn/20200222183650417.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/20200222183710548.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+<h2 id="下一篇"><a href="#下一篇" class="headerlink" title="下一篇"></a>下一篇</h2><p>写到这里篇幅有点长了，关于配置的剩下内容，我将在下一篇博文中进行讲解，可以先把上面学习的进行消化，加油，奥利给。</p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>DengBoCong</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="http://dengbocong.cn/Spring-Boot/8f1135d292e8/">http://dengbocong.cn/Spring-Boot/8f1135d292e8/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Licensed under the Apache License, Version 2.0 (the "License")</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Stay hungry, Stay foolish.</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/Sprint-Boot/"># Sprint Boot</a>
+                    
+                        <a href="/tags/%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6/"># 配置文件</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/Spring-Boot/45a96b0cb018/">详细SpringBoot教程之配置文件（二）</a>
+            
+            
+            <a class="next" rel="next" href="/Spring-Boot/820045d781c4/">详细SpringBoot教程之入门（二）</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+        </div>
+        <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Copyright 2020-2021 DengBoCong. All Rights Reserved. 赣ICP备20002291号</span>
+    </div>
+</footer>
+
+    </div>
+    <div id="u-search">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="container">
+                    <form id="u-search-modal-form" class="u-search-modal-form">
+                        <button type="submit" class="form-submit-btn">
+                            <img src="/image/search.png" class="search-btn-img" />
+                        </button>
+                        <input placeholder="请输入关键字搜索文章..." class="form-input" onchange="inputChange(event)" id="modal-form-input">
+                    </form>
+                    <a class="modal-close">x</a>
+                </div>
+                <div class="search-loading">
+                    <div class="search-loading-bar"></div>
+                </div>
+            </div>
+            <div class="modal-body">
+            </div>
+        </div>
+        <div class="modal-overlay"></div>
+    </div>
+</body>
+</html>

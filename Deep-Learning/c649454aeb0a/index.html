@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<link rel="stylesheet" href="/css/search.css">
+<script src="/js/jquery-3.4.1.min.js"></script>
+<script src="/js/search.js"></script>
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
+<style>
+    .pace .pace-progress {
+        background: #5cb0ff; /*进度条颜色*/
+        height: 2px;
+    }
+    .pace .pace-progress-inner {
+        box-shadow: 0 0 10px #1E92FB, 0 0 5px     #1E92FB; /*阴影颜色*/
+    }
+    .pace .pace-activity {
+        border-top-color: #1E92FB;    /*上边框颜色*/
+        border-left-color: #1E92FB;    /*左边框颜色*/
+    }
+</style>
+
+    <meta name="author" content="DengBoCong">
+
+
+    <meta name="subtitle" content="NLP | Deep Learning | Java">
+
+
+
+
+<title>Transformer的9种变体概览 | DengBoCong</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+    
+
+
+<meta name="generator" content="Hexo 5.3.0"></head>
+<body>
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">DengBoCong</a></div>
+            <div class="menu navbar-right">
+                <div class="search" style="float: left; margin-top: 7px;">
+                    <form class="form-search">
+                        <input class="input" placeholder="search content..." autocomplete="off" onchange="inputChange(event)" id="pc-search-input"/>
+                    </form>
+                    <div class="search-btn">
+                        <img src="/image/search.png" class="search-btn-img" />
+                    </div>
+                </div>
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/projects">Projects</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">DengBoCong</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/projects">Projects</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+        <div class="main">
+            <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    document.ready(
+        function () {
+            tocbot.init({
+                tocSelector: '.tocbot-list',
+                contentSelector: '.post-content',
+                headingSelector: 'h1, h2, h3, h4, h5',
+                collapseDepth: 1,
+                orderedList: false,
+                scrollSmooth: true,
+            })
+        }
+    )
+
+    function expand_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 6,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "collapse_toc()");
+        b.innerHTML = "Collapse all"
+    }
+
+    function collapse_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 1,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "expand_toc()");
+        b.innerHTML = "Expand all"
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">Transformer的9种变体概览</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">DengBoCong</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">February 20, 2021&nbsp;&nbsp;21:35:32</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Deep-Learning/">Deep-Learning</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><blockquote>
+<p>标题：The Transformer Family<br>原文链接：<a target="_blank" rel="noopener" href="https://lilianweng.github.io/lil-log/2020/04/07/the-transformer-family.html">Link</a><br>nlp-paper：<a target="_blank" rel="noopener" href="https://github.com/DengBoCong/nlp-paper">NLP相关Paper笔记和代码复现</a><br>nlp-dialogue：<a target="_blank" rel="noopener" href="https://github.com/DengBoCong/nlp-dialogue">一个开源的全流程对话系统，更新中！</a><br>说明：阅读原文时进行相关思想、结构、优缺点，内容进行提炼和记录，原文和相关引用会标明出处，引用之处如有侵权，烦请告知删除。<br>转载请注明：DengBoCong</p>
+</blockquote>
+<p>正式进入文章之前，我们先来看看后续将会涉及到的数学符号的含义，如下：<br><img src="https://img-blog.csdnimg.cn/20210220153552563.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+<h1 id="Attention-and-Self-Attention"><a href="#Attention-and-Self-Attention" class="headerlink" title="Attention and Self-Attention"></a>Attention and Self-Attention</h1><p>Attention是神经网络中的一种机制，即<strong>模型可以通过选择性地关注给定的数据集来学习做出预测</strong>。Attention的个数是通过学习权重来量化的，输出则通常是一个加权平均值。而Self-Attention是一种Attention机制，模型利用对同一样本观测到的其他部分来对数据样本的剩下部分进行预测。从概念上讲，它感觉非常类似于non-local的方式。还要注意的是，Self-attention是置换不变的，换句话说，它是对集合的一种操作。</p>
+<p>关于attention和self-attention存在非常多的形式，我们之前常见的Transformer是依赖于scaled-dot-product的形式，即给定query矩阵Q, key矩阵K以及value矩阵V，那么我们的输出就是值向量的加权和，其中，分配给每个值槽的权重由Query与相应Key的点积确定：<br>$$Attention(Q,K,V)=softmax(\frac{QK^T}{\sqrt{d_k}})V$$<br>对于一个query以及一个key向量，$q_i,k_j\in R^d$，我们计算下面的值：<br>$$a_{ij}=softmax(\frac{q_ik_j^T}{\sqrt{d_k}})=\frac{exp(q_ik_j^T)}{\sqrt{d_k}\sum_{r\in S_i}exp(q_ik_r^T)}$$<br>其中，$S_i$ 是与第 $i$ 个query计算的keys的集合。</p>
+<h1 id="Multi-Head-Self-Attention"><a href="#Multi-Head-Self-Attention" class="headerlink" title="Multi-Head Self-Attention"></a>Multi-Head Self-Attention</h1><p>multi-head self-attention是Transformer的核心组成部分，和简单的attention不同之处在于，Multihead机制将输入拆分为许多小的chunks，然后并行计算每个子空间的scaled dot product，最后我们将所有的attention输出进行简单的串联拼接到期望的维度。<br>$$MultiheadAttention(X_q,X_k,X_v)=[head_1;…;head_h]W^ohead_i=Attention(X_qW_i^qX_kW_i^kX_vW_i^v)$$<br>其中，$[.;.]$ 是concate操作，$W_i^q,W_i^k\in \mathbb{R}^{d\times d_k/h},W_i^v\in \mathbb{R}^{d\times d_v/h}$ 是权重矩阵，它将我们的输出embeddings(大小为$L\times d$)的映射到query,key,value矩阵，而且 $W^o\in R^{d_v\times d}$ 是输出的线性转化，这些权重都是在训练的时候进行训练的，结构图如下：<br><img src="https://img-blog.csdnimg.cn/20210220162256486.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+<h1 id="Transformer"><a href="#Transformer" class="headerlink" title="Transformer"></a>Transformer</h1><p>Transformer，很多时候我们也称之为”vanilla Transformer”， 它有一个encoder-decoder的结构，就像许多 NMT 模型中常用的那样。decoder的Transformer可以在语言建模的时候获得非常好的效果，比如 GPT 和 BERT。</p>
+<h2 id="Encoder-Decoder结构"><a href="#Encoder-Decoder结构" class="headerlink" title="Encoder-Decoder结构"></a>Encoder-Decoder结构</h2><p>Encoder生成一个基于attention的表示，能够从一个大的上下文中定位一个特定的信息片段。它由6个身份识别模块组成，每个模块包含两个子模块、一个multihead self-attention和一个point-wise全连接前馈网络。按point-wise来说，这意味着它对序列中的每个元素应用相同的线性变换（具有相同的权重），<strong>这也可以看作是滤波器大小为 $1$ 的卷积层</strong>。每个子模块都有一个剩余连接和layer normalization。所有子模块输出相同维度 $d$ 的数据。</p>
+<p>Transformer的decoder功能是从encoder的表示中抽取信息。该结构与encoder非常相似，只是decoder包含两个多头注意子模块，而不是在每个相同的重复模块中包含一个。第一个多头注意子模块被屏蔽，以防止位置穿越。<br><img src="https://img-blog.csdnimg.cn/20210220165217493.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+<h2 id="Positional-Encoding"><a href="#Positional-Encoding" class="headerlink" title="Positional Encoding"></a>Positional Encoding</h2><p>因为self-attention操作是permutation不变的，所以使用正确的位置编码是非常重要的，此处我们使用如下的位置编码来提供order信息，位置编码 $P\in R^{L\times d}$，我们可以直接将它们加入到我们到vanilla Transformer中：</p>
+<ul>
+<li>Sinusoidal positional encoding（正弦位置编码）的定义如下，给定token的位置 $i=1,…,L$，维度 $\delta=1,2,…,d$ ：<br>$$PR(i,\delta)=\left{\begin{matrix} sin(\frac{i}{10000^{2\delta/d}}) &amp; if\ \delta=2\delta^{‘} \ cos(\frac{i}{10000^{2\delta/d}}) &amp; if\ \delta=2\delta^{‘}+1 \end{matrix}\right.$$<br>这样，位置编码的每个维度对应一个不同波长、不同维度的正弦曲线，从 $2\pi$ 到 $10000\cdot 2\pi$<br><img src="https://img-blog.csdnimg.cn/20210220170511607.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></li>
+<li>Learned positional encoding（学习位置编码），顾名思义，给每个元素赋予一个学习列向量，对其绝对位置进行编码，详细可参见论文：<a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1705.03122.pdf">Convolutional Sequence to Sequence Learning</a>。</li>
+</ul>
+<h2 id="Quick-Follow-ups"><a href="#Quick-Follow-ups" class="headerlink" title="Quick Follow-ups"></a>Quick Follow-ups</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1808.04444.pdf">Paper Link</a></li>
+</ul>
+<p>在vanilla Transformer之后，<a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1808.04444.pdf">Al-Rfou 等人</a>增加了一组辅助损失，以便能够在字符级语言建模方面训练一个深层的Transformer模型，该模型的性能优于 LSTMs，使用了几种类型的辅助任务：</p>
+<ul>
+<li>除了在序列末尾只生成一个预测之外，还要求每个immediatge位置能做出正确的预测，迫使模型预测给定的较小上下文（例如，上下文窗口开头的前几个tokens）。</li>
+<li>每个中间Transformer也用于进行预测，随着训练的进行，较低层的权重对总损失的贡献越来越小。</li>
+<li>序列中的每个位置可以预测多个目标，即对未来token的两个或多个预测。<br><img src="https://img-blog.csdnimg.cn/20210220171848794.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><h1 id="Adaptive-Computation-Time-ACT"><a href="#Adaptive-Computation-Time-ACT" class="headerlink" title="Adaptive Computation Time (ACT)"></a>Adaptive Computation Time (ACT)</h1></li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1603.08983.pdf">Paper Link</a></li>
+</ul>
+<p>Adaptive Computation Time是一种动态决定递归神经网络需要多少计算步骤的机制。比如说，我们有一个RNN模型$R$，它由输入的权重$W_x$，一个参数化的状态迁移函数 $S(\cdot)$，一个输出权重 $W_y$ 和一个输出的bias $b_y$ 组成。给定一个输入序列 $(x_1,…,x_L)$ ，输出的序列 $(y_1,…,y_L)$ 的计算公式如下：<br>$$s_t=S(s_{t-1},W_xx_t,y_t=W_ys_t+b_y,\ for\ t=1,…,L)$$<br>ACT使上述RNN设置能够在每个输入元素上执行数量可变的步骤。大量的计算步骤会导致中间状态序列 $(s_t^1,…,s_t^{N(t)})$ 并且输出$(y_t^1,…,y_t^{N(t)})$，它们都共享相同的迁移状态函数 $S(\cdot)$，以及相同的输出权重 $W_y,b_y$：<br>$$s_t^0=s_{t-1}\s_t^n=S(s_t^{n-1},x_t^n),y_t=S(s_t^{n-1},x_t+\delta_{n,1}),\ for\ n=1,…,N(t)\y_t^n=W_ys_t^n+b_y$$<br>其中 $\delta_{n,1}$ 是一个二元的flag，来表示是否输入步是递增的。step的个数 $N(t)$ 是由额外的sigmoidal halting单元 $h$ 决定的，带有相关的权重矩阵 $W_h$ 以及bias $b_h$, 对于第 $t$ 输入元素在中间步骤处 $n$ 输出一个中止概率 $p_t^n$：<br>$$h_t^n=\delta(W_hs_t^n+b_n)$$<br>为了使计算在一个步骤后停止，ACT引入了一个小常数 $\epsilon$（例如0.01），因此每当累积概率超过$1-\epsilon$ 时，计算就会停止。<br>$$N(t)=min(min{n^{‘}:\sum_{n=1}^{n^{‘}}h_t^n\geq1-\epsilon},M)$$    $$p_t^n=\left{\begin{matrix} h_t^n &amp; if\ n&lt;N(t) \ R(t)=1-\sum_{n=1}^{N(t)-1}h_t^n &amp; if\ n=N(t)   \end{matrix}\right.  $$<br>其中 $M$ 为中间步骤个数的上限，最终状态和输出的mean-field的update：<br><img src="https://img-blog.csdnimg.cn/20210220174033572.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>为了避免对每个输入进行不必要的思考，ACT增加了ponder cost：$\mathcal{P}(x) = \sum_{t=1}^L N(t) + R(t)$，用此来鼓励中间计算步骤的小的次数。</p>
+<h1 id="Improved-Attention-Span"><a href="#Improved-Attention-Span" class="headerlink" title="Improved Attention Span"></a>Improved Attention Span</h1><p>提高Attention Span的目的是使可用于self-attention的上下文更长、更有效、更灵活。</p>
+<h2 id="Longer-Attention-Span-Transformer-XL"><a href="#Longer-Attention-Span-Transformer-XL" class="headerlink" title="Longer Attention Span(Transformer-XL)"></a>Longer Attention Span(Transformer-XL)</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1901.02860.pdf">Paper Link</a></li>
+</ul>
+<p>vanilla Transformer有一个固定的和有限的attention span。在每个更新步骤中，该模型只能处理同一段中的其他元素，并且没有任何信息可以在分离的固定长度段之间流动。也就是说层数固定不够灵活，同时对于算力需求非常大，导致其并不适合处理超长序列。这种context segmentation会导致几个问题：</p>
+<ul>
+<li>模型不能捕获非常长的依赖关系;</li>
+<li>在没有上下文或上下文很弱的情况下，很难预测每个片段中的前几个tokens。</li>
+<li>评估成本昂贵，每当segment右移一位时，新的segment就会从头开始重新处理，尽管有很多重叠的tokens。</li>
+</ul>
+<p>Transformer-XL通过两个主要的改进来解决上下文的segmentation问题：</p>
+<ul>
+<li>对于segments之间的隐藏状态进行重复使用；</li>
+<li>使用位置编码使其适用于重新使用的states;</li>
+</ul>
+<h3 id="Hidden-state-Reuse"><a href="#Hidden-state-Reuse" class="headerlink" title="Hidden state Reuse"></a>Hidden state Reuse</h3><p><img src="https://img-blog.csdnimg.cn/20210220175513996.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>我们对第 $n$ 层 $r+1$ 的segment的隐藏状态打标签为 $\mathbf{h}<em>{\tau+1}^{(n)} \in \mathbb{R}^{L \times d}$，除了对相同segment $\mathbf{h}</em>{\tau+1}^{(n-1)}$ 的最后一层的隐藏状态，我们还依赖于之前的segment $\mathbf{h}<em>{\tau}^{(n)}$ 的相同层的隐藏状态。通过从前面隐藏状态加入信息，模型可以将attention的span（广度）进行扩大，可以在多个segments之间发挥作用：<br>$$\begin{aligned}<br>\color{red}{\widetilde{\mathbf{h}}</em>{\tau+1}^{(n-1)}} &amp;= [\text{stop-gradient}(\mathbf{h}<em>{\tau}^{(n-1)}) \circ \mathbf{h}</em>{\tau+1}^{(n-1)}] \<br>\mathbf{Q}<em>{\tau+1}^{(n)} &amp;= \mathbf{h}</em>{\tau+1}^{(n-1)}\mathbf{W}^q \<br>\mathbf{K}<em>{\tau+1}^{(n)} &amp;= \color{red}{\widetilde{\mathbf{h}}</em>{\tau+1}^{(n-1)}} \mathbf{W}^k \<br>\mathbf{V}<em>{\tau+1}^{(n)} &amp;= \color{red}{\widetilde{\mathbf{h}}</em>{\tau+1}^{(n-1)}} \mathbf{W}^v \<br>\mathbf{h}<em>{\tau+1}^{(n)} &amp;= \text{transformer-layer}(\mathbf{Q}</em>{\tau+1}^{(n)}, \mathbf{K}<em>{\tau+1}^{(n)}, \mathbf{V}</em>{\tau+1}^{(n)})<br>\end{aligned}$$<br>key和value依赖于扩展的隐藏状态，同时query仅仅只依赖于当前步的隐藏状态，$[. \odot .]$ 是序列长度的维度的concatenation操作。</p>
+<h2 id="Relative-Positional-Encoding"><a href="#Relative-Positional-Encoding" class="headerlink" title="Relative Positional Encoding"></a>Relative Positional Encoding</h2><p>为了处理这种新的attention span的形式，Transformer-XL提出了一种新的位置编码。如果使用相同的方法对绝对位置进行编码，则前一段和当前段将分配相同的编码，这是不需要的。为了保持位置信息流在各段之间的一致性，Transformer XL对相对位置进行编码，因为它足以知道位置的offset，从而做出更好的预测，即 $i-j$，在一个key向量 $\mathbf{k}<em>{\tau, j}$ 以及它的query  $\mathbf{q}</em>{\tau, i}$ 之间。</p>
+<p>如果我们省略 $1/\sqrt{d_k}$ 并且对它们以softmax的形式进行normalize，我们可以重写在位置 $i$ 的query和位置 $j$ 的key之间的attention分数：<br>$$\begin{aligned}<br>a_{ij}<br>&amp;= \mathbf{q}<em>i {\mathbf{k}<em>j}^\top = (\mathbf{x}_i + \mathbf{p}_i)\mathbf{W}^q ((\mathbf{x}_j + \mathbf{p}_j)\mathbf{W}^k)^\top \<br>&amp;= \mathbf{x}_i\mathbf{W}^q {\mathbf{W}^k}^\top\mathbf{x}_j^\top + \mathbf{x}_i\mathbf{W}^q {\mathbf{W}^k}^\top\mathbf{p}_j^\top + \mathbf{p}_i\mathbf{W}^q {\mathbf{W}^k}^\top\mathbf{x}_j^\top + \mathbf{p}_i\mathbf{W}^q {\mathbf{W}^k}^\top\mathbf{p}_j^\top<br>\end{aligned}$$<br>上面的几项又可以被表示为：<br>$$a</em>{ij}^\text{rel} =<br>\underbrace{ \mathbf{x}_i\mathbf{W}^q \color{blue}{ {\mathbf{W}_E^k}^\top } \mathbf{x}_j^\top }_\text{content-based addressing} +<br>\underbrace{ \mathbf{x}_i\mathbf{W}^q \color{blue}{ {\mathbf{W}_R^k}^\top } \color{green}{\mathbf{r}</em>{i-j}^\top} }<em>\text{content-dependent positional bias} +<br>\underbrace{ \color{red}{\mathbf{u}} \color{blue}{ {\mathbf{W}_E^k}^\top } \mathbf{x}_j^\top }_\text{global content bias} +<br>\underbrace{ \color{red}{\mathbf{v}} \color{blue}{ {\mathbf{W}_R^k}^\top } \color{green}{\mathbf{r}</em>{i-j}^\top} }_\text{global positional bias}$$</p>
+<ul>
+<li>用相对位置编码 $\mathbf{r}_{i-j} \in \mathbf{R}^{d}$ 替换$p_j$</li>
+<li>用两个可训练的参数 $\mu$(针对内容)和 $v$(针对位置)替换$\mathbf{p}_i\mathbf{W}^q$;</li>
+<li>将 $\mathbf{W}^k$ 划分为两个矩阵，$\mathbf{W}^k_E$ 用于内容信息，$\mathbf{W}^k_R$ 用于位置信息</li>
+</ul>
+<h2 id="Adaptive-Attention-Span"><a href="#Adaptive-Attention-Span" class="headerlink" title="Adaptive Attention Span"></a>Adaptive Attention Span</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1905.07799.pdf">Paper Link</a></li>
+</ul>
+<p>Transformer的一个关键优势是能够捕获长期依赖关系。根据上下文的不同，模型可能倾向于注意到更远的序列，或者一个attention head可能有不同于另一个attention head的注意模式。如果attention span能够灵活地调整其长度，并且只在需要时再往回看，这将有助于减少计算和内存开销，从而在模型中支持更长的最大上下文大小(这就是Adaptive Attention Span的动机)。</p>
+<p>后来Sukhbaatar等人提出了一种self-attention机制以寻找最优的attention span，他们假设不同的attention heads可以在相同的上下文窗口中赋予不同的分数，因此最优的span可以被每个头分开训练：<br><img src="https://img-blog.csdnimg.cn/20210220182622357.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>给定第 $i$ 个token,我们需要计算该token和其它在位置 $j \in S_i$ 的keys的attention权重，其中 $S_i$ 定义了第 $i$ 个token第上下文窗口：<br>$$\begin{aligned}<br>e_{ij} &amp;= \mathbf{q}<em>i {\mathbf{k}<em>j}^\top \<br>a</em>{ij} &amp;= \text{softmax}(e</em>{ij}) = \frac{\exp(e_{ij})}{\sum_{r=i-s}^{i-1} \exp(e_{ir})} \<br>\mathbf{y}<em>i &amp;= \sum</em>{r=i-s}^{i-1}a_{ir}\mathbf{v}<em>r = \sum</em>{r=i-s}^{i-1}a_{ir}\mathbf{x}<em>r\mathbf{W}^v<br>\end{aligned}$$<br>增加了一个soft mask函数 $m_z$ 来控制有效的可调attention span，它将query和key之间的距离映射成一个[0, 1]值，$m_z \in [0, s]$参数化，$z$ 要学习：<br>$$m_z(x) = \text{clamp}(\frac{1}{R}(R+z-x), 0, 1)$$<br>其中 $R$ 是一个超参数，它可以定义 $m_z$ 的softness：<br><img src="https://img-blog.csdnimg.cn/20210220182948660.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>soft mask函数应用于注意权重中的softmax元素：<br>$$a</em>{ij} = \frac{m_z(i-j)\exp(s_{ij})}{\sum_{r=i-s}^{i-1}m_z(i-r) \exp(s_{ir})}$$<br>在上面的等式，$z$ 是可微的，所以可以和模型的其它部分一起联合训练，参数 $z^{(i)}, i=1, \dots, h$ 每个head可以分开学习，此外，损失函数有额外的 $L_1$ 惩罚 $\sum_{i=1}^h z^{(i)}$。利用Adaptive Computation Time，该方法可以进一步增强attention span的长度，动态地适应当前输入。attention head在时间 $t$ 的跨度参数 $z_t$ 是一个sigmoid函数，$z_t = S \sigma(\mathbf{v} \cdot \mathbf{x}_t +b)$，其中向量和偏置标量与其他参数一起学习。</p>
+<p>在具有自适应attention span的Transformer实验中，Sukhbatar等人发现了一个普遍趋势，即较低层不需要很长的attention span，而较高层的一些attention heads可能会使用非常长的attention span。适应性attention span有助于大大减少失败的次数，特别是在一个有许多注意层和大上下文长度的大模型中。</p>
+<h2 id="Localized-Attention-Span-Image-Transformer"><a href="#Localized-Attention-Span-Image-Transformer" class="headerlink" title="Localized Attention Span (Image Transformer)"></a>Localized Attention Span (Image Transformer)</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1802.05751.pdf">Paper Link</a></li>
+</ul>
+<p>Transformer最初用于语言建模。文本序列是一维的，具有明确的时间顺序，因此attention span随着上下文大小的增加而线性增长。</p>
+<p>然而，如果我们想在图像上使用Transformer，我们还不清楚如何定义上下文的范围或顺序。Image Transformer采用了一种图像生成公式，类似于Transformer框架内的序列建模。此外，图像Transformer将self-attention span限制在局部邻域内，因此模型可以放大以并行处理更多的图像，并保持可能性损失可控。encoder-decoder架构保留用于image-conditioned生成：</p>
+<ul>
+<li>encoder生成源图像的上下文化的每像素信道表示；</li>
+<li>decoder自回归地生成输出图像，每个时间步每像素一个通道。</li>
+</ul>
+<p>让我们将要生成的当前像素的表示标记为查询 $q$。其表示将用于计算 $q$ 的其他位置是关键向量 $\mathbf{k}_1, \mathbf{k}_2, \dots$，它们一起形成一个内存矩阵 $M$。$M$ 的范围定义了像素查询 $q$ 的上下文窗口。Image Transformer引入了两种类型的localized $M$ ，如下所示：<br><img src="https://img-blog.csdnimg.cn/20210220183903806.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+<ul>
+<li><p>1D Local Attention：输入图像按光栅扫描顺序（即从左到右、从上到下）展平。然后将线性化后的图像分割成不重叠的查询块。上下文窗口由与 $q$ 相同的查询块中的像素和在此查询块之前生成的固定数量的附加像素组成。</p>
+</li>
+<li><p>2D Local Attention：图像被分割成多个不重叠的矩形查询块。查询像素可以处理相同内存块中的所有其他像素。为了确保左上角的像素也可以有一个有效的上下文窗口，内存块将分别向上、左和右扩展一个固定的量。</p>
+</li>
+</ul>
+<h1 id="Less-Time-and-Memory-Cost"><a href="#Less-Time-and-Memory-Cost" class="headerlink" title="Less Time and Memory Cost"></a>Less Time and Memory Cost</h1><p>本节介绍如何减少计算和内存的消耗。</p>
+<h2 id="Sparse-Attention-Matrix-Factorization-Sparse-Transformers"><a href="#Sparse-Attention-Matrix-Factorization-Sparse-Transformers" class="headerlink" title="Sparse Attention Matrix Factorization (Sparse Transformers)"></a>Sparse Attention Matrix Factorization (Sparse Transformers)</h2><p>一般Transformer的计算和存储开销随序列长度呈二次增长，因此很难应用于很长的序列。</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1904.10509.pdf">Paper Link</a><h3 id="Sparse-Transformer"><a href="#Sparse-Transformer" class="headerlink" title="Sparse Transformer"></a>Sparse Transformer</h3>引入分解的self-attention，通过稀疏矩阵分解，我们可以训练上百层的dense的attention网络，这样序列长度就可以到达16384。给定attention连接的模式集合 $\mathcal{S} = {S_1, \dots, S_n}$，其中 $S_i$ 记录key位置的集合，第 $i$ 个query向量可以扩展为：<br>$$\begin{aligned}<br>\text{Attend}(\mathbf{X}, \mathcal{S}) &amp;= \Big( a(\mathbf{x}<em>i, S_i) \Big)_{i \in {1, \dots, L}} \<br>\text{ where } a(\mathbf{x}_i, S_i) &amp;= \text{softmax}\Big(\frac{(\mathbf{x}_i \mathbf{W}^q)(\mathbf{x}_j \mathbf{W}^k)</em>{j \in S_i}^\top}{\sqrt{d_k}}\Big) (\mathbf{x}<em>j \mathbf{W}^v)</em>{j \in S_i}<br>\end{aligned}$$<br>尽管 $S_i$ 的size是不固定的，$a(\mathbf{x}_i, S_i)$ 是size为 $d_v$ 的，因此，$\text{Attend}(\mathbf{X}, \mathcal{S}) \in \mathbb{R}^{L \times d_v}$。在自回归的模型中，一个attention span被定义为 $S_i = {j: j \leq i}$，它允许每个token可以处理过去的所有其它位置。</li>
+</ul>
+<p>在分解的self-attention中，$S_i$ 被分解为树的依赖，例如对于没对 $(i,j)$，其中 $j \leq i$, 存在一条路径链接 $i$ 和 $j$。更加精确地说，集合 $S_i$ 被划分为 $p$ 个non-overlapping的子集，第 $m$ 个子集被表示为$A^{(m)}_i\subset S_i,m=1,\dots,p$，所以输出位置 $i$ 和任意的 $j$ 的路径有最大长度 $p+1$，例如，如果 $(j, a, b, c, \dots, i)$ 是 $i$ 和 $j$ 的索引路径，我们有$j \in A_a^{(1)}, a \in A_b^{(2)}, b \in A_c^{(3)}, \dots$。</p>
+<h3 id="Sparse-Factorized-Attention"><a href="#Sparse-Factorized-Attention" class="headerlink" title="Sparse Factorized Attention"></a>Sparse Factorized Attention</h3><p>Sparse Transformer提出了两类分解的attention，如下：<br><img src="https://img-blog.csdnimg.cn/20210220185438999.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+<ul>
+<li>Strided attention(stride $\ell \sim \sqrt{n}$ ，在图像中,每个像素可以链接到所有到之前 $\ell$ 个像素raster scanning顺序，然后那些像素在相同列中相互链接。<br>$$\begin{aligned}<br>A_i^{(1)} &amp;= { t, t+1, \dots, i} \text{, where } t = \max(0, i - \ell) \<br>A_i^{(2)} &amp;= {j: (i-j) \mod \ell = 0}<br>\end{aligned}$$</li>
+<li>Fixed attention，一个小的tokens集合总结之前的位置并且向未来的位置传递信息：<br>$$\begin{aligned}<br>A_i^{(1)} &amp;= {j: \lfloor \frac{j}{\ell} \rfloor = \lfloor \frac{i}{\ell} \rfloor } \<br>A_i^{(2)} &amp;= {j: j \mod \ell \in {\ell-c, \dots, \ell-1} }<br>\end{aligned}$$<br>其中 $c$ 是一个超参数。</li>
+</ul>
+<h3 id="Use-Factorized-Self-Attention-in-Transformer"><a href="#Use-Factorized-Self-Attention-in-Transformer" class="headerlink" title="Use Factorized Self-Attention in Transformer"></a>Use Factorized Self-Attention in Transformer</h3><p>存在三种方式使用sparse factorized attention模式的方法：</p>
+<ul>
+<li>每个residual block的attention type，把它们交错起来，$\text{attention}(\mathbf{X}) = \text{Attend}(\mathbf{X}, A^{(n \mod p)}) \mathbf{W}^o$，其中 $n$ 是当前residual模块的index</li>
+<li>设置一个单独的head，它负责所有分解head负责的位置，$\text{attention}(\mathbf{X}) = \text{Attend}(\mathbf{X}, \cup_{m=1}^p A^{(m)}) \mathbf{W}^o$</li>
+<li>使用一个和原始Transformer不同的multi-head attention机制，每个head可以接受上面的一种模式，1或者2，这往往效果表现更好</li>
+</ul>
+<p>Sparse Transformer还提出了一套改进方案，将Transformer训练到上百层，包括梯度检查点、在backward pass的时候重新计算attention和FF层、混合精度训练、高效的块稀疏实现等。</p>
+<h2 id="Locality-Sensitive-Hashing-Reformer"><a href="#Locality-Sensitive-Hashing-Reformer" class="headerlink" title="Locality-Sensitive Hashing (Reformer)"></a>Locality-Sensitive Hashing (Reformer)</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2001.04451.pdf">Paper Link</a></li>
+</ul>
+<p>Reformer模型旨在解决Transformer中的下面几个痛点：</p>
+<ul>
+<li>具有N层的模型中的内存比单层模型中的内存大N倍，因为我们需要存储反向传播的activations。</li>
+<li>中间FF层通常相当大。</li>
+<li>长度为 $L$ 的序列上的注意矩阵通常在内存和时间上都需要 $O(L^2)$ 的内存和时间；</li>
+</ul>
+<p>Reformer进行了两种改进：</p>
+<ul>
+<li>将dot-product的attention替换为locality-sensitive hashing(LSH) attention,这将时间复杂度从 $O(L^2)$ 降到 $O(LlogL)$</li>
+<li>标准residual block替换为reversible residual layer，这样在训练期间只允许存储一次激活，而不是 $N$ 次（即与层数成比例）。</li>
+</ul>
+<h3 id="Locality-Sensitive-Hashing-Attention"><a href="#Locality-Sensitive-Hashing-Attention" class="headerlink" title="Locality-Sensitive Hashing Attention"></a>Locality-Sensitive Hashing Attention</h3><p>在attention $QK^T$ 中，我们更加关注大的只，对于每个$\mathbf{q}_i \in \mathbf{Q}$，我们在寻找 $K$ 中于 $q_i$ 最近的一个行向量，为了寻找它，我们在attention机制中加入：Locality-Sensitive Hashing (LSH)</p>
+<p>如果它保留了数据点之间的距离信息，我们称hashing机制 $x \mapsto h(x)$ 是locality-sensitive的，这么做相近的向量可以获得相似的hash，Reformer中，给定一个固定的随机矩阵 $\mathbf{R} \in \mathbb{R}^{d \times b/2}$，其中 $b$ 是超参数，hash函数为 $h(x) = \arg\max([xR; −xR])$<br><img src="https://img-blog.csdnimg.cn/20210220190636923.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>在LSH attention中，一个query只可以和在相同的hashing bucket中的位置进行交互，$S_i = {j: h(\mathbf{q}_i) = h(\mathbf{k}_j)}$</p>
+<ul>
+<li>attention矩阵通常是稀疏的;</li>
+<li>使用LSH, 我们基于hash buckets可以对keys和queries进行排序</li>
+<li>设置 $Q=K$，这样,一个bucket中的keys和queries相等，更便于批处理。有趣的是，这种“共享QK”配置并不影响Transformer的性能。</li>
+<li>使用 $m$ 个连续的group在一起的query的batching<br><img src="https://img-blog.csdnimg.cn/20210220190801936.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><h3 id="Reversible-Residual-Network"><a href="#Reversible-Residual-Network" class="headerlink" title="Reversible Residual Network"></a>Reversible Residual Network</h3>Reversible Residual Network的动机是设计一种结构，使任何给定层的激活都可以从下一层的激活中恢复，只需使用模型参数。因此，我们可以通过在backprop期间重新计算激活来节省内存，而不是存储所有激活。给定一层 $x \mapsto y$，传统的residual layer都是做的$y = x + F(x)$，但是reversible layer将输入和输出split为$(x_1, x_2) \mapsto (y_1, y_2)$，然后执行下面的操作：<br>$$y_1 = x_1 + F(x_2),; y_2 = x_2 + G(y_1)$$<br>reversing就是：<br>$$x_2 = y_2 - G(y_1), ; x_1 = y_1 − F(x_2)$$<br>我们将相同的思想应用到Transformer中得到：<br>$$Y_1 = X_1 + \text{Attention}(X_2), ; Y_2 = X_2 + \text{FeedForward}(Y_1)$$<br>内存可以通过chunking 前向计算进行操作：<br>$$Y_2 = [Y_2^{(1)}; \dots; Y_2^{(c)}] = [X_2^{(1)} + \text{FeedForward}(Y_1^{(1)}); \dots; X_2^{(c)} + \text{FeedForward}(Y_1^{(c)})]$$<h1 id="Make-it-Recurrent-Universal-Transformer"><a href="#Make-it-Recurrent-Universal-Transformer" class="headerlink" title="Make it Recurrent (Universal Transformer)"></a>Make it Recurrent (Universal Transformer)</h1>Universal Transformer将Transformer中的自我注意与RNN中的循环机制结合起来，旨在受益于Transformer的长期全局receptive field和RNN的学习inductive偏差。Universal Transformer使用自适应计算时间动态调整步长。如果我们固定步数，一个Universal Transformer就相当于一个多层Transformer，具有跨层共享的参数。在较高的层次上，Universal Transformer可以看作是学习每个token的隐藏状态表示的递归函数。递归函数在标记位置之间并行演化，位置之间的信息通过self-attention进行共享，如下结构：<br><img src="https://img-blog.csdnimg.cn/20210220191209962.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>给定长度为 $L$ 的序列，Universal Transformer在第 $t$ 步迭代更新表示$\mathbf{H}^t \in \mathbb{R}^{L \times d}$，在第0步，$H^0$ 被表示为输入embedding矩阵，所以的位置编码在multi-head self-attenion中被并行处理，然后在经过一个recurrent transition function：<br>$$\begin{aligned}<br>\mathbf{A}^t &amp;= \text{LayerNorm}(\mathbf{H}^{t-1} + \text{MultiHeadAttention}(\mathbf{H}^{t-1} + \mathbf{P}^t) \<br>\mathbf{H}^t &amp;= \text{LayerNorm}(\mathbf{A}^{t-1} + \text{Transition}(\mathbf{A}^t))<br>\end{aligned}$$<br>$\text{Transition}(.)$ 可以是一个 separable convolution或者fully-connected neural network：<br>$$\text{PE}(i, t, \delta) =<br>\begin{cases}<br>\sin(\frac{i}{10000^{2\delta’/d}}) \oplus \sin(\frac{t}{10000^{2\delta’/d}}) &amp; \text{if } \delta = 2\delta’\<br>\cos(\frac{i}{10000^{2\delta’/d}}) \oplus \cos(\frac{t}{10000^{2\delta’/d}}) &amp; \text{if } \delta = 2\delta’ + 1\<br>\end{cases}$$<br><img src="https://img-blog.csdnimg.cn/20210220191423424.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>在Universal Transformer的自适应版本中，循环步数 $T$ 由ACT动态确定。每个位置都配有一个动态停止机制。一旦token循环块停止，它将停止进行更多的循环更新，只是将当前值复制到下一步，直到所有块停止或直到模型达到最大步长限制。</li>
+</ul>
+<h1 id="Stabilization-for-RL-GTrXL"><a href="#Stabilization-for-RL-GTrXL" class="headerlink" title="Stabilization for RL (GTrXL)"></a>Stabilization for RL (GTrXL)</h1><p>Self-attention避免了将整个过去压缩成一个固定大小的隐藏状态，并且不像RNN那样受到梯度消失或爆炸的影响。强化学习任务肯定能从这些特质中受益。然而，即使在有监督学习中，也很难训练Transformer，更不用说在RL环境中了。毕竟，稳定和训练一个LSTM代理本身可能是相当具有挑战性的。</p>
+<p>Gated Transformer-XL (GTrXL)是使用Transformer到RL中的一次尝试，GTrXL可以在Transformer-XL上成功稳定的训练。</p>
+<ul>
+<li>layer normalization应用于residual模块中的输入流，而不应用于shortcut流。这种重新排序的一个关键好处是允许原始输入从第一层流到最后一层。</li>
+<li>Residual连接被GRU样式选通机制取代。<br>$$\begin{aligned}<br>r &amp;= \sigma(W_r^{(l)} y + U_r^{(l)} x) \<br>z &amp;= \sigma(W_z^{(l)} y + U_z^{(l)} x - b_g^{(l)}) \<br>\hat{h} &amp;= \tanh(W_g^{(l)} y + U_g^{(l)} (r \odot x)) \<br>g^{(l)}(x, y) &amp;= (1-z)\odot x + z\odot \hat{h}<br>\end{aligned}$$<br><img src="https://img-blog.csdnimg.cn/20210220191650331.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></li>
+</ul>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>DengBoCong</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="http://dengbocong.cn/Deep-Learning/c649454aeb0a/">http://dengbocong.cn/Deep-Learning/c649454aeb0a/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Licensed under the Apache License, Version 2.0 (the "License")</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Stay hungry, Stay foolish.</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/"># 深度学习</a>
+                    
+                        <a href="/tags/Attention/"># Attention</a>
+                    
+                        <a href="/tags/Transformer/"># Transformer</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/Paper-Reading/ad96e3afa777/">论文阅读笔记：超详细的NLP预训练语言模型总结清单！</a>
+            
+            
+            <a class="next" rel="next" href="/Paper-Reading/e914502af9e0/">论文阅读笔记：Informer--效果远超Transformer的长序列预测模型</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+        </div>
+        <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Copyright 2020-2021 DengBoCong. All Rights Reserved. 赣ICP备20002291号</span>
+    </div>
+</footer>
+
+    </div>
+    <div id="u-search">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="container">
+                    <form id="u-search-modal-form" class="u-search-modal-form">
+                        <button type="submit" class="form-submit-btn">
+                            <img src="/image/search.png" class="search-btn-img" />
+                        </button>
+                        <input placeholder="请输入关键字搜索文章..." class="form-input" onchange="inputChange(event)" id="modal-form-input">
+                    </form>
+                    <a class="modal-close">x</a>
+                </div>
+                <div class="search-loading">
+                    <div class="search-loading-bar"></div>
+                </div>
+            </div>
+            <div class="modal-body">
+            </div>
+        </div>
+        <div class="modal-overlay"></div>
+    </div>
+</body>
+</html>

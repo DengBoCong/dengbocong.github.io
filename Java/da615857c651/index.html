@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<link rel="stylesheet" href="/css/search.css">
+<script src="/js/jquery-3.4.1.min.js"></script>
+<script src="/js/search.js"></script>
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
+<style>
+    .pace .pace-progress {
+        background: #5cb0ff; /*进度条颜色*/
+        height: 2px;
+    }
+    .pace .pace-progress-inner {
+        box-shadow: 0 0 10px #1E92FB, 0 0 5px     #1E92FB; /*阴影颜色*/
+    }
+    .pace .pace-activity {
+        border-top-color: #1E92FB;    /*上边框颜色*/
+        border-left-color: #1E92FB;    /*左边框颜色*/
+    }
+</style>
+
+    <meta name="author" content="DengBoCong">
+
+
+    <meta name="subtitle" content="NLP | Deep Learning | Java">
+
+
+
+
+<title>你会算对象的大小么？不会的话就看看这篇文章吧 | DengBoCong</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+    
+
+
+<meta name="generator" content="Hexo 5.3.0"></head>
+<body>
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">DengBoCong</a></div>
+            <div class="menu navbar-right">
+                <div class="search" style="float: left; margin-top: 7px;">
+                    <form class="form-search">
+                        <input class="input" placeholder="search content..." autocomplete="off" onchange="inputChange(event)" id="pc-search-input"/>
+                    </form>
+                    <div class="search-btn">
+                        <img src="/image/search.png" class="search-btn-img" />
+                    </div>
+                </div>
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/projects">Projects</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">DengBoCong</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/projects">Projects</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+        <div class="main">
+            <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    document.ready(
+        function () {
+            tocbot.init({
+                tocSelector: '.tocbot-list',
+                contentSelector: '.post-content',
+                headingSelector: 'h1, h2, h3, h4, h5',
+                collapseDepth: 1,
+                orderedList: false,
+                scrollSmooth: true,
+            })
+        }
+    )
+
+    function expand_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 6,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "collapse_toc()");
+        b.innerHTML = "Collapse all"
+    }
+
+    function collapse_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 1,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "expand_toc()");
+        b.innerHTML = "Expand all"
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">你会算对象的大小么？不会的话就看看这篇文章吧</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">DengBoCong</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">April 10, 2020&nbsp;&nbsp;18:49:31</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Java/">Java</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h2 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h2><p><strong>如果觉得有所收获，记得点个关注和点个赞，感谢支持。</strong><br>使用面向对象语言，离不开的就是对象，现在回过头来思考一下，真的了解所使用语言的对象么？我自己有点心虚，对于Java的对象，我了解的尚且还不够深入，对于一些底层的东西，还有待进一步了解学习。这一篇博文，来讲讲Java对象的大小，学习如何计算Java对象的大小。如果你想深入Java 对象的内存设计，以及在做内存优化时，需要知道每个对象占用的内存的大小，所以这一点还是很重要的，需要好好理解。要计算Java对象占用内存的大小，首先需要了解Java对象在内存中的实际存储方式和存储格式。接下来，我们就来学习相关的知识。</p>
+<h2 id="思考以及预备知识"><a href="#思考以及预备知识" class="headerlink" title="思考以及预备知识"></a>思考以及预备知识</h2><p>搞清楚存储在内存中的对象，它具体是如何存储的，存储时都需要存哪些信息，以及存这些信息的意义是什么。比如看下面这段代码，下面这两行代码当中的 list 对象是如何存储起来的？</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">List list = <span class="keyword">new</span> ArrayList;</span><br><span class="line">list.add(<span class="string">&quot;hello, world!&quot;</span>);</span><br></pre></td></tr></table></figure>
+<p>要学习对象是怎么存储在内存当中的，就要从很原始的地方说起，先学习 JVM 的内存结构，这篇文章不讲很具体的JVM内存结构的知识，我这边只是提一下稍后需要用到的一些知识点。JVM 在运行 Java 程序时，会管理一块内存区域，这一片区域被称为运行时数据区域，从结构上可以分为五个部分，分别是：</p>
+<ul>
+<li>Java 虚拟机栈：线程私有，存储局部变量等</li>
+<li>本地方法栈：线程私有，存储本地方法的变量等</li>
+<li>程序计数器：线程私有，存储字节码的地址（程序执行到第几行了）</li>
+<li>堆：线程共享，存储几乎所有对象</li>
+<li>方法区：线程共享，存储类的结构信息（字段、构造方法等等）</li>
+</ul>
+<p><img src="https://img-blog.csdnimg.cn/20200410180306297.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>我们今天要说的，只是栈和堆（栈指的是 Java 虚拟机栈）。非常浅薄地讲，栈存放的是局部变量以及对象的地址，堆存放的是对象的实体。（看书发现，栈中存放的并不一定是对象地址，但这是最常见的寻找堆对象的方式）简单制作了一张图，描述了代码、栈、堆之间的关系。<br><img src="https://img-blog.csdnimg.cn/20200410180418361.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>这里要注意一点的是，内存结构和内存模型并不是一个概念：当我们说内存结构时，通常是指JVM 内存结构，这是真实存在的，指的是上文介绍的 Java 虚拟机栈、堆、本地方法栈等等那五部分构成的 JVM 运行时数据区域，这是在结构上把 JVM 的内存分成了多个部分。</p>
+<p>当我们说内存模型时，通常是指Java 内存模型，这是虚拟存在的，指的是面对并发时 Java 是如何实现内存访问一致的，牵扯到了主内存和工作内存等知识，这是在模型和概念上，屏蔽各种硬件和操作系统的内存访问差异，来实现并发内存一致性。</p>
+<h2 id="如何计算对象的大小"><a href="#如何计算对象的大小" class="headerlink" title="如何计算对象的大小"></a>如何计算对象的大小</h2><p>如何计算对象的大小。这个问题实际上可以拆成两个问题：</p>
+<ul>
+<li>对象由哪些部分组成？</li>
+<li>每部分各占多少字节？</li>
+</ul>
+<p>在这两个问题的基础上，自然会问出第三个问题：</p>
+<ul>
+<li>组成对象的这些基础部分，各自是做什么的？</li>
+</ul>
+<p>这里要多说一下的是，本篇文章提到的内容，实际上是 HotSpot 虚拟机的实现，而并非所有 Java 虚拟机的实现，但是目前基本上所有的 Java 程序都跑在 HostSpot 虚拟机上面。</p>
+<p>所有对象都可以笼统地切分成两部分：对象头（Header）和对象内容（Instance Data）。举一个实际的例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> age;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>对于上面这个 Person 类，它实例化出来的对象同样具有对象头和对象内容两部分，name 和 age 都是对象的内部变量，属于对象内容，而对象头是其余一些辅助信息。我绘制了一张图，画出了在最常见情况下（64 位虚拟机开启指针压缩），对象在内存中的结构，后文都是在解释这个结构的具体信息。<br><img src="https://img-blog.csdnimg.cn/20200410180836304.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+<h3 id="对象内容"><a href="#对象内容" class="headerlink" title="对象内容"></a>对象内容</h3><p>对象内容准确地讲应该叫做实例数据（Instance Data），比较简单，因此我们先讲完。正如之前提到的 Person 对象的例子，对象内的属性（包括基本数据类型 <code>int age</code> 和引用的另一个对象 <code>String name</code>），这些属性所占的内容大小，就是对象内容的大小。在该例子中，<code>int</code> 类型的 age 占 4 个字节（即 32 位），引用另一个对象时，存储的是对象的地址，地址是一个 <code>int</code> 类型的指针，因此 <code>String</code> 类型的 name 存储在 Person 对象中也占 4 个字节（即 32 位），两个属性加起来一共占 8 个字节。因此计算对象内容的大小，实际上就是分两部分，基本数据类型一类，占内容大小加起来，引用别的对象占一类，引用一个就是 4 字节（int 的大小），引用 N 个对象就占 N*4 个字节。下面列举了 8 种基本数据类型的大小。<br>| 基本数据类型 | 大小（字节） |<br>|–|–|<br>|byte    |1|<br>|char|    2（表示一个 UTF-16be 编码单元，生僻字用两个char）|<br>|short|    2|<br>|int    |4|<br>|float|    4|<br>|long|    8|<br>|double    |8|<br>|boolean|    通常是1|</p>
+<p>此外还要注意的一点是，如果 A 类继承自 B 类，那么计算 A 类的对象内容大小时，继承来的 B 类的属性也是要算在内的。比如计算 ArrayList 对象大小的时候，它的父类 AbstractList 中的属性，也是要计算在内的。</p>
+<h3 id="对象头"><a href="#对象头" class="headerlink" title="对象头"></a>对象头</h3><p>对象头（Header）比较复杂，它包含着对象的“冗余信息”，这些信息或实现并发锁，或帮助垃圾分类，或包含类的信息。从整体上看，对象头包含三部分的信息，分别是</p>
+<ul>
+<li>标记字段</li>
+<li>地址</li>
+<li>数组长度</li>
+</ul>
+<h4 id="标记字段"><a href="#标记字段" class="headerlink" title="标记字段"></a>标记字段</h4><p>标记字段（Mark Word）是对象头中最复杂的内容，需要对照上面绘制的图来看。由于内存空间寸土寸金，在希望对象能够记录更多信息的同时，还要尽可能地压缩空间，在这种背景之下，32 位虚拟机的对象标记字段长 4 字节，64 位虚拟机的对象标记字段长 8 字节（现在基本都是 64 位了吧），并且都有着动态定义的数据结构，以便在极小的空间内存储尽量多的数据。32 位和 64 位的存储长度不同，仅仅是因为地址指针长度引起的变化，在存储的内容类型方面没有区别。（具体的标记字段信息可见文末的备注）。以我当下的理解，标记字段主要实现了三个事情：</p>
+<ul>
+<li>对并发情况下的 synchronized 支持</li>
+<li>GC 垃圾回收</li>
+<li>保存 hashcode</li>
+</ul>
+<p>标记字段共有五种状态，分别是对应于 synchronized 的四种状态（无锁、偏向锁、轻量级锁和重量级锁），以及一种 GC 状态，这五种状态通过 2 位标志位实现（无锁和偏向锁的标志位相同）。因此，了解标记字段的具体信息，实际上就是在了解 synchronized 锁和垃圾回收的原理。这两部分都有点难，本文暂时不讨论了。</p>
+<h4 id="地址信息"><a href="#地址信息" class="headerlink" title="地址信息"></a>地址信息</h4><p>对象头中有一部分是地址信息，它实际上是一个类型指针，指向了该对象类型的地址。例如 person 对象的对象头中的地址信息，指向了 Person 类的地址（类在方法区）。在这种设计下，可以通过对象找到类，比如在 <code>main()</code> 方法中实例化一个 Person 对象 person，在内存中寻址的过程为：</p>
+<ul>
+<li>main() 方法的 Java 栈中记录着 person 对象的地址；</li>
+<li>根据这个地址在堆中找到了 person 对象；</li>
+<li>person 对象的头部又记录着 Person 类的地址，根据这个地址在方法区中找到了 Person 类；</li>
+</ul>
+<p>（实际上，在对象的头部中保留类的地址信息，通过对象找到类的位置，这种设计是 HotSpot 虚拟机的设计，也有别的虚拟机不这么设计，对象头中并不包含类的地址，不通过对象找类。）地址信息的大小并不是固定的，这跟系统位数有关，32 位的虚拟机，指针是 32 位长，地址信息只需要 32 （即 4 字节），但是对于 64 位的虚拟机，指针是 64 位长，因此地址信息也需要扩增到 64 位（即 8 字节）。</p>
+<p>32 位的虚拟机，理论上只能寻址到 4 GB 的内存空间（2^32 byte = 4 GB），而 64 位的虚拟机能寻址到更多地址。这样的提升是有代价的，一方面内存占用量变大了，原来只需要 4 个字节存储一个地址，现在需要 8 个字节了（如果不需要比 4GB 更多的内存，用这么大的空间是没有意义的），另一方面寻址时操作位数更长的指针，主内存和各级缓存移动数据时，占用的带宽也会增加。Java 虚拟机为了处理这个问题，提出了指针压缩。</p>
+<p>指针压缩的简易原理是这样的：32 位的指针，当然只能找到 4 GB 个内存位置，如果我有一块更大的内存区域，比如 10 GB，32 位的指针就不能指向这 10 GB 中的所有位置，但实际上并不需要找到这块内存中的所有位置，它只需要找到要操作的开始位置就可以了。这意味着 32 位的指针可以引用 40 亿个对象，而不是 40 亿个字节。Java 对象的大小如果一定是 8 字节的整数倍（这个后文有讲），那么就可以使原来只能寻址 4 GB 的内存扩大 8 倍，到 32 GB 的内存。</p>
+<p>因此对于分配内存低于 4 GB 的虚拟机，默认开启指针压缩，指针大小就是 32 位长，对于分配内存在 4 - 32 GB 之间的虚拟机，可以开启指针压缩算法，使指针大小依旧维持在 32 位长，但是对于更大的内存，无法开启指针压缩，指针大小必须是 64 位长。（因此分配内存并不是越大越好，32 GB 处会有一个门槛）指针压缩并非毫无缺陷，这毕竟是多出来的算法，会增加 JVM 的计算量。</p>
+<p><strong>总结</strong>：对象头中的地址信息大小，跟系统位数以及是否开启指针压缩有关，32 位系统、开启了指针压缩的 64 位系统的地址信息长 4 字节，普通 64 位系统的地址信息长 8 字节。</p>
+<h4 id="数组大小"><a href="#数组大小" class="headerlink" title="数组大小"></a>数组大小</h4><p>数组大小并不是必须的，数组才有，非数组没有。因为数组是 new 出来的，需要在堆上分配内存，在这个意义上讲，数组就是对象的一种。数组的长度是需要记录下来的，长度为 4 字节。<code>int</code> 也是 4 字节，这就很容易让人联想在一起。Java 中 <code>int</code> 是有符号整型数，是有负值的，int 的最大值是 <code>2^31 - 1</code>，用二进制表示为 <code>01111111111111111111111111111111</code>。数组的理论最大长度，也应该是 int 的最大值。</p>
+<p>实际的使用中可能会小一点。例如 ArrayList 内部维护的数组，它的最大长度是 <code>Integer.MAX_VALUE - 8</code>，注释称这是因为虚拟机的限制。又例如 HashMap 内部维护的数组，它的最大程度是 <code>1 &lt;&lt; 30</code>，这是 1 位运算之后能获得到的最大值（二进制为 <code>01000000000000000000000000000000</code>）。</p>
+<h2 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h2><p>在计算完对象头和对象内容的大小之后，二者加起来并不一定是最终占内存的大小，还要考虑内存对齐的问题。所有对象的字节大小，必须是 8 的整数倍，如果对象头+对象内容算出来是 15 字节，那么最终对象大小为 16 字节，如果是 20 字节，那么最终对象大小是 24 字节，总之如果不满 8 的整数倍，都填充到 8 的整数倍，填充的部分叫做对齐填充（Padding），实际上就是占位符。对齐填充的原因在于，HotSpot 虚拟机的自动内存管理系统，要求对象的起始地址必须是 8 字节的整数倍（这样寻址更高效，而且实现了指针压缩），因此对象的大小也就必须是 8 字节的整数倍。</p>
+<p>三种情况（32 位虚拟机、64 位虚拟机、64 位虚拟机开启指针压缩）下，对象头的具体存储内容：</p>
+<h3 id="32-位虚拟机"><a href="#32-位虚拟机" class="headerlink" title="32 位虚拟机"></a>32 位虚拟机</h3><p><img src="https://img-blog.csdnimg.cn/20200410183206589.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+<h3 id="64-位虚拟机"><a href="#64-位虚拟机" class="headerlink" title="64 位虚拟机"></a>64 位虚拟机</h3><p><img src="https://img-blog.csdnimg.cn/20200410183255167.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+<h3 id="64-位虚拟机开启指针压缩"><a href="#64-位虚拟机开启指针压缩" class="headerlink" title="64 位虚拟机开启指针压缩"></a>64 位虚拟机开启指针压缩</h3><p><img src="https://img-blog.csdnimg.cn/2020041018341691.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+<h2 id="举例计算对象大小"><a href="#举例计算对象大小" class="headerlink" title="举例计算对象大小"></a>举例计算对象大小</h2><p>最后用一个例子检验上文中的内容，计算一个 HashMap 对象的大小。HashMap 类不是数组，在 64 位开启指针压缩的情况下，对象头只包括 8 字节的标记字段和 4 字节的地址指针，总共 12 字节。</p>
+<p>HashMap 类中分别有下列属性：</p>
+<ul>
+<li>entrySet （对象）</li>
+<li>hashSeed （int）</li>
+<li>loadFactor （float）</li>
+<li>modCount （int）</li>
+<li>size （int）</li>
+<li>table （数组，当对象处理）</li>
+<li>threshold （int）</li>
+</ul>
+<p>检查 HashMap 的所有父类，在 AbstractMap 中发现了两个新的属性：</p>
+<ul>
+<li>keySet （对象）</li>
+<li>values （对象）</li>
+</ul>
+<p>算下来一共是 9 个属性，每个属性很巧都是 4 字节，一共是 9×4 = 36 字节，因此 HashMap 的对象内容为 36 字节。HashMap 对象的对象头 12 字节 + 对象内容 36 字节总共是 48 字节，是 8 字节的倍数，无需对齐填充。因此一个 HashMap 对象的大小是 48 字节。</p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>DengBoCong</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="http://dengbocong.cn/Java/da615857c651/">http://dengbocong.cn/Java/da615857c651/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Licensed under the Apache License, Version 2.0 (the "License")</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Stay hungry, Stay foolish.</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/Java/"># Java</a>
+                    
+                        <a href="/tags/%E5%AF%B9%E8%B1%A1/"># 对象</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/Java/31c9aa976f5e/">看完这篇恍然大悟，理解Java中的偏向锁，轻量级锁，重量级锁</a>
+            
+            
+            <a class="next" rel="next" href="/Spring-Boot/fafc44587d95/">SpringBoot的流行实践解读</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+        </div>
+        <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Copyright 2020-2021 DengBoCong. All Rights Reserved. 赣ICP备20002291号</span>
+    </div>
+</footer>
+
+    </div>
+    <div id="u-search">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="container">
+                    <form id="u-search-modal-form" class="u-search-modal-form">
+                        <button type="submit" class="form-submit-btn">
+                            <img src="/image/search.png" class="search-btn-img" />
+                        </button>
+                        <input placeholder="请输入关键字搜索文章..." class="form-input" onchange="inputChange(event)" id="modal-form-input">
+                    </form>
+                    <a class="modal-close">x</a>
+                </div>
+                <div class="search-loading">
+                    <div class="search-loading-bar"></div>
+                </div>
+            </div>
+            <div class="modal-body">
+            </div>
+        </div>
+        <div class="modal-overlay"></div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<link rel="stylesheet" href="/css/search.css">
+<script src="/js/jquery-3.4.1.min.js"></script>
+<script src="/js/search.js"></script>
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
+<style>
+    .pace .pace-progress {
+        background: #5cb0ff; /*进度条颜色*/
+        height: 2px;
+    }
+    .pace .pace-progress-inner {
+        box-shadow: 0 0 10px #1E92FB, 0 0 5px     #1E92FB; /*阴影颜色*/
+    }
+    .pace .pace-activity {
+        border-top-color: #1E92FB;    /*上边框颜色*/
+        border-left-color: #1E92FB;    /*左边框颜色*/
+    }
+</style>
+
+    <meta name="author" content="DengBoCong">
+
+
+    <meta name="subtitle" content="NLP | Deep Learning | Java">
+
+
+
+
+<title>详细SpringBoot教程之Web开发（一） | DengBoCong</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+    
+
+
+<meta name="generator" content="Hexo 5.3.0"></head>
+<body>
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">DengBoCong</a></div>
+            <div class="menu navbar-right">
+                <div class="search" style="float: left; margin-top: 7px;">
+                    <form class="form-search">
+                        <input class="input" placeholder="search content..." autocomplete="off" onchange="inputChange(event)" id="pc-search-input"/>
+                    </form>
+                    <div class="search-btn">
+                        <img src="/image/search.png" class="search-btn-img" />
+                    </div>
+                </div>
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/projects">Projects</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">DengBoCong</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/projects">Projects</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+        <div class="main">
+            <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    document.ready(
+        function () {
+            tocbot.init({
+                tocSelector: '.tocbot-list',
+                contentSelector: '.post-content',
+                headingSelector: 'h1, h2, h3, h4, h5',
+                collapseDepth: 1,
+                orderedList: false,
+                scrollSmooth: true,
+            })
+        }
+    )
+
+    function expand_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 6,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "collapse_toc()");
+        b.innerHTML = "Collapse all"
+    }
+
+    function collapse_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 1,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "expand_toc()");
+        b.innerHTML = "Expand all"
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">详细SpringBoot教程之Web开发（一）</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">DengBoCong</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">February 24, 2020&nbsp;&nbsp;22:25:12</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Spring-Boot/">Spring-Boot</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h2 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h2><p>鉴于有人留言说想要学习SpringBoot相关的知识，我这里打算写一个SpringBoot系列的相关博文，目标呢是想让看了这一系列博文的同学呢，能够对SpringBoot略窥门径，这一系列的博文初步都定下来包括SpringBoot介绍、入门、配置、日志相关、web开发、数据访问、结合docker、缓存、消息队列、检索、任务安全、分布式等等一系列的博文，工作量很大，是个漫长的过程，每一步我都尽量详细，配上截图说明，也希望对看的同学真的有用。<br><strong>单纯就是想分享技术博文，还想说一句就是，如果觉得有用，请点个关注、给个赞吧，也算对我来说是个宽慰，毕竟也得掉不少头发，嘿嘿嘿</strong></p>
+<h2 id="系列文章传送条"><a href="#系列文章传送条" class="headerlink" title="系列文章传送条"></a>系列文章传送条</h2><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104383089">详细SpringBoot教程之入门（一）</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104429074">详细SpringBoot教程之入门（二）</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104446690">详细SpringBoot教程之配置文件（一）</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104448353">详细SpringBoot教程之配置文件（二）</a><br><a target="_blank" rel="noopener" href="https://dengbocong.blog.csdn.net/article/details/104456941">详细SpringBoot教程之日志框架</a><br><a target="_blank" rel="noopener" href="https://dengbocong.blog.csdn.net/article/details/104473765">详细SpringBoot教程之Web开发（一）</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104503158">详细SpringBoot教程之Web开发（二）</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104503231">详细SpringBoot教程之Web开发（三）</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104527730">详细SpringBoot教程之数据访问</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104541113">详细SpringBoot教程之启动配置原理</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104559440">详细SpringBoot教程之缓存开发</a></p>
+<h2 id="开发前准备"><a href="#开发前准备" class="headerlink" title="开发前准备"></a>开发前准备</h2><p>我们接下来准备使用SpringBoot开发一个restful的应用，首先我们通过Idea创建向导帮我们创建SpringBoot应用，勾选我们需要的模块，这里我们还是只勾选一个web场景，后面需要啥再添加。<br><img src="https://img-blog.csdnimg.cn/2020022411091976.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+<p>前面说过，我们创建的项目中，SpringBoot将会帮我们自动配置好web开发场景中需要的相关配置，只需要在配置文件中指定少量配置就可以运行起来了，我们只需要注意在业务代码中就可以了。</p>
+<p>当然，我们如果想要搞清楚某个场景中，SpringBoot帮我们配置了什么依赖，这个时候就需要我们了解相关的自动配置原理了，前面的博文有相关的讲解，我这里就不深入讲解了。</p>
+<h2 id="SpringBoot对静态资源的映射配置规则"><a href="#SpringBoot对静态资源的映射配置规则" class="headerlink" title="SpringBoot对静态资源的映射配置规则"></a>SpringBoot对静态资源的映射配置规则</h2><p>创建好了项目之后，我们先来讲解一下SpringBoot对于静态资源的相关配置规则，因为我们现在暂时来开发一个前后端没有分离的很彻底的应用（如果前后端分离的很彻底，我们只用SpringBoot来做后端接口），所以必须要知道怎么使用SpringBoot的静态资源。</p>
+<h3 id="使用webjars"><a href="#使用webjars" class="headerlink" title="使用webjars"></a>使用webjars</h3><p>首先SpringBoot的有个叫webjars的东西，所有通过pom.xml引入的静态资源，都在/webjars/**下（这个在静态资源的自动配置类中可以找到），也就是说SpringBoot会自动去classpath:/META-INF/resources/webjars/找资源，webjars以jar包的方式引入静态资源（也就是说，我们都可以通过<a target="_blank" rel="noopener" href="http://localhost:8080/webjars/xx%E8%AE%BF%E9%97%AE%E5%AF%B9%E5%BA%94%E7%9A%84%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%EF%BC%89">http://localhost:8080/webjars/xx访问对应的静态资源）</a></p>
+<p>怎么通过pom.xml引入静态资源呢？我们可以去<a target="_blank" rel="noopener" href="https://www.webjars.org/">webjars的资源库</a>中找，需要什么静态资源的jar基本都可以在这里找到（指的是框架依赖），里面长这样子。<br><img src="https://img-blog.csdnimg.cn/20200224112633172.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述">各种静态资源jar都可以通过pom.xml依赖的方式引入 ，我们引入JQuery看看，引入的JQuery的依赖包下边，可以看到webjars内容长这样<br><img src="https://img-blog.csdnimg.cn/20200224113123313.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>现在我们引入了jQuery的静态资源，我们启动项目，来试一下能不能通过对应的路径访问，我这里使用的路径是<a target="_blank" rel="noopener" href="http://localhost:8080/webjars/jquery/3.4.1/jquery.js">http://localhost:8080/webjars/jquery/3.4.1/jquery.js</a><br><img src="https://img-blog.csdnimg.cn/20200224113521694.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>所以发现了没有，我通过SpringBoot来开发相关的静态资源，非常方便，我们只要引入对应的webjars就可以了，SpringBoot不需要我们进行过多的配置，有自己默认配置的规则。</p>
+<h3 id="使用resources"><a href="#使用resources" class="headerlink" title="使用resources"></a>使用resources</h3><p>当然如果我们想要用自己的静态资源，不想使用webjars的东西，怎么做呢？这个时候就需要另外一个映射规则就是/**（也就是说，我们通过<a target="_blank" rel="noopener" href="http://localhost:8080/xxx.js%E8%AE%BF%E9%97%AE%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%EF%BC%8C%E5%A6%82%E6%9E%9C%E6%88%91%E4%BB%AC%E6%B2%A1%E6%9C%89%E9%85%8D%E7%BD%AE%E7%9B%B8%E5%85%B3%EF%BC%8C%E5%B0%B1%E4%BC%9A%E9%BB%98%E8%AE%A4%E5%8E%BB%E4%B8%8B%E9%9D%A2%E8%BF%99%E5%87%A0%E4%B8%AA%E6%96%87%E4%BB%B6%E5%A4%B9%E4%B8%AD%E6%89%BE%EF%BC%89%E7%94%A8%E6%9D%A5%E9%85%8D%E7%BD%AE%E6%98%A0%E5%B0%84%EF%BC%8C%E5%8D%B3%E5%8F%AF%E8%AE%BF%E9%97%AE%E5%BD%93%E5%89%8D%E9%A1%B9%E7%9B%AE%E4%B8%8B%E7%9A%84%E4%BB%BB%E4%BD%95%E8%B5%84%E6%BA%90">http://localhost:8080/xxx.js访问静态资源，如果我们没有配置相关，就会默认去下面这几个文件夹中找）用来配置映射，即可访问当前项目下的任何资源</a></p>
+<ul>
+<li>classpath:/META-INF/resources/</li>
+<li>classpath:/resources/</li>
+<li>classpath:/static/</li>
+<li> classpath:/public/<br>即通过“/**”访问的静态资源，SpringBoot会去上面这几个找资源，这些也就是SpringBoot默认的静态资源文件夹<br><img src="https://img-blog.csdnimg.cn/20200224114201805.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>这里我们可以随便将jquery.js放置在三个文件夹中的一个，然后通过<a target="_blank" rel="noopener" href="http://localhost:8080/jquery.js%E5%8F%AF%E4%BB%A5%E8%AE%BF%E9%97%AE%E5%88%B0%E3%80%82">http://localhost:8080/jquery.js可以访问到。</a><br><img src="https://img-blog.csdnimg.cn/20200224114436634.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/2020022411463312.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></li>
+</ul>
+<h2 id="配置欢迎页映射"><a href="#配置欢迎页映射" class="headerlink" title="配置欢迎页映射"></a>配置欢迎页映射</h2><p>静态资源文件夹下的所有index.html页面，会被/<strong>映射；<br>也就是说我们直接访问<a target="_blank" rel="noopener" href="http://localhost:8080/%E5%B0%B1%E7%9B%B4%E6%8E%A5%E8%AE%BF%E9%97%AE%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%E6%96%87%E4%BB%B6%E5%A4%B9%E4%B8%AD%E7%9A%84index.html%EF%BC%8C%E7%9B%B8%E5%BD%93%E4%BA%8E%E6%88%91%E4%BB%AC%E4%BB%A5%E5%89%8DSpringMVC%E4%B8%8B%E9%9D%A2%E7%9A%84index.jsp%EF%BC%8C%E6%AF%94%E5%A6%82%E6%88%91%E4%BB%AC%E7%8E%B0%E5%9C%A8%E9%9A%8F%E6%9C%BA%E9%80%89public%E7%9A%84%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%E6%96%87%E4%BB%B6%E5%A4%B9%E4%B8%8B%E5%88%9B%E5%BB%BAindex.html">http://localhost:8080/就直接访问静态资源文件夹中的index.html，相当于我们以前SpringMVC下面的index.jsp，比如我们现在随机选public的静态资源文件夹下创建index.html</a><br><img src="https://img-blog.csdnimg.cn/20200224115146775.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>同样的所有的</strong>/favicon.ico默认都是在静态资源下找，当然，如果我们不想要使用SpringBoot默认的静态资源文件夹，我们还可以定义静态资源的映射，如下<br><img src="https://img-blog.csdnimg.cn/20200224120932331.png#pic_center" alt="在这里插入图片描述"><br>要注意了，如果自己定义了静态资源映射之后，默认的文件夹就都不生效了，相当于原来的那些访问方式都不生效了。</p>
+<h2 id="模板引擎"><a href="#模板引擎" class="headerlink" title="模板引擎"></a>模板引擎</h2><p>JSP、Velocity、Freemarker、Thymeleaf等等，模板引擎的本质思想是一样的，只是语法不大一致而已。比如说以freemarker为例，如下图。<br><img src="https://img-blog.csdnimg.cn/20200224121211766.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>SpringBoot推荐的Thymeleaf，不用JSP，因为Thymeleaf语法更加简单，功能更加强大，如何导入呢，其实对于SpringBoot不就是一个引入依赖的事情嘛，很简单，依赖包如下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;spring-boot-starter-thymeleaf&lt;/artifactId&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+<p>这里引入的是SpringBoot默认的Thymeleaf依赖版本，如果我们要切换版本怎么切换，如下，加上对应版本号就可以了</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;properties&gt;</span><br><span class="line">&lt;thymeleaf.version&gt;&lt;/thymeleaf.version&gt;</span><br><span class="line">&lt;thymeleaf-layout-dialect.version&gt;&lt;/thymeleaf-layout-dialect.version&gt;</span><br><span class="line">&lt;/properties&gt;</span><br></pre></td></tr></table></figure>
+<h2 id="使用Thymeleaf"><a href="#使用Thymeleaf" class="headerlink" title="使用Thymeleaf"></a>使用Thymeleaf</h2><p>在使用Thymeleaf语法之前，我们先来实验一下，我们只要把HTML页面放在templates目录下就可以了，Thymeleaf就会自动渲染<br><img src="https://img-blog.csdnimg.cn/20200224123258894.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/20200224123648165.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+<h3 id="正式使用"><a href="#正式使用" class="headerlink" title="正式使用"></a>正式使用</h3><p>我们先编写一个控制器，用来跳转渲染，控制器中，加入我们待会儿要在HTML通过Thymeleaf获取的一个变量值，如下<br><img src="https://img-blog.csdnimg.cn/20200224152855460.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>在HTML编写代码之前，现在HTML的头标签中导入thymeleaf的名称空间，这样我们在使用Thymeleaf语法的时候，Idea就会提示相关代码。<br><img src="https://img-blog.csdnimg.cn/20200224152946227.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>编写好之后启动项目，我们通过访问<a target="_blank" rel="noopener" href="http://localhost:8080/success%E6%9D%A5%E8%AE%BF%E9%97%AEsuccess.html%E9%A1%B5%E9%9D%A2%EF%BC%8C%E8%AE%BF%E9%97%AE%E4%B9%8B%E5%90%8E%E7%BB%93%E6%9E%9C%E5%A6%82%E4%B8%8B">http://localhost:8080/success来访问success.html页面，访问之后结果如下</a><br><img src="https://img-blog.csdnimg.cn/20200224220715198.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+<h2 id="SpringBoot自动配置MVC"><a href="#SpringBoot自动配置MVC" class="headerlink" title="SpringBoot自动配置MVC"></a>SpringBoot自动配置MVC</h2><p>SpringBoot集成了SpringMVC，所以里面自然自动配置了SpringMVC运行的相关基本依赖，那么SpringBoot引入了SpringMVC那些依赖呢？这里我大致进行一下介绍。Spring Boot为Spring MVC提供了自动配置，可与大多数应用程序完美配合。其中自动配置在Spring的默认值之上添加了以下功能：</p>
+<ul>
+<li>包含ContentNegotiatingViewResolver和BeanNameViewResolver</li>
+<li>支持服务静态资源，包括对WebJars的支持</li>
+<li>自动注册Converter，GenericConverter和Formatter的beans。</li>
+<li>支持HttpMessageConverters。</li>
+<li>自动注册MessageCodesResolver</li>
+<li>静态index.html支持</li>
+<li>定制Favicon支持</li>
+<li>自动使用ConfigurableWebBindingInitializerbean</li>
+</ul>
+<p>如果要保留这些Spring Boot MVC定制并进行更多的MVC定制（拦截器，格式化程序，视图控制器和其他功能），则可以添加自己@Configuration的type类，WebMvcConfigurer但不添加 @EnableWebMvc（因为@EnableWebMvc会关闭Spring Boot MVC的默认配置，而转向需要读取我们自己添加的配置，稍后会讲）。</p>
+<p>如果你想提供的定制情况RequestMappingHandlerMapping，RequestMappingHandlerAdapter或者ExceptionHandlerExceptionResolver，仍然保持弹簧引导MVC自定义，你可以声明类型的beans WebMvcRegistrations，并用它来提供这些组件的定制实例。</p>
+<p>如果你想对Spring MVC中的完全控制，你可以添加自己的@Configuration注解为@EnableWebMvc，或者添加自己的@Configuration-annotated DelegatingWebMvcConfiguration中的Javadoc中所述@EnableWebMvc。</p>
+<p>后面我们会讨论怎么对SpringMVC进行完全控制。</p>
+<h2 id="拓展SpringMVC"><a href="#拓展SpringMVC" class="headerlink" title="拓展SpringMVC"></a>拓展SpringMVC</h2><p>看到如下配置是不是很熟悉，我们以前在SpringMVC中是这样编写视图控制器和拦截器的，那么我们怎么在SpringBoot中使用呢？<br><img src="https://img-blog.csdnimg.cn/20200224160148641.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>在前面见过，为了方便编写项目的统一配置，和前面见过配置的的地方一样，我们统一把项目的配置放在config包中管理，然后我们在config包下创建一个MyMvcConfig的类，实现WebMvcConfigurer接口，就可以对SpringBoot中关于SpringMVC相关配置进行扩展了。</p>
+<p>WebMvcConfigurer可以用来扩展SpringMVC的功能，需要什么在里面实现什么方法就可以了，比如我们扩展一下视图转换器，如下<br><img src="https://img-blog.csdnimg.cn/20200224160934488.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>这样实现了既保留了使用原有的配置，又能使用我们自己的方式扩展配置</p>
+<h2 id="EnableWebMvc"><a href="#EnableWebMvc" class="headerlink" title="@EnableWebMvc"></a>@EnableWebMvc</h2><p>上面我们可以自己编写类扩展SpringMVC的相关配置，如果我们再在配置类上加上@EnableWebMvc注解，是啥意思呢，也就是说我们将全面接管SpringMVC在SpringBoot中的配置，在SpringBoot中有关SpringMVC所有的默认配置都会失效，需要我们自行配置，比如上面我们默认webjars进行访问静态资源等等，都会失效<br><img src="https://img-blog.csdnimg.cn/2020022416164636.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>也就是说原本我们不使用@EnableWebMvc，SpringBoot会自动配置SpringMVC的默认依赖，如果我们使用@EnableWebMvc，则@EnableWebMvc就会将WebMVCConfigurationSupport组件导入进来，而导入的WebMVCConfigurationSupport组件里面只有SpringMVC一些最基本的功能。</p>
+<h2 id="如何修改SpringBoot的默认配置"><a href="#如何修改SpringBoot的默认配置" class="headerlink" title="如何修改SpringBoot的默认配置"></a>如何修改SpringBoot的默认配置</h2><p>SpringBoot在自动配置很多组件的时候，先看容器中有没有哦用户自己配置的（@Bean、@Component）如果有就用用户配置的，如果没有就自动配置，如果有些组件可以有多个（如ViewResolver）将用户配置和自己默认的组合起来</p>
+<p>在SpringBoot中会有非常多的xxxConfigurer帮助我们进行SpringMVC的拓展配置。</p>
+<h2 id="写一篇"><a href="#写一篇" class="headerlink" title="写一篇"></a>写一篇</h2><p>这篇博文我们在进行正式开发前的一些准备，下一篇我们来引入静态资源文件编写相关代码。</p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>DengBoCong</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="http://dengbocong.cn/Spring-Boot/565b9f12d0a0/">http://dengbocong.cn/Spring-Boot/565b9f12d0a0/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Licensed under the Apache License, Version 2.0 (the "License")</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Stay hungry, Stay foolish.</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/Sprint-Boot/"># Sprint Boot</a>
+                    
+                        <a href="/tags/Web/"># Web</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/Spring-Boot/22741562e341/">详细SpringBoot教程之Web开发（二）</a>
+            
+            
+            <a class="next" rel="next" href="/Spring-Boot/2f14d053285f/">模板引擎Thymeleaf？来这一篇就够用了</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+        </div>
+        <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Copyright 2020-2021 DengBoCong. All Rights Reserved. 赣ICP备20002291号</span>
+    </div>
+</footer>
+
+    </div>
+    <div id="u-search">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="container">
+                    <form id="u-search-modal-form" class="u-search-modal-form">
+                        <button type="submit" class="form-submit-btn">
+                            <img src="/image/search.png" class="search-btn-img" />
+                        </button>
+                        <input placeholder="请输入关键字搜索文章..." class="form-input" onchange="inputChange(event)" id="modal-form-input">
+                    </form>
+                    <a class="modal-close">x</a>
+                </div>
+                <div class="search-loading">
+                    <div class="search-loading-bar"></div>
+                </div>
+            </div>
+            <div class="modal-body">
+            </div>
+        </div>
+        <div class="modal-overlay"></div>
+    </div>
+</body>
+</html>

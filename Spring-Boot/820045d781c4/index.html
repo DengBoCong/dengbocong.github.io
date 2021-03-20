@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<link rel="stylesheet" href="/css/search.css">
+<script src="/js/jquery-3.4.1.min.js"></script>
+<script src="/js/search.js"></script>
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
+<style>
+    .pace .pace-progress {
+        background: #5cb0ff; /*进度条颜色*/
+        height: 2px;
+    }
+    .pace .pace-progress-inner {
+        box-shadow: 0 0 10px #1E92FB, 0 0 5px     #1E92FB; /*阴影颜色*/
+    }
+    .pace .pace-activity {
+        border-top-color: #1E92FB;    /*上边框颜色*/
+        border-left-color: #1E92FB;    /*左边框颜色*/
+    }
+</style>
+
+    <meta name="author" content="DengBoCong">
+
+
+    <meta name="subtitle" content="NLP | Deep Learning | Java">
+
+
+
+
+<title>详细SpringBoot教程之入门（二） | DengBoCong</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+    
+
+
+<meta name="generator" content="Hexo 5.3.0"></head>
+<body>
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">DengBoCong</a></div>
+            <div class="menu navbar-right">
+                <div class="search" style="float: left; margin-top: 7px;">
+                    <form class="form-search">
+                        <input class="input" placeholder="search content..." autocomplete="off" onchange="inputChange(event)" id="pc-search-input"/>
+                    </form>
+                    <div class="search-btn">
+                        <img src="/image/search.png" class="search-btn-img" />
+                    </div>
+                </div>
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/projects">Projects</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">DengBoCong</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/projects">Projects</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+        <div class="main">
+            <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    document.ready(
+        function () {
+            tocbot.init({
+                tocSelector: '.tocbot-list',
+                contentSelector: '.post-content',
+                headingSelector: 'h1, h2, h3, h4, h5',
+                collapseDepth: 1,
+                orderedList: false,
+                scrollSmooth: true,
+            })
+        }
+    )
+
+    function expand_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 6,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "collapse_toc()");
+        b.innerHTML = "Collapse all"
+    }
+
+    function collapse_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 1,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "expand_toc()");
+        b.innerHTML = "Expand all"
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">详细SpringBoot教程之入门（二）</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">DengBoCong</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">February 21, 2020&nbsp;&nbsp;17:28:07</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Spring-Boot/">Spring-Boot</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h2 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h2><p>鉴于有人留言说想要学习SpringBoot相关的知识，我这里打算写一个SpringBoot系列的相关博文，目标呢是想让看了这一系列博文的同学呢，能够对SpringBoot略窥门径，这一系列的博文初步都定下来包括SpringBoot介绍、入门、配置、日志相关、web开发、数据访问、结合docker、缓存、消息队列、检索、任务安全、分布式等等一系列的博文，工作量很大，是个漫长的过程，每一步我都尽量详细，配上截图说明，也希望对看的同学真的有用。<br><strong>单纯就是想分享技术博文，还想说一句就是，如果觉得有用，请点个关注、给个赞吧，也算对我来说是个宽慰，毕竟也得掉不少头发，嘿嘿嘿</strong></p>
+<h2 id="系列文章传送条"><a href="#系列文章传送条" class="headerlink" title="系列文章传送条"></a>系列文章传送条</h2><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104383089">详细SpringBoot教程之入门（一）</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104429074">详细SpringBoot教程之入门（二）</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104446690">详细SpringBoot教程之配置文件（一）</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104448353">详细SpringBoot教程之配置文件（二）</a><br><a target="_blank" rel="noopener" href="https://dengbocong.blog.csdn.net/article/details/104456941">详细SpringBoot教程之日志框架</a><br><a target="_blank" rel="noopener" href="https://dengbocong.blog.csdn.net/article/details/104473765">详细SpringBoot教程之Web开发（一）</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104503158">详细SpringBoot教程之Web开发（二）</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104503231">详细SpringBoot教程之Web开发（三）</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104527730">详细SpringBoot教程之数据访问</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104541113">详细SpringBoot教程之启动配置原理</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/104559440">详细SpringBoot教程之缓存开发</a></p>
+<h2 id="项目打包"><a href="#项目打包" class="headerlink" title="项目打包"></a>项目打包</h2><p>接上一篇的博文，我们创建了一个简单的SpringBoot应用，并运行而且进行了打包，体验了SpringBoot的“甜头”，那么这里作为开始呢，我想先说说上一篇结尾的打包。</p>
+<p>可能在上一篇学习完打包的同学会有一个疑问，我最开始Tomcat啥的都没有依赖引入，并且打包之后，没有对jar包所在环境进行任何的调整和配置，我为什么执行jar包依旧能毫无报错的执行呢？</p>
+<p>其实这个问题很简单，我们试想一下，应用程序的运行不可能平白无故，在没有任何依赖支持的情况下运行，既然如此，那么一定是我们运行的jar包就已经具备了一切运行所需要的配置依赖，没错，这就是答案。那么我们怎么去看，不急，这里我就告诉你窥探jar包的秘密。首先我们可以使用压缩工具打开我们放在桌面的jar包，如下图<br><img src="https://img-blog.csdnimg.cn/20200221161225109.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>我们会看到这三个目录，我们进入第一个目录BOOT-INF中，我们会发现有两个目录，classes这里放的是我们写的代码编译之后的class，而libs里面就是我们秘密的真谛，libs里面放的都是我们项目的依赖，到最底下发现了没有，没错，就是Tomcat依赖包。<br><img src="https://img-blog.csdnimg.cn/20200221162256847.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>SpringBoot项目在创建的时候，就帮我们引入了Tomcat的依赖包，所以我们才能启动运行程序，如下图，后面我们说到，我们最开始在pom中引入的几个依赖在SpringBoot有特定的名称，叫做starters，我们引入的是web应用的starter，所以会自带帮我们引入我们web开发所需要的相关的基本配置依赖。</p>
+<h2 id="pom-xml"><a href="#pom-xml" class="headerlink" title="pom.xml"></a>pom.xml</h2><p>现在我们来看看项目中引人注目的pom.xml文件，我们看看里面的内容。我们会发现项目里有父项目，点进父项目，如下（只能截取一部分，你可以自行在Idea中打开）<br><img src="https://img-blog.csdnimg.cn/20200221163344517.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>其实仔细一点的人就会发现，我们以前使用Maven创建SpringMVC之类的项目的时候，我们在导入依赖需要引入版本version，像下面这样</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;!-- https:&#x2F;&#x2F;mvnrepository.com&#x2F;artifact&#x2F;org.hibernate&#x2F;hibernate-core --&gt;</span><br><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;org.hibernate&lt;&#x2F;groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;hibernate-core&lt;&#x2F;artifactId&gt;</span><br><span class="line">    &lt;version&gt;5.4.12.Final&lt;&#x2F;version&gt;</span><br><span class="line">&lt;&#x2F;dependency&gt;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>可是在我们的SpringBoot的pom.xml中，我们不需要引入相关依赖，这是因为有上面提到的parent，parent中有所有SpringBoot的依赖，这样，以后我们导入依赖默认是不需要写版本的，如果不在dependencles里面的管理依赖，自然需要我们写版本。</p>
+<h2 id="启动器starter"><a href="#启动器starter" class="headerlink" title="启动器starter"></a>启动器starter</h2><p>上一篇博文里说了，我们只需要导入spring-boot-starter-web依赖，SpringBoot就会自动帮我们导入web开发所需要的基本依赖包，包括Tomcat相关的依赖包，而spring-boot-starter-web就是属于我们所说的SpringBoot启动器，像这样的启动器有很多，我们可以去官方文档中看<a target="_blank" rel="noopener" href="https://docs.spring.io/spring-boot/docs/2.2.1.RELEASE/reference/html/using-spring-boot.html#using-boot-starter">传送条</a><br><img src="https://img-blog.csdnimg.cn/20200221164333947.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>如图，点击右边的pom，就会进去该启动器所包含的相关依赖。</p>
+<p>像spring-boot-starter-web这样的启动器正式一点，叫做springboot场景启动器，也就是帮我们导入相关开发场景下（比如spring-boot-starter-web就是web场景下的相关依赖）正常运行所需要的依赖。我们可以在导入不同的场景依赖，比如web开发导入spring-boot-starter-web，数据库jpa访问导入spring-boot-starter-data-jpa，想使用高级消息队列导入spring-boot-starter-amqp等等。</p>
+<p>Springboot将所有的功能场景都抽取出来，做成一个个starter（启动器），只要在项目里面引入这些starter相关场景的所有依赖导入进来，要用什么功能，就倒入什么场景启动器，是不是很方便。</p>
+<h2 id="主程序类（主入口类）"><a href="#主程序类（主入口类）" class="headerlink" title="主程序类（主入口类）"></a>主程序类（主入口类）</h2><p>我们现在来分析一下主程序类中的相关基本注解。</p>
+<h3 id="SpringBootApplication"><a href="#SpringBootApplication" class="headerlink" title="@SpringBootApplication"></a>@SpringBootApplication</h3><p>@SpringBootApplication是Springboot应用标注在某个类上，用来说明这个类是Springboot的入口类，springboot就应该运行在这个类的main方法来启动Springboot应用，我们按住Ctrl键点进去，我们主要看里面的注解<br><img src="https://img-blog.csdnimg.cn/20200221165401199.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+<h3 id="SpringBootApplication-1"><a href="#SpringBootApplication-1" class="headerlink" title="@SpringBootApplication"></a>@SpringBootApplication</h3><p>在@SpringBootApplication中，一个比较关键的注解就是@SpringBootApplication，@SpringBootConfiguration是Springboot的配置类，标注在某个类上表示，这个类是一个Springboot的配置，同样按住Ctrl键点进去，我们我们会看到@SpringBootConfiguration中有一个@Configuration，这个注解就是标注各种配置类，配置文件的，如果我们对AOP有一定理解的话，其实就知道配置类也是容器中的一个组件，所以在@Configuration中，我们是通过@Component进行标注的。</p>
+<h3 id="EnableAutoConfiguration"><a href="#EnableAutoConfiguration" class="headerlink" title="@EnableAutoConfiguration"></a>@EnableAutoConfiguration</h3><p>回到@SpringBootApplication中，我会可以看到另一个配置类注解@EnableAutoConfiguration，这个注解是标注着开启自动配置功能，这样才使得我们不需要像以前在Spring项目中那样，配置繁琐的东西，而是Springboot会帮我们自动配置，@EnableAutoConfiguration告诉SoringBoot开启自动配置功能，这样启动配置才能生效，这个注解里面的东西，我们要好好讲一下，因为这样我们就会知道，SpringBoot是怎么帮我们自动加载相关依赖，并放置在哪里的，内容如下。<br><img src="https://img-blog.csdnimg.cn/20200221170214590.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>@AutoConfigurationPackage自动配置包，Spring的底层注解@import，给容器导入一个组件，导入的组件由AutoConfigurationPackage.Registrar.class进行注册，其实AutoConfigurationPackage就是将主配置类（@SpringBootApplication标注的类）的所在包及下面所有的子包里面所有的组件扫描到Spring容器，如果你以前写过SpringMVC项目之类的会，就会知道，我们在写一些Controller或者Service的时候，我们需要在配置文件中，配置bean扫描controller的包名，而我们在SpringBoot就不需要了</p>
+<h3 id="AutoConfigurationImportSelector"><a href="#AutoConfigurationImportSelector" class="headerlink" title="AutoConfigurationImportSelector"></a>AutoConfigurationImportSelector</h3><p>在@AutoConfigurationPackage下面，我们会发现我们通过import导入了一个类，我们进入到这个类中，然后在下图位置debug一下这个类，如下图<br><img src="https://img-blog.csdnimg.cn/20200221171052141.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>就会发现，其实AutoConfigurationImportSelector就是给容器中导入非常多的自动配置类，也就是给容器中导入这个场景需要的所有组件，并配置好这些组件，有了自动配置类，就免去了我们手动编写配置注入功能组件等工作了。</p>
+<p>Springboot在启动的时候，从类路径下的META-INF/Spring.factories中获取EnableAutoConfiguration指定的值，将这些值作为自动配置类导入到容器中，自动配置类就生效，帮我们进行自动配置的工作，如下图。<br><img src="https://img-blog.csdnimg.cn/20200221171206772.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+<h2 id="快速创建SpringBoot项目"><a href="#快速创建SpringBoot项目" class="headerlink" title="快速创建SpringBoot项目"></a>快速创建SpringBoot项目</h2><p>前面我们创建一个项目是，先创建一个Maven项目，然后导入相关的Springboot依赖，但是其实我们可以在idea中，利用Idea创建项目，帮我们自动创建我们需要的相关依赖的springboot项目<br><img src="https://img-blog.csdnimg.cn/202002211717361.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/20200221172004325.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/20200221172021952.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>通过这一系列的操作，我们也创建出了一个已经导入依赖的SPringboot项目了，当然啦，如果还差什么，我们依旧可以在pom中导入依赖，所以其实没有差别，我个人喜欢直接创建一个Maven项目，需要什么就在官网上导入相关的依赖，这样方便我精简项目，以及项目使用了什么包心知肚明，我们在项目侧边栏lib中可以看到我们项目所有的依赖。<br><img src="https://img-blog.csdnimg.cn/2020022117230894.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>这里要特别说明的是，我们使用idea创建的项目里面的resources下面，会帮我们自动创建了三个东西，我这里说明一下。</p>
+<ul>
+<li>static：保存所有的静态资源，什么js、css之类的都在这下面</li>
+<li>templates：保存所有的模板页面，Springboot默认jar包使用的是嵌入式的Tomcat，默认不支持JSP页面，所以在模板这里，我们可以使用模板引擎，比如freemaker、thymeleaf之类的</li>
+<li>application.properties，这个是SpringBoot的配置文件。前面我们知道SpringBoot有很多默认配置，我们就可以在这个文件夹修改默认配置，比如端口之类的。</li>
+</ul>
+<h2 id="下一篇"><a href="#下一篇" class="headerlink" title="下一篇"></a>下一篇</h2><p>这里我们算是对一个简单的HelloWord进行了了解，到此，我们也对SpringBoot庞大的技术世界说了一句HelloWord，那么下一篇博文，我将要讲讲SpringBoot的配置</p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>DengBoCong</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="http://dengbocong.cn/Spring-Boot/820045d781c4/">http://dengbocong.cn/Spring-Boot/820045d781c4/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Licensed under the Apache License, Version 2.0 (the "License")</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Stay hungry, Stay foolish.</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/Sprint-Boot/"># Sprint Boot</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/Spring-Boot/8f1135d292e8/">详细SpringBoot教程之配置文件（一）</a>
+            
+            
+            <a class="next" rel="next" href="/Spring-Boot/83b4b122caa4/">详细SpringBoot教程之入门（一）</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+        </div>
+        <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Copyright 2020-2021 DengBoCong. All Rights Reserved. 赣ICP备20002291号</span>
+    </div>
+</footer>
+
+    </div>
+    <div id="u-search">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="container">
+                    <form id="u-search-modal-form" class="u-search-modal-form">
+                        <button type="submit" class="form-submit-btn">
+                            <img src="/image/search.png" class="search-btn-img" />
+                        </button>
+                        <input placeholder="请输入关键字搜索文章..." class="form-input" onchange="inputChange(event)" id="modal-form-input">
+                    </form>
+                    <a class="modal-close">x</a>
+                </div>
+                <div class="search-loading">
+                    <div class="search-loading-bar"></div>
+                </div>
+            </div>
+            <div class="modal-body">
+            </div>
+        </div>
+        <div class="modal-overlay"></div>
+    </div>
+</body>
+</html>

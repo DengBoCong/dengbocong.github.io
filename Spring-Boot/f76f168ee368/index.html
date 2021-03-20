@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<link rel="stylesheet" href="/css/search.css">
+<script src="/js/jquery-3.4.1.min.js"></script>
+<script src="/js/search.js"></script>
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
+<style>
+    .pace .pace-progress {
+        background: #5cb0ff; /*进度条颜色*/
+        height: 2px;
+    }
+    .pace .pace-progress-inner {
+        box-shadow: 0 0 10px #1E92FB, 0 0 5px     #1E92FB; /*阴影颜色*/
+    }
+    .pace .pace-activity {
+        border-top-color: #1E92FB;    /*上边框颜色*/
+        border-left-color: #1E92FB;    /*左边框颜色*/
+    }
+</style>
+
+    <meta name="author" content="DengBoCong">
+
+
+    <meta name="subtitle" content="NLP | Deep Learning | Java">
+
+
+
+
+<title>轻松搞定SpringBoot的邮件服务 | DengBoCong</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+    
+
+
+<meta name="generator" content="Hexo 5.3.0"></head>
+<body>
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">DengBoCong</a></div>
+            <div class="menu navbar-right">
+                <div class="search" style="float: left; margin-top: 7px;">
+                    <form class="form-search">
+                        <input class="input" placeholder="search content..." autocomplete="off" onchange="inputChange(event)" id="pc-search-input"/>
+                    </form>
+                    <div class="search-btn">
+                        <img src="/image/search.png" class="search-btn-img" />
+                    </div>
+                </div>
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/projects">Projects</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">DengBoCong</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/projects">Projects</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+        <div class="main">
+            <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    document.ready(
+        function () {
+            tocbot.init({
+                tocSelector: '.tocbot-list',
+                contentSelector: '.post-content',
+                headingSelector: 'h1, h2, h3, h4, h5',
+                collapseDepth: 1,
+                orderedList: false,
+                scrollSmooth: true,
+            })
+        }
+    )
+
+    function expand_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 6,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "collapse_toc()");
+        b.innerHTML = "Collapse all"
+    }
+
+    function collapse_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 1,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "expand_toc()");
+        b.innerHTML = "Expand all"
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">轻松搞定SpringBoot的邮件服务</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">DengBoCong</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">March 6, 2020&nbsp;&nbsp;12:23:26</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Spring-Boot/">Spring-Boot</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h2 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h2><p>我们都知道，如果系统出现预警，或者有一些监控需求，我们可以通过发送短信或者邮件来进行通知，本篇文章呢，我就打算来讲解一下SpringBoot的邮件服务。我们都知道发送邮件应该是网站的必备功能之一，什么注册验证，忘记密码或者是给用户发送营销信息。以前我们会使用 JavaMail 相关 api 来写发送邮件的相关代码，后来 Spring 推出了 JavaMailSender 更加简化了邮件发送的过程，在之后 Spring Boot 对此进行了封装就有了现在的 spring-boot-starter-mail ，如果你看了我前面的文章的话，就会知道，SpringBoot把大部分的需求封装成了一个个场景启动器，而mail也就是相应的场景启动器。</p>
+<h2 id="了解邮件服务"><a href="#了解邮件服务" class="headerlink" title="了解邮件服务"></a>了解邮件服务</h2><p>经常出现和邮件相关的协议是SMTP、IMAP和POP3，所以在这里我们首先来认识了解这三个协议。</p>
+<p>SMTP全称为Simple Mail Transfer Protocol（简单邮件传输协议），它是一组用于从源地址到目的地址传输邮件的规范，通过它来控制邮件的中转方式。SMTP认证要求必须提供账号和密码才能登陆服务器，其设计目的在于避免用户受到垃圾邮件的侵扰。</p>
+<p>IMAP全称为Internet Message Access Protocol（互联网邮件访问协议），IMAP允许从邮件服务器上获取邮件的信息、下载邮件等。IMAP与POP类似，都是一种邮件获取协议。</p>
+<p>POP3全称为Post Office Protocol 3（邮局协议），POP3支持客户端远程管理服务器端的邮件。POP3常用于“离线”邮件处理，即允许客户端下载服务器邮件，然后服务器上的邮件将会被删除。目前很多POP3的邮件服务器只提供下载邮件功能，服务器本身并不删除邮件，这种属于改进版的POP3协议。</p>
+<p>那么问题来了，IMAP和POP3协议有什么不同呢？两者最大的区别在于，IMAP允许双向通信，即在客户端的操作会反馈到服务器上，例如在客户端收取邮件、标记已读等操作，服务器会跟着同步这些操作。而对于POP协议虽然也允许客户端下载服务器邮件，但是在客户端的操作并不会同步到服务器上面的，例如在客户端收取或标记已读邮件，服务器不会同步这些操作。</p>
+<h2 id="SpringBoot相关类"><a href="#SpringBoot相关类" class="headerlink" title="SpringBoot相关类"></a>SpringBoot相关类</h2><p>SpringBoot中针对邮件服务的两个工具类是，JavaMailSender和JavaMailSenderImpl，它们是Spring官方提供的集成邮件服务的接口和实现类，以简单高效的设计著称，目前是Java后端发送邮件和集成邮件服务的主流工具。那如何通过JavaMailSenderImpl发送邮件？非常简单，直接在业务类注入JavaMailSenderImpl并调用send方法发送邮件。其中简单邮件可以通过SimpleMailMessage来发送邮件，而复杂的邮件（例如添加附件）可以借助MimeMessageHelper来构建MimeMessage发送邮件。</p>
+<p>我们不难理解，SpringBoot对于邮件服务能做到开箱即用，其实就是基于官方内置的自动配置，翻看源码可知晓邮件自动配置类(MailSenderPropertiesConfiguration) 为上下文提供了邮件服务实例(JavaMailSenderImpl)。</p>
+<h2 id="具体教程"><a href="#具体教程" class="headerlink" title="具体教程"></a>具体教程</h2><h3 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h3><p>首先我们创建一个新的项目，只要包含最基本的web场景就可以了，然后我们在pom.xml中引入依赖就可以了，依赖如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependencies&gt;</span><br><span class="line">    &lt;dependency&gt; </span><br><span class="line">        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;</span><br><span class="line">        &lt;artifactId&gt;spring-boot-starter-mail&lt;/artifactId&gt;</span><br><span class="line">    &lt;/dependency&gt; </span><br><span class="line">&lt;/dependencies&gt;</span><br></pre></td></tr></table></figure>
+<p>接着，我们在application.properties主配置文件中对mail进行相关的配置，配置内容如下，我做了相关注释</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">spring.mail.host=smtp.163.com</span><br><span class="line">spring.mail.username=amazing</span><br><span class="line">spring.mail.password=xxxxxx  <span class="comment">#这里填的不是账号密码，是的第三方登录校验码</span></span><br><span class="line">spring.mail.default-encoding=UTF-8</span><br><span class="line">mail.fromMail.address=amazing@163.com</span><br></pre></td></tr></table></figure>
+<p>上面的邮箱服务器的地址，我这里放出一下常用有限发邮箱服务器地址</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">QQ邮箱（mail.qq.com）</span><br><span class="line">POP3服务器地址：pop.qq.com（端口：110）</span><br><span class="line">SMTP服务器地址：smtp.qq.com（端口：25）</span><br><span class="line">SMTP服务器需要身份验证。</span><br><span class="line"></span><br><span class="line">网易邮箱（163.com）:</span><br><span class="line">POP3服务器地址:pop.163.com（端口：110）</span><br><span class="line">SMTP服务器地址:smtp.163.com（端口：25）</span><br><span class="line"></span><br><span class="line">谷歌邮箱(google.com)：</span><br><span class="line">POP3服务器地址:pop.gmail.com（SSL启用端口：995）</span><br><span class="line">SMTP服务器地址:smtp.gmail.com（SSL启用端口：587）</span><br><span class="line"></span><br><span class="line">阿里云邮箱（mail.aliyun.com）:</span><br><span class="line">POP3服务器地址:pop3.aliyun.com（SSL加密端口：995；非加密端口：110）</span><br><span class="line">SMTP服务器地址:smtp.aliyun.com（SSL加密端口：465；非加密端口：25）</span><br><span class="line">IMAP服务器地址：imap.aliyun.com（SSL加密端口：993；非加密端口：143）</span><br><span class="line"></span><br><span class="line">新浪邮箱（sina.com）:</span><br><span class="line">POP3服务器地址:pop3.sina.com.cn（端口：110）</span><br><span class="line">SMTP服务器地址:smtp.sina.com.cn（端口：25）</span><br></pre></td></tr></table></figure>
+<h3 id="简单使用"><a href="#简单使用" class="headerlink" title="简单使用"></a>简单使用</h3><p>这样就完成了我们SpringBoot使用邮件服务的基本配置，那么接下来我们简单使用一下，首先编写Service，目录结构如下<br><img src="https://img-blog.csdnimg.cn/20200306120738183.png#pic_center" alt="在这里插入图片描述"></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">MailService</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sendSimpleMail</span><span class="params">(String to, String subject, String content)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MailServiceImpl</span> <span class="keyword">implements</span> <span class="title">MailService</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Logger logger = LoggerFactory.getLogger(<span class="keyword">this</span>.getClass());</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> JavaMailSender mailSender;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Value(&quot;$&#123;mail.fromMail.addr&#125;&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> String from;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sendSimpleMail</span><span class="params">(String to, String subject, String content)</span> </span>&#123;</span><br><span class="line">        SimpleMailMessage message = <span class="keyword">new</span> SimpleMailMessage();</span><br><span class="line">        message.setFrom(from);</span><br><span class="line">        message.setTo(to);</span><br><span class="line">        message.setSubject(subject);</span><br><span class="line">        message.setText(content);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            mailSender.send(message);</span><br><span class="line">            logger.info(<span class="string">&quot;简单邮件已经发送。&quot;</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            logger.error(<span class="string">&quot;发送简单邮件时发生异常！&quot;</span>, e);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>编写 test 类进行测试，至此一个简单的文本发送就完成了。<br><img src="https://img-blog.csdnimg.cn/20200306120933338.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0RCQ18xMjE=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+<h2 id="丰富邮件内容"><a href="#丰富邮件内容" class="headerlink" title="丰富邮件内容"></a>丰富邮件内容</h2><p>但是在正常使用的过程中，我们通常在邮件中加入图片或者附件来丰富邮件的内容，下面讲介绍如何使用 Spring Boot 来发送丰富的邮件。</p>
+<h3 id="发送-html-格式邮件"><a href="#发送-html-格式邮件" class="headerlink" title="发送 html 格式邮件"></a>发送 html 格式邮件</h3><p>其它都不变在 MailService 添加 sendHtmlMail 方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sendHtmlMail</span><span class="params">(String to, String subject, String content)</span> </span>&#123;</span><br><span class="line">    MimeMessage message = mailSender.createMimeMessage();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">//true表示需要创建一个multipart message</span></span><br><span class="line">        MimeMessageHelper helper = <span class="keyword">new</span> MimeMessageHelper(message, <span class="keyword">true</span>);</span><br><span class="line">        helper.setFrom(from);</span><br><span class="line">        helper.setTo(to);</span><br><span class="line">        helper.setSubject(subject);</span><br><span class="line">        helper.setText(content, <span class="keyword">true</span>);</span><br><span class="line"></span><br><span class="line">        mailSender.send(message);</span><br><span class="line">        logger.info(<span class="string">&quot;html邮件发送成功&quot;</span>);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (MessagingException e) &#123;</span><br><span class="line">        logger.error(<span class="string">&quot;发送html邮件时发生异常！&quot;</span>, e);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在测试类中构建 html 内容，测试发送</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testHtmlMail</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">    String content=<span class="string">&quot;&lt;html&gt;\n&quot;</span> +</span><br><span class="line">            <span class="string">&quot;&lt;body&gt;\n&quot;</span> +</span><br><span class="line">            <span class="string">&quot;    &lt;h3&gt;hello world ! 这是一封Html邮件!&lt;/h3&gt;\n&quot;</span> +</span><br><span class="line">            <span class="string">&quot;&lt;/body&gt;\n&quot;</span> +</span><br><span class="line">            <span class="string">&quot;&lt;/html&gt;&quot;</span>;</span><br><span class="line">    MailService.sendHtmlMail(<span class="string">&quot;xxxxxx@163.com&quot;</span>,<span class="string">&quot;test simple mail&quot;</span>,content);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="发送带附件的邮件"><a href="#发送带附件的邮件" class="headerlink" title="发送带附件的邮件"></a>发送带附件的邮件</h3><p>还是老样子，在 MailService 添加 sendAttachmentsMail 方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sendAttachmentsMail</span><span class="params">(String to, String subject, String content, String filePath)</span></span>&#123;</span><br><span class="line">    MimeMessage message = mailSender.createMimeMessage();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        MimeMessageHelper helper = <span class="keyword">new</span> MimeMessageHelper(message, <span class="keyword">true</span>);</span><br><span class="line">        helper.setFrom(from);</span><br><span class="line">        helper.setTo(to);</span><br><span class="line">        helper.setSubject(subject);</span><br><span class="line">        helper.setText(content, <span class="keyword">true</span>);</span><br><span class="line"></span><br><span class="line">        FileSystemResource file = <span class="keyword">new</span> FileSystemResource(<span class="keyword">new</span> File(filePath));</span><br><span class="line">        String fileName = filePath.substring(filePath.lastIndexOf(File.separator));</span><br><span class="line">        helper.addAttachment(fileName, file);</span><br><span class="line"></span><br><span class="line">        mailSender.send(message);</span><br><span class="line">        logger.info(<span class="string">&quot;带附件的邮件已经发送。&quot;</span>);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (MessagingException e) &#123;</span><br><span class="line">        logger.error(<span class="string">&quot;发送带附件的邮件时发生异常！&quot;</span>, e);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>添加多个附件可以使用多条 <code>helper.addAttachment(fileName, file)</code>，然后在测试类中添加测试方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sendAttachmentsMail</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    String filePath=<span class="string">&quot;e:\\tmp\\application.log&quot;</span>;</span><br><span class="line">    mailService.sendAttachmentsMail(<span class="string">&quot;xxxxx@163.com&quot;</span>, <span class="string">&quot;主题：带附件的邮件&quot;</span>, <span class="string">&quot;有附件，请查收！&quot;</span>, filePath);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="发送带静态资源的邮件"><a href="#发送带静态资源的邮件" class="headerlink" title="发送带静态资源的邮件"></a>发送带静态资源的邮件</h3><p>邮件中的静态资源一般就是指图片，在 MailService 添加 sendAttachmentsMail 方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sendInlineResourceMail</span><span class="params">(String to, String subject, String content, String rscPath, String rscId)</span></span>&#123;</span><br><span class="line">    MimeMessage message = mailSender.createMimeMessage();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        MimeMessageHelper helper = <span class="keyword">new</span> MimeMessageHelper(message, <span class="keyword">true</span>);</span><br><span class="line">        helper.setFrom(from);</span><br><span class="line">        helper.setTo(to);</span><br><span class="line">        helper.setSubject(subject);</span><br><span class="line">        helper.setText(content, <span class="keyword">true</span>);</span><br><span class="line"></span><br><span class="line">        FileSystemResource res = <span class="keyword">new</span> FileSystemResource(<span class="keyword">new</span> File(rscPath));</span><br><span class="line">        helper.addInline(rscId, res);</span><br><span class="line"></span><br><span class="line">        mailSender.send(message);</span><br><span class="line">        logger.info(<span class="string">&quot;嵌入静态资源的邮件已经发送。&quot;</span>);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (MessagingException e) &#123;</span><br><span class="line">        logger.error(<span class="string">&quot;发送嵌入静态资源的邮件时发生异常！&quot;</span>, e);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在测试类中添加测试方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sendInlineResourceMail</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    String rscId = <span class="string">&quot;neo006&quot;</span>;</span><br><span class="line">    String content=<span class="string">&quot;&lt;html&gt;&lt;body&gt;这是有图片的邮件：&lt;img src=\&#x27;cid:&quot;</span> + rscId + <span class="string">&quot;\&#x27; &gt;&lt;/body&gt;&lt;/html&gt;&quot;</span>;</span><br><span class="line">    String imgPath = <span class="string">&quot;C:\\Users\\summer\\Pictures\\favicon.png&quot;</span>;</span><br><span class="line"></span><br><span class="line">    mailService.sendInlineResourceMail(<span class="string">&quot;XXXXX@163.com&quot;</span>, <span class="string">&quot;主题：这是有图片的邮件&quot;</span>, content, imgPath, rscId);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>添加多个图片可以使用多条 <code>&lt;img src=&#39;cid:&quot; + rscId + &quot;&#39; &gt;</code> 和 <code>helper.addInline(rscId, res)</code> 来实现</p>
+<h2 id="邮件系统"><a href="#邮件系统" class="headerlink" title="邮件系统"></a>邮件系统</h2><p>上面发送邮件的基础服务就这些了，但是如果我们要做成一个邮件系统的话还需要考虑以下几个问题，首先是邮件模板的问题，我们会经常收到类似这样的邮件<br><img src="https://img-blog.csdnimg.cn/20200306121725805.png#pic_center" alt="在这里插入图片描述"><br>其中只有 neo 这个用户名在变化，其它邮件内容均不变，如果每次发送邮件都需要手动拼接的话会不够优雅，并且每次模板的修改都需要改动代码的话也很不方便，因此对于这类邮件需求，都建议做成邮件模板来处理。模板的本质很简单，就是在模板中替换变化的参数，转换为 html 字符串即可，这里以thymeleaf为例来演示，第一步当然是导入thymeleaf的包啦。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;spring-boot-starter-thymeleaf&lt;/artifactId&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+<p>然后在在 <code>resorces/templates</code> 下创建 <code>emailTemplate.html</code></p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&lt;!DOCTYPE html&gt;</span><br><span class="line">&lt;html lang=<span class="string">&quot;zh&quot;</span> xmlns:th=<span class="string">&quot;http://www.thymeleaf.org&quot;</span>&gt;</span><br><span class="line">    &lt;head&gt;</span><br><span class="line">        &lt;meta charset=<span class="string">&quot;UTF-8&quot;</span>/&gt;</span><br><span class="line">        &lt;title&gt;Title&lt;/title&gt;</span><br><span class="line">    &lt;/head&gt;</span><br><span class="line">    &lt;body&gt;</span><br><span class="line">        您好,这是验证邮件,请点击下面的链接完成验证,&lt;br/&gt;</span><br><span class="line">        &lt;a href=&quot;#&quot; th:href=&quot;@&#123; http://www.xxx.com/neo/&#123;id&#125;(id=$&#123;id&#125;) &#125;&quot;&gt;激活账号&lt;/a&gt;</span><br><span class="line">    &lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sendTemplateMail</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">//创建邮件正文</span></span><br><span class="line">    Context context = <span class="keyword">new</span> Context();</span><br><span class="line">    context.setVariable(<span class="string">&quot;id&quot;</span>, <span class="string">&quot;006&quot;</span>);</span><br><span class="line">    String emailContent = templateEngine.process(<span class="string">&quot;emailTemplate&quot;</span>, context);</span><br><span class="line"></span><br><span class="line">    mailService.sendHtmlMail(<span class="string">&quot;ityouknow@126.com&quot;</span>,<span class="string">&quot;主题：这是模板邮件&quot;</span>,emailContent);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当然啦，这里要强调一点的是，我们在实现邮箱服务的时候，因为各种原因，总会有邮件发送失败的情况，比如：邮件发送过于频繁、网络异常等。在出现这种情况的时候，我们一般会考虑重新重试发送邮件，会分为以下几个步骤来实现：</p>
+<ul>
+<li>接收到发送邮件请求，首先记录请求并且入库。</li>
+<li>调用邮件发送接口发送邮件，并且将发送结果记录入库。</li>
+<li>启动定时系统扫描时间段内，未发送成功并且重试次数小于3次的邮件，进行再次发送</li>
+</ul>
+<h2 id="最后"><a href="#最后" class="headerlink" title="最后"></a>最后</h2><p>很多时候邮件发送并不是我们主业务必须关注的结果，比如通知类、提醒类的业务可以允许延时或者失败。这个时候可以采用异步的方式来发送邮件，加快主交易执行速度，在实际项目中可以采用MQ发送邮件相关参数，监听到消息队列之后启动发送邮件。</p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>DengBoCong</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="http://dengbocong.cn/Spring-Boot/f76f168ee368/">http://dengbocong.cn/Spring-Boot/f76f168ee368/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Licensed under the Apache License, Version 2.0 (the "License")</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Stay hungry, Stay foolish.</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/Sprint-Boot/"># Sprint Boot</a>
+                    
+                        <a href="/tags/%E9%82%AE%E4%BB%B6%E6%9C%8D%E5%8A%A1/"># 邮件服务</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/Spring-Boot/e0188dfb231f/">SpringBoot整合Swagger，不用手撕接口文档啦</a>
+            
+            
+            <a class="next" rel="next" href="/Spring-Boot/3ba32bdaaf99/">SpringBoot整合JPA，配置多数据库</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+        </div>
+        <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Copyright 2020-2021 DengBoCong. All Rights Reserved. 赣ICP备20002291号</span>
+    </div>
+</footer>
+
+    </div>
+    <div id="u-search">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="container">
+                    <form id="u-search-modal-form" class="u-search-modal-form">
+                        <button type="submit" class="form-submit-btn">
+                            <img src="/image/search.png" class="search-btn-img" />
+                        </button>
+                        <input placeholder="请输入关键字搜索文章..." class="form-input" onchange="inputChange(event)" id="modal-form-input">
+                    </form>
+                    <a class="modal-close">x</a>
+                </div>
+                <div class="search-loading">
+                    <div class="search-loading-bar"></div>
+                </div>
+            </div>
+            <div class="modal-body">
+            </div>
+        </div>
+        <div class="modal-overlay"></div>
+    </div>
+</body>
+</html>
